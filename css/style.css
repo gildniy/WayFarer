@@ -1,0 +1,257 @@
+/* CUSTOM PROPERTIES */
+:root {
+    --message-success: rgba(73, 208, 214, 0.75);
+    --message-error: rgba(159, 91, 112, 0.75);
+    --color-white: white;
+    --default-text-color: #37474F;
+    --default-link-text-color: #388287;
+    --default-big-component-bg: white;
+    --default-small-component-bg: #F3F3F3;
+    --color-primary: #37474F;
+    --color-secondary: grey;
+    --default-border-radius: 5px;
+    --default-element-padding: 15px;
+}
+
+/* NORMALIZE */
+html {
+    overflow-y: scroll;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+*:focus,
+*:active:focus,
+*.active:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* TYPOGRAPHY */
+body {
+    font: normal 13px/1.5 sans-serif;
+    font-family: Roboto, Helvetica, sans-serif;
+    font-weight: 400;
+    color: var(--default-text-color);
+    word-wrap: break-word;
+    -webkit-font-kerning: normal;
+    font-kerning: normal;
+}
+
+h2 {
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 2em;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+}
+
+p {
+    margin: 15px 0;
+}
+
+a {
+    color: var(--default-link-text-color);
+}
+
+input {
+
+}
+
+/* COMPONENTS */
+.page-container {
+    position: relative;
+    background-image: url('../img/bus-bg-image.jpg');
+    background-color: var(--color-primary);
+    min-height: 100vh;
+    align-content: center;
+}
+
+.client-nav, .footer {
+    padding: 10px 10%;
+    min-height: 80px;
+    width: 100%;
+    background-color: var(--color-white);
+}
+
+.client-nav {
+    border-bottom: 10px solid var(--default-link-text-color);
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    border-top: 10px solid var(--default-link-text-color);
+}
+
+.logo:before {
+    content: 'Way';
+    color: var(--default-link-text-color);
+}
+
+.logo:after {
+    content: 'Farer';
+    color: var(--color-primary);
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: bolder;
+}
+
+.form-wrapper {
+    min-height: 300px;
+    width: 500px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: var(--default-big-component-bg);
+    border-radius: var(--default-border-radius);
+    padding: var(--default-element-padding);
+    z-index: 10;
+}
+
+.input-group {
+    padding: var(--default-element-padding);
+    background-color: var(--default-small-component-bg, white);
+    border-radius: var(--default-border-radius);
+    display: block;
+}
+
+/* TEMPLATE CUSTOMIZATION */
+.auth-title {
+    width: 100%;
+    text-align: center;
+    padding-bottom: var(--default-element-padding);
+    border-bottom: 1px solid var(--default-link-text-color);
+}
+
+.input-group > label, .input-group > label > input {
+    text-transform: uppercase;
+    font-weight: bold;
+    width: 30%;
+    display: inline-block;
+}
+
+.input-group > input, .input-group > label > input {
+    padding: var(--default-element-padding);
+    border-radius: var(--default-border-radius);
+    width: 69%;
+    display: inline-block;
+    border: 1px solid var(--color-secondary)
+}
+
+.input-group > input:focus,
+.input-group > label > input:focus {
+    border: 1px solid var(--default-link-text-color);
+}
+
+.input-group:focus-within {
+    background-color: var(--default-link-text-color);
+    color: var(--color-white);
+}
+
+.checkbox-input-group:focus-within {
+    background-color: var(--default-small-component-bg);
+    color: var(--default-text-color);
+}
+
+.input-group > label > input:not([type="checkbox"]) {
+    background-color: var(--default-link-text-color);
+    border: none;
+    color: var(--color-white);
+    opacity: .8;
+    width: 50%;
+}
+
+/* CUSTOMIZED CHECK BOX*/
+.input-group > label > input[type="checkbox"] {
+    height: 0;
+    width: 0;
+}
+
+label.checkbox-input:hover input ~ span {
+    cursor: pointer;
+    background-color: #bbb;
+}
+
+label.checkbox-input input:checked ~ span {
+    background-color: var(--default-link-text-color);
+}
+
+label.checkbox-input > span {
+    position: absolute;
+    border-radius: var(--default-border-radius);
+    height: 25px;
+    width: 25px;
+    background-color: #ccc;
+    margin: -3px 0 0 25px;
+}
+
+label.checkbox-input > span:after {
+    content: '';
+    position: relative;
+    display: none;
+}
+
+label.checkbox-input input:checked ~ span:after {
+    display: block;
+}
+
+label.checkbox-input > span:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+/* CUSTOM STYLES */
+.input-group > label > input:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.login-submit, .register-submit {
+    display: table;
+    width: 100%;
+}
+
+.login-submit > label, .register-submit > label {
+    display: table-cell;
+    text-align: right;
+}
+
+.switch-auth-btn {
+    padding: var(--default-element-padding);
+    text-decoration: none;
+}
+
+.msg {
+    padding: var(--default-element-padding);
+    margin: 10px 0;
+    border-radius: var(--default-border-radius);
+}
+
+.msg.success {
+    background-color: var(--message-success);
+}
+
+.msg.error {
+    background-color: var(--message-error);
+}
+
+.form-hidden, .msg-hidden {
+    display: none;
+}
