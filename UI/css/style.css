@@ -158,7 +158,7 @@ input {
     color: var(--color-white);
 }
 
-.checkbox-input-group:focus-within {
+.checkbox-input-group:focus-within, .login-submit:focus-within, .register-submit:focus-within {
     background-color: var(--default-small-component-bg);
     color: var(--default-text-color);
 }
