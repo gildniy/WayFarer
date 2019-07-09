@@ -2,15 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="Online Public Bus Transportation Booking Service">
-    <meta name="author" content="Gildas Niyigena">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <meta content="Online Public Bus Transportation Booking Service" name="description">
+    <meta content="Gildas Niyigena" name="author">
     <title>WayFarer - Dashboard</title>
-    <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <link href="./css/style.css" rel="stylesheet">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
+<script type="application/javascript">
+
+    "use strict";
+
+    fetch("./db.json").then(res => res.json()).then(db => {
+
+        const buses = db['buses'];
+        const places = db['places'];
+        const users = db['users'];
+        const trips = [];
+        const seats = [];
+
+        const loggedUserId = localStorage.getItem('loggedUserId') || '';
+        let currentUser = null;
+
+        // Get the logged user object
+        if (loggedUserId !== '') {
+            currentUser = users.find(user => user.id = loggedUserId * 1);
+        }
+
+        // Claims / Permissions
+        const claims = [
+            'create_a_trip',
+            'cancel_a_trip',
+            'view_users_bookings',
+            'view_user_bookings',
+            'login',
+            'view_all_trips',
+            'view_a_trip',
+            'view_own_bookings',
+            'book_a_trip',
+            'delete_own_bookings'
+        ];
+
+        let adminClaims = [], userClaims = [];
+
+        claims.forEach((value, index) => {
+            if (index <= 6) adminClaims.push(value);
+            if (index >= 4) userClaims.push(value)
+        });
+
+        // // Restriction based on claims
+        const can = (claim) => {
+            const userClaims = currentUser.role === 'admin' ? adminClaims : userClaims;
+            return userClaims.includes(claim);
+        };
+
+        const logoutUser = () => loggedUserId && localStorage.removeItem('loggedUserId');
+
+
+        // BUILD FAKE TRIPS
+        // Build the departure times being every 30 min from 4am to 8pm
+        let departureTimes = [];
+
+        for (let i = 4; i <= 20; i++) {
+            i = i >= 10 ? `${i}` : `0${i}`;
+            for (let j = 0; j <= 1; j++) {
+                j = j === 0 ? `00` : `30`;
+                const time = `${i}:${j}`;
+                departureTimes.push(time);
+            }
+        }
+
+        // Build 30 days (coming) to be listed when creating a trip
+        // And 30 past days (max) to be shown in the list of past trips
+        let past30days = [];
+        let coming30days = [];
+
+        for (let i = -30; i < 30; i++) {
+            const today = new Date();
+            const date = today.setDate(today.getDate() + i);
+            let day = (new Date(date)).getDate();
+            let month = (new Date(date)).getMonth() + 1;
+            day = day < 10 ? `0${day}` : day;
+            month = month < 10 ? `0${month}` : month;
+            const dates = {id: i + 31, date: `${day}/${month}/${(new Date(date)).getFullYear()}`};
+            i >= 0 && coming30days.push(dates);
+            i < 0 && past30days.push(dates);
+        }
+
+        // Trip id format 01-02-08/07/2019-14:30-02
+        // Where:
+        // [01] :           Departure place
+        // [02] :           Destination place
+        // [08/07/2019] :   Trip date
+        // [14:30] :        Trip time
+        // [02] :           Bus id
+
+        // Seats numbers for each trip, considering a bus of 40 seats
+        let s = 1, seatNumbers = [];
+        while (s <= 20) seatNumbers.push(...[`${s}A`, `${s}B`]) && s++;
+
+        // No more than 1 trip can be Same DEPARTURE, DESTINATION and DATE-TIME
+        // No more than 1 trip can be Same DATE-TIME and BUS
+        // No BUS may be assigned to a trip planned in less than 60 min of its previous trip
+
+        // Trips random creation
+
+        // Random 20 DEPARTURE-DESTINATION pairs (DEPARTURE may always differ from DESTINATION)
+        // HELPERS FUNCTIONS
+        const rangeFrom1To = n => [...Array(n)].map((_, i) => i + 1);
+        const shuffle = arr => {
+            const newArr = arr.slice();
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const rand = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+            }
+            return newArr
+        };
+
+        const sort = (arr, field) => arr.sort((a, b) => (a[field] > b[field]) ? 1 : -1);
+
+        const placeIds = rangeFrom1To(5);
+        let randDepartDest = [], randDates = [], i = 1;
+        const randIndex = shuffle(rangeFrom1To(4))[0];
+
+        do {
+            const dep = shuffle(placeIds), des = shuffle(placeIds);
+            if (dep[randIndex] !== des[randIndex]) randDepartDest.push(`0${dep[randIndex]}-0${des[randIndex]}`);
+            if (randDepartDest.length === 100) break;
+            i++
+        } while (i <= 500);
+
+        do {
+            const shuffledDates = shuffle([...past30days, ...coming30days]);
+            randDates.push(shuffledDates[randIndex]);
+            if (randDates.length === 100) break;
+            i++
+        } while (i <= 500);
+
+        let dateTimeFromRanDates = [];
+        const randDatesSorted = sort(randDates, 'id');
+
+        randDatesSorted.forEach(date => {
+            departureTimes.forEach(time => {
+                dateTimeFromRanDates.push(`${date.date}-${time}`)
+            });
+        });
+        const dt = [];
+        dateTimeFromRanDates.forEach((value, index) => dt.push({id: index, date: value}));
+        dateTimeFromRanDates = sort(((shuffle(dt)).slice(0, 100)), 'id');
+
+        const depDesDatetimeList = [], datetimeBusList = [], uniqueDepDesDatetimeBusList = [];
+
+        dateTimeFromRanDates.forEach(dt => {
+            randDepartDest.slice(0, 10).forEach(dd => depDesDatetimeList.push([dd, dt.date]));
+            buses.forEach(bus => {
+                datetimeBusList.push([bus.id, dt.date])
+            });
+        });
+
+        const newDepDesDatetimeList = [];
+        const newDepDatetimeBusList = [];
+        for (let i = 0; i < 1000; i++) {
+            if (
+                !newDepDesDatetimeList.includes(depDesDatetimeList[i]) &&
+                !newDepDatetimeBusList.includes(datetimeBusList[i])
+            ) {
+                newDepDesDatetimeList.push(depDesDatetimeList[i]);
+                newDepDatetimeBusList.push(datetimeBusList[i]);
+            }
+        }
+
+        for (let i = 0; i < newDepDatetimeBusList.length; i++) {
+            uniqueDepDesDatetimeBusList.push({
+                id: i,
+                trip: `${newDepDesDatetimeList[i][0]}-${newDepDesDatetimeList[i][1]}-${newDepDatetimeBusList[i][0] === 10 ? 10 : '0' + newDepDatetimeBusList[i][0]}`
+            })
+        }
+
+        // Shuffle the List of Unique DEPARTURE-DESTINATION-DATETIME-BUS objects,
+        // first 100 of the list and reorder the new list base of the increasing ids
+        // And push the results in the trips array
+        (sort((shuffle(uniqueDepDesDatetimeBusList)).slice(0, 100), 'id')).forEach(e => trips.push({id: e.trip}));
+
+        // The result from the above TRIPS list is used to build seats (40 by trip)
+        // And assigned to the users randomly
+        trips.forEach(t => {
+            seatNumbers.forEach((val, idx) => {
+
+                // Make the 10 available users book a few of the seats randomly
+                const bookingGenerator = [];
+                (shuffle(rangeFrom1To(seatNumbers.length))).forEach(nbr => {
+                    nbr = nbr > 10 ? 0 : nbr;
+                    bookingGenerator.push(nbr)
+                });
+                seats.push({trip_id: t.id, booked: bookingGenerator[idx], number: val})
+            })
+        });
+
+        console.group('My data');
+        console.group();
+        console.log('Buses:');
+        console.log(buses);
+        console.groupEnd();
+        console.group();
+        console.log('Places:');
+        console.log(places);
+        console.groupEnd();
+        console.group();
+        console.log('Users:');
+        console.log(users);
+        console.groupEnd();
+        console.group();
+        console.log('Trips:');
+        console.log(trips);
+        console.groupEnd();
+        console.group();
+        console.log('Seats:');
+        console.log(seats);
+        console.groupEnd();
+        console.group();
+        console.log('Claims:');
+        console.log(claims);
+        console.groupEnd();
+        console.groupEnd();
+    });
+</script>
 </body>
 </html>
