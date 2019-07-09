@@ -1,3 +1,64 @@
+/*!* Smartphones (portrait and landscape) ----------- *!*/
+/*@media only screen*/
+/*and (min-device-width : 320px)*/
+/*and (max-device-width : 480px) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Smartphones (landscape) ----------- *!*/
+/*@media only screen*/
+/*and (min-width : 321px) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Smartphones (portrait) ----------- *!*/
+/*@media only screen*/
+/*and (max-width : 320px) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Tablets, iPads (portrait and landscape) ----------- *!*/
+/*@media only screen*/
+/*and (min-device-width : 768px)*/
+/*and (max-device-width : 1024px) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Tablets, iPads (landscape) ----------- *!*/
+/*@media only screen*/
+/*and (min-device-width : 768px)*/
+/*and (max-device-width : 1024px)*/
+/*and (orientation : landscape) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Tablets, iPads (portrait) ----------- *!*/
+/*@media only screen*/
+/*and (min-device-width : 768px)*/
+/*and (max-device-width : 1024px)*/
+/*and (orientation : portrait) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Desktops and laptops ----------- *!*/
+/*@media only screen*/
+/*and (min-width : 1224px) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* Large screens ----------- *!*/
+/*@media only screen*/
+/*and (min-width : 1824px) {*/
+/*    !* Styles *!*/
+/*}*/
+
+/*!* iPhone 4 ----------- *!*/
+/*@media*/
+/*only screen and (-webkit-min-device-pixel-ratio : 1.5),*/
+/*only screen and (min-device-pixel-ratio : 1.5) {*/
+/*    !* Styles *!*/
+/*}*/
+
 /* CUSTOM PROPERTIES */
 :root {
     --message-success: rgba(73, 208, 214, 0.75);
@@ -23,6 +84,28 @@ html {
     padding: 0;
     box-sizing: border-box;
     text-decoration: none;
+}
+
+/* CUSTOM SCROLLBAR*/
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 *:focus,
@@ -106,7 +189,7 @@ input {
 
 .form-wrapper {
     min-height: 300px;
-    width: 500px;
+    min-width: 500px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -133,14 +216,14 @@ input {
     border-bottom: 1px solid var(--default-link-text-color);
 }
 
-.input-group > label, .input-group > label > input {
+.input-group > label, .input-group > label > input, .btn.primary {
     text-transform: uppercase;
     font-weight: bold;
     width: 30%;
     display: inline-block;
 }
 
-.input-group > input, .input-group > label > input {
+.input-group > input, .input-group > label > input, .btn.primary {
     padding: var(--default-element-padding);
     border-radius: var(--default-border-radius);
     width: 69%;
@@ -149,7 +232,7 @@ input {
 }
 
 .input-group > input:focus,
-.input-group > label > input:focus {
+.input-group > label > input:focus, .btn.primary {
     border: 1px solid var(--default-link-text-color);
 }
 
@@ -163,7 +246,7 @@ input {
     color: var(--default-text-color);
 }
 
-.input-group > label > input:not([type="checkbox"]) {
+.input-group > label > input:not([type="checkbox"]), .btn.primary {
     background-color: var(--default-link-text-color);
     border: none;
     color: var(--color-white);
@@ -254,4 +337,104 @@ label.checkbox-input > span:after {
 
 .form-hidden, .msg-hidden {
     display: none;
+}
+
+/* DASHBOARD SPECIFIC STYLES */
+/* CLAIMS ACCESS CLASSES */
+.logout {
+    width: 100px !important;
+    text-align: center;
+    display: inline-block;
+    float: right;
+    margin-top: -45px;
+}
+
+.book {
+    min-width: 100px !important;
+}
+
+.book:hover, .logout:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.can__create_a_trip,
+.can__cancel_a_trip,
+.can__view_users_bookings,
+.can__view_user_bookings,
+.can__see-dashboard,
+.can__view_all_trips,
+.can__view_a_trip,
+.can__view_own_bookings,
+.can__book_a_trip,
+.can__delete_own_bookings {
+    display: none;
+}
+
+.content-wrapper {
+    display: flex;
+    justify-content: space-around;
+    background-color: white;
+    margin: 50px;
+    border-radius: 5px;
+}
+
+.column {
+    margin: 20px;
+    /*padding: 20px;*/
+    width: 100px;
+    /*height: 400px;*/
+    background-color: green;
+    display: inline-block;
+    /*overflow-x: auto;*/
+}
+
+.column-l {
+    width: 60%;
+}
+
+.column-r {
+    width: 40%;
+}
+
+table {
+    width: 100%;
+}
+
+.table-header {
+    padding-right: 15px;
+}
+
+.trips td {
+    padding: 30px;
+}
+
+.trips tr {
+    background-color: white
+}
+
+.trips tr:nth-child(odd) {
+    background-color: #dfdfdf;
+}
+
+.scroll {
+    height: 400px;
+    overflow: auto;
+}
+
+@media screen and (max-width: 768px) {
+    .content-wrapper {
+        display: block;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .column-l, .column-r {
+        width: 95%;
+    }
+
+    .footer {
+        display: block;
+        position: relative;
+    }
 }

@@ -12,9 +12,62 @@
     <link href="./css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="page-container">
+    <nav class="client-nav">
+        <div class="logo"></div>
+        <div class="btn primary logout can__see-dashboard" onclick="logoutUser()">logout</div>
+    </nav>
+    <div class="content-wrapper">
+        <div class="column column-l">
+            <div class="filter-container"></div>
+            <div class="list-container can__view_all_trips">
+                <table border="1" class="table-header">
+                    <tr>
+                        <th>DEPARTURE</th>
+                        <th>DESTINATION</th>
+                        <th>DATE</th>
+                        <th>TIME</th>
+                        <th>BUS PLATE</th>
+                        <th>ACTION</th>
+                    </tr>
+                </table>
+                <div class="scroll">
+                    <table class="trips" id="all-trips">
+                    </table>
+                </div>
+            </div>
+            <div class="pager-container"></div>
+        </div>
+        <div class="column column-r">
+            <div class="filter-container"></div>
+            <div class="list-container">
+            </div>
+            <div class="pager-container"></div>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>
+            &copy; Gildas Niyigena, <span id="year">2018</span>
+        </p>
+    </footer>
+</div>
 <script type="application/javascript">
 
     "use strict";
+
+
+    const loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
+
+    const logoutUser = () => {
+        if (loggedUserId) {
+            localStorage.removeItem('loggedUserId');
+            window.location.reload()
+        }
+    };
+
+    // Current year for copyright
+    const currentTime = new Date();
+    document.getElementById("year").innerHTML = currentTime.getFullYear();
 
     fetch("./db.json").then(res => res.json()).then(db => {
 
@@ -23,14 +76,11 @@
         const users = db['users'];
         const trips = [];
         const seats = [];
-
-        const loggedUserId = localStorage.getItem('loggedUserId') || '';
-        let currentUser = null;
+        let currentUser;
 
         // Get the logged user object
-        if (loggedUserId !== '') {
-            currentUser = users.find(user => user.id = loggedUserId * 1);
-        }
+        if (loggedUserId) currentUser = users.filter(user => user.id === loggedUserId)[0];
+        else window.location.replace('index.html');
 
         // Claims / Permissions
         const claims = [
@@ -38,7 +88,7 @@
             'cancel_a_trip',
             'view_users_bookings',
             'view_user_bookings',
-            'login',
+            'see-dashboard',
             'view_all_trips',
             'view_a_trip',
             'view_own_bookings',
@@ -53,13 +103,14 @@
             if (index >= 4) userClaims.push(value)
         });
 
-        // // Restriction based on claims
-        const can = (claim) => {
-            const userClaims = currentUser.role === 'admin' ? adminClaims : userClaims;
-            return userClaims.includes(claim);
-        };
+        const currentUserClaims = currentUser && (currentUser.role === 'admin' ? adminClaims : userClaims) || '';
 
-        const logoutUser = () => loggedUserId && localStorage.removeItem('loggedUserId');
+        const logoutUser = () => {
+            if (loggedUserId) {
+                localStorage.removeItem('loggedUserId');
+                window.location.reload()
+            }
+        };
 
 
         // BUILD FAKE TRIPS
@@ -228,6 +279,78 @@
         console.log(claims);
         console.groupEnd();
         console.groupEnd();
+
+        // Logout a user after 10 Sec he's logged in
+        // setTimeout(() => {
+        //     logoutUser();
+        //     window.location.reload()
+        // }, 10000);
+
+        // Allow access based on claims
+        currentUserClaims.forEach(claim => {
+            const allowedClaimsElements = document.getElementsByClassName(`can__${claim}`);
+            [...allowedClaimsElements].forEach(el => el['classList'].remove(`can__${claim}`))
+        });
+
+        // Current User trips
+        const currentUserSeats = seats.filter(seat => seat.booked === loggedUserId);
+
+        console.log('USER Seats', currentUserSeats);
+        const currentUserTrips = [];
+        trips.forEach(trip => {
+            if (currentUserSeats.map(seat => seat.trip_id).includes(trip.id)) {
+                currentUserTrips.push(trip);
+            }
+        });
+
+        console.log('CURRENT USER TRIPS: ', currentUserTrips);
+
+        // Add the Trips to the html trips table
+        const allTipsTable = document.getElementById('all-trips')/*.getElementsByTagName('tbody')[0]*/;
+
+        for (let i = 0; i < trips.length; i++) {
+
+            const newRow = allTipsTable.insertRow(i);
+            const tripArray = trips[i]['id'].trim().split('-');
+
+            for (let j = 0; j <= tripArray.length; j++) {
+
+                const cell = newRow.insertCell(j);
+
+                switch (j) {
+                    case 0: //tripDeparturePlaceId
+                        const tripDeparturePlace = places.filter(place => place.id === tripArray[0] * 1)[0];
+                        cell.innerHTML = tripDeparturePlace.name;
+                        break;
+                    case 1: //tripDestinationPlaceId
+                        const tripDestinationPlace = places.filter(place => place.id === tripArray[1] * 1)[0];
+                        cell.innerHTML = tripDestinationPlace.name;
+                        break;
+                    case 2: //tripDepartureDateId
+                        // const tripDepartureDate = [...past30days, coming30days].filter(date => date.date === tripArray[2])[0];
+                        cell.innerHTML = tripArray[2];
+                        break;
+                    case 3: //tripDepartureTime
+                        const tripDepartureTime = departureTimes.filter(time => time === tripArray[3])[0];
+                        cell.innerHTML = tripDepartureTime;
+                        break;
+                    case 4: //tripBusId
+                        const tripBus = buses.filter(bus => bus.id === tripArray[4] * 1)[0];
+                        cell.innerHTML = tripBus.plate_no;
+                        break;
+                    default:
+                        const btn = document.createElement('input');
+                        btn.type = "button";
+                        btn.className = "btn primary book";
+                        btn.value = 'Open';
+                        btn.onclick = () => alert('CLICKED TIP: ' + trips[i].id);
+                        cell.appendChild(btn);
+                }
+            }
+
+            console.log('', tripArray);
+            // newRow.innerHTML = myHtmlContent;
+        }
     });
 </script>
 </body>

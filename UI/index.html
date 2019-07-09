@@ -86,6 +86,10 @@
     </footer>
 </div>
 <script type="application/javascript">
+
+    localStorage.removeItem('loggedUserId');
+    localStorage.setItem('loggedUserId', 2);
+
     // LOGIN / REGISTER switch
     const authSwitcherBtnElements = document.getElementsByClassName('switch-auth-btn');
 
