@@ -12,10 +12,10 @@
     <link href="./css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="page-container">
+<div class="page-container not-visible">
     <nav class="client-nav">
         <div class="logo"></div>
-        <div class="btn primary logout can__see-dashboard" onclick="logoutUser()">logout</div>
+        <div class="btn primary logout can__see-dashboard" id="user-logout">logout</div>
     </nav>
     <div class="content-wrapper">
         <div class="column column-l">
@@ -81,461 +81,467 @@
 
     "use strict";
 
-    // METHODS TO BE ACCESSED IN HTML FILE
-    let logoutUser;
+    if (!localStorage.getItem('loggedUserId')) {
 
-    // STARTS - HELPERS FUNCTIONS
+        // IF THE USER IS NOT AUTHENTICATED HE/SHE'S REDIRECTED TO THE HOME
 
-    const elsByClass = (c) => document.getElementsByClassName(c);
-    const elById = (id) => document.getElementById(id);
-    const rangeFrom1To = n => [...Array(n)].map((_, i) => i + 1);
-    const shuffle = arr => {
-        const newArr = arr.slice();
-        for (let i = newArr.length - 1; i > 0; i--) {
-            const rand = Math.floor(Math.random() * (i + 1));
-            [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
-        }
-        return newArr
-    };
+        localStorage.setItem('needToBeLogged', Date.now() + '');
+        window.location.replace('index.html');
+    } else {
+        // ONLY ACCESS THE DASHBOARD IF THE USER IS AUTHENTICATED
+        let loggedUserId = null;
+        loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
 
-    const sort = (arr, field) => arr.sort((a, b) => (a[field] > b[field]) ? 1 : -1);
+        console.log(loggedUserId);
 
-    // Current year for copyright
-    const currentTime = new Date();
-    elById("year").innerHTML = '' + currentTime.getFullYear();
+        // STARTS - HELPERS FUNCTIONS
+        const elsByClass = (c) => document.getElementsByClassName(c);
+        const elById = (id) => !!document.getElementById(id) && document.getElementById(id);
+        const rangeFrom1To = n => [...Array(n)].map((_, i) => i + 1);
+        const shuffle = arr => {
+            const newArr = arr.slice();
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const rand = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+            }
+            return newArr
+        };
 
-    fetch("./db.json").then(res => res.json()).then(db => {
+        const sort = (arr, field) => arr.sort((a, b) => (a[field] > b[field]) ? 1 : -1);
 
-        const buses = db['buses'];
-        const places = db['places'];
-        const users = db['users'];
-        const trips = [];
-        const seats = [];
-        let currentUser;
+        // As the oage container was hidden to the no-authenticated user
+        // This help to not load html before javascript is loaded
+        const pageContainer = [...elsByClass('not-visible')][0];
+        pageContainer.classList.remove('not-visible');
 
-        const loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
+        // Current year for copyright
+        const currentTime = new Date();
+        elById("year").innerHTML = '' + currentTime.getFullYear();
 
-        // Get the logged user object
-        if (loggedUserId) currentUser = users.filter(user => user.id === loggedUserId)[0];
-        else window.location.replace('index.html');
+        fetch("./db.json").then(res => res.json()).then(db => {
 
-        // Claims / Permissions
-        const claims = [
-            'create_a_trip',
-            'cancel_a_trip',
-            'view_users_bookings',
-            'view_user_bookings',
-            'see-dashboard',
-            'view_all_trips',
-            'view_a_trip',
-            'view_own_bookings',
-            'book_a_trip',
-            'delete_own_bookings'
-        ];
+            const buses = db['buses'];
+            const places = db['places'];
+            const users = db['users'];
+            const trips = [];
+            const seats = [];
+            let currentUser;
 
-        let adminClaims = [], userClaims = [];
+            // Get the logged user object
+            if (loggedUserId) currentUser = users.filter(user => user.id === loggedUserId)[0];
+            else window.location.replace('index.html');
 
-        claims.forEach((value, index) => {
-            if (index <= 6) adminClaims.push(value);
-            if (index >= 4) userClaims.push(value)
-        });
+            // Claims / Permissions
+            const claims = [
+                'create_a_trip',
+                'cancel_a_trip',
+                'view_users_bookings',
+                'view_user_bookings',
+                'see-dashboard',
+                'view_all_trips',
+                'view_a_trip',
+                'view_own_bookings',
+                'book_a_trip',
+                'delete_own_bookings'
+            ];
 
-        const currentUserClaims = currentUser && (currentUser.role === 'admin' ? adminClaims : userClaims) || '';
+            let adminClaims = [], userClaims = [];
 
-        logoutUser = () => {
-            if (loggedUserId) {
+            claims.forEach((value, index) => {
+                if (index <= 6) adminClaims.push(value);
+                if (index >= 4) userClaims.push(value)
+            });
+
+            const currentUserClaims = currentUser && (currentUser.role === 'admin' ? adminClaims : userClaims) || '';
+
+            // Logout the user
+            elById('user-logout').addEventListener('click', e => {
                 localStorage.removeItem('loggedUserId');
-                window.location.reload()
-            }
-        };
-
-
-        // BUILD FAKE TRIPS
-        // Build the departure times being every 30 min from 4am to 8pm
-        let departureTimes = [];
-
-        for (let i = 4; i <= 20; i++) {
-            i = i >= 10 ? `${i}` : `0${i}`;
-            for (let j = 0; j <= 1; j++) {
-                j = j === 0 ? `00` : `30`;
-                const time = `${i}:${j}`;
-                departureTimes.push(time);
-            }
-        }
-
-        // Build 30 days (coming) to be listed when creating a trip
-        // And 30 past days (max) to be shown in the list of past trips
-        let past30days = [];
-        let coming30days = [];
-
-        for (let i = -30; i < 30; i++) {
-            const today = new Date();
-            const date = today.setDate(today.getDate() + i);
-            let day = (new Date(date)).getDate();
-            let month = (new Date(date)).getMonth() + 1;
-            day = day < 10 ? `0${day}` : day;
-            month = month < 10 ? `0${month}` : month;
-            const dates = {id: i + 31, date: `${day}/${month}/${(new Date(date)).getFullYear()}`};
-            i >= 0 && coming30days.push(dates);
-            i < 0 && past30days.push(dates);
-        }
-
-        // Trip id format 01-02-08/07/2019-14:30-02
-        // Where:
-        // [01] :           Departure place
-        // [02] :           Destination place
-        // [08/07/2019] :   Trip date
-        // [14:30] :        Trip time
-        // [02] :           Bus id
-
-        // Seats numbers for each trip, considering a bus of 40 seats
-        let s = 1, seatNumbers = [];
-        while (s <= 20) seatNumbers.push(...[`${s}A`, `${s}B`]) && s++;
-
-        // No more than 1 trip can be Same DEPARTURE, DESTINATION and DATE-TIME
-        // No more than 1 trip can be Same DATE-TIME and BUS
-        // No BUS may be assigned to a trip planned in less than 60 min of its previous trip
-
-        // Trips random creation
-
-        // Random 20 DEPARTURE-DESTINATION pairs (DEPARTURE may always differ from DESTINATION)
-
-
-        const allTripsElements = elsByClass('can__view_all_trips');
-        const singleTripElements = elsByClass('can__view_a_trip');
-
-        // Check if need to show list or the single Trip
-        const toggleSingleAllView = () => {
-            if (openedTripId) {
-                [...allTripsElements].forEach(el => el['classList'].add('is__hidden'));
-                [...singleTripElements].forEach(el => el['classList'].remove('is__hidden'));
-            } else {
-                console.log('TO ALL');
-                [...allTripsElements].forEach(el => el['classList'].remove('is__hidden'));
-                [...singleTripElements].forEach(el => el['classList'].add('is__hidden'));
-            }
-        };
-
-        const createButton = (el, value = null, classes = null, id = null, fun = null) => {
-            const btn = document.createElement('input');
-            btn.type = 'button';
-            classes && (btn.className = classes);
-            id && (btn.id = id);
-            value && (btn.value = value);
-            fun && (btn.onclick = fun);
-            el.appendChild(btn);
-        };
-        // ENDS - HELPERS FUNCTIONS
-
-        const placeIds = rangeFrom1To(5);
-        let randDepartDest = [], randDates = [], i = 1;
-        const randIndex = shuffle(rangeFrom1To(4))[0];
-
-        do {
-            const dep = shuffle(placeIds), des = shuffle(placeIds);
-            if (dep[randIndex] !== des[randIndex]) randDepartDest.push(`0${dep[randIndex]}-0${des[randIndex]}`);
-            if (randDepartDest.length === 100) break;
-            i++
-        } while (i <= 500);
-
-        do {
-            const shuffledDates = shuffle([...past30days, ...coming30days]);
-            randDates.push(shuffledDates[randIndex]);
-            if (randDates.length === 100) break;
-            i++
-        } while (i <= 500);
-
-        let dateTimeFromRanDates = [];
-        const randDatesSorted = sort(randDates, 'id');
-
-        randDatesSorted.forEach(date => {
-            departureTimes.forEach(time => {
-                dateTimeFromRanDates.push(`${date.date}-${time}`)
+                window.location.replace('index.html');
             });
-        });
-        const dt = [];
-        dateTimeFromRanDates.forEach((value, index) => dt.push({id: index, date: value}));
-        dateTimeFromRanDates = sort(((shuffle(dt)).slice(0, 100)), 'id');
 
-        const depDesDatetimeList = [], datetimeBusList = [], uniqueDepDesDatetimeBusList = [];
 
-        dateTimeFromRanDates.forEach(dt => {
-            randDepartDest.slice(0, 10).forEach(dd => depDesDatetimeList.push([dd, dt.date]));
-            buses.forEach(bus => {
-                datetimeBusList.push([bus.id, dt.date])
-            });
-        });
+            // BUILD FAKE TRIPS
+            // Build the departure times being every 30 min from 4am to 8pm
+            let departureTimes = [];
 
-        const newDepDesDatetimeList = [];
-        const newDepDatetimeBusList = [];
-        for (let i = 0; i < 1000; i++) {
-            if (
-                !newDepDesDatetimeList.includes(depDesDatetimeList[i]) &&
-                !newDepDatetimeBusList.includes(datetimeBusList[i])
-            ) {
-                newDepDesDatetimeList.push(depDesDatetimeList[i]);
-                newDepDatetimeBusList.push(datetimeBusList[i]);
+            for (let i = 4; i <= 20; i++) {
+                i = i >= 10 ? `${i}` : `0${i}`;
+                for (let j = 0; j <= 1; j++) {
+                    j = j === 0 ? `00` : `30`;
+                    const time = `${i}:${j}`;
+                    departureTimes.push(time);
+                }
             }
-        }
 
-        for (let i = 0; i < newDepDatetimeBusList.length; i++) {
-            uniqueDepDesDatetimeBusList.push({
-                id: i,
-                trip: `${newDepDesDatetimeList[i][0]}-${newDepDesDatetimeList[i][1]}-${newDepDatetimeBusList[i][0] === 10 ? 10 : '0' + newDepDatetimeBusList[i][0]}`
-            })
-        }
+            // Build 30 days (coming) to be listed when creating a trip
+            // And 30 past days (max) to be shown in the list of past trips
+            let past30days = [];
+            let coming30days = [];
 
-        // Shuffle the List of Unique DEPARTURE-DESTINATION-DATETIME-BUS objects,
-        // first 100 of the list and reorder the new list base of the increasing ids
-        // And push the results in the trips array
-        (sort((shuffle(uniqueDepDesDatetimeBusList)).slice(0, 100), 'id')).forEach(e => trips.push({id: e.trip}));
+            for (let i = -30; i < 30; i++) {
+                const today = new Date();
+                const date = today.setDate(today.getDate() + i);
+                let day = (new Date(date)).getDate();
+                let month = (new Date(date)).getMonth() + 1;
+                day = day < 10 ? `0${day}` : day;
+                month = month < 10 ? `0${month}` : month;
+                const dates = {id: i + 31, date: `${day}/${month}/${(new Date(date)).getFullYear()}`};
+                i >= 0 && coming30days.push(dates);
+                i < 0 && past30days.push(dates);
+            }
 
-        // The result from the above TRIPS list is used to build seats (40 by trip)
-        // And assigned to the users randomly
-        trips.forEach(t => {
-            seatNumbers.forEach((val, idx) => {
+            // Trip id format 01-02-08/07/2019-14:30-02
+            // Where:
+            // [01] :           Departure place
+            // [02] :           Destination place
+            // [08/07/2019] :   Trip date
+            // [14:30] :        Trip time
+            // [02] :           Bus id
 
-                // Make the 10 available users book a few of the seats randomly
-                const bookingGenerator = [];
-                (shuffle(rangeFrom1To(seatNumbers.length))).forEach(nbr => {
-                    nbr = nbr > 10 ? 0 : nbr;
-                    bookingGenerator.push(nbr)
+            // Seats numbers for each trip, considering a bus of 40 seats
+            let s = 1, seatNumbers = [];
+            while (s <= 20) seatNumbers.push(...[`${s}A`, `${s}B`]) && s++;
+
+            // No more than 1 trip can be Same DEPARTURE, DESTINATION and DATE-TIME
+            // No more than 1 trip can be Same DATE-TIME and BUS
+            // No BUS may be assigned to a trip planned in less than 60 min of its previous trip
+
+            // Trips random creation
+
+            // Random 20 DEPARTURE-DESTINATION pairs (DEPARTURE may always differ from DESTINATION)
+
+
+            const allTripsElements = elsByClass('can__view_all_trips');
+            const singleTripElements = elsByClass('can__view_a_trip');
+
+            // Check if need to show list or the single Trip
+            const toggleSingleAllView = () => {
+                if (openedTripId) {
+                    [...allTripsElements].forEach(el => el['classList'].add('is__hidden'));
+                    [...singleTripElements].forEach(el => el['classList'].remove('is__hidden'));
+                } else {
+                    console.log('TO ALL');
+                    [...allTripsElements].forEach(el => el['classList'].remove('is__hidden'));
+                    [...singleTripElements].forEach(el => el['classList'].add('is__hidden'));
+                }
+            };
+
+            const createButton = (el, value = null, classes = null, id = null, fun = null) => {
+                const btn = document.createElement('input');
+                btn.type = 'button';
+                classes && (btn.className = classes);
+                id && (btn.id = id);
+                value && (btn.value = value);
+                fun && (btn.onclick = fun);
+                el.appendChild(btn);
+            };
+            // ENDS - HELPERS FUNCTIONS
+
+            const placeIds = rangeFrom1To(5);
+            let randDepartDest = [], randDates = [], i = 1;
+            const randIndex = shuffle(rangeFrom1To(4))[0];
+
+            do {
+                const dep = shuffle(placeIds), des = shuffle(placeIds);
+                if (dep[randIndex] !== des[randIndex]) randDepartDest.push(`0${dep[randIndex]}-0${des[randIndex]}`);
+                if (randDepartDest.length === 100) break;
+                i++
+            } while (i <= 500);
+
+            do {
+                const shuffledDates = shuffle([...past30days, ...coming30days]);
+                randDates.push(shuffledDates[randIndex]);
+                if (randDates.length === 100) break;
+                i++
+            } while (i <= 500);
+
+            let dateTimeFromRanDates = [];
+            const randDatesSorted = sort(randDates, 'id');
+
+            randDatesSorted.forEach(date => {
+                departureTimes.forEach(time => {
+                    dateTimeFromRanDates.push(`${date.date}-${time}`)
                 });
-                seats.push({trip_id: t.id, booked: bookingGenerator[idx], number: val})
-            })
-        });
+            });
+            const dt = [];
+            dateTimeFromRanDates.forEach((value, index) => dt.push({id: index, date: value}));
+            dateTimeFromRanDates = sort(((shuffle(dt)).slice(0, 100)), 'id');
 
-        // console.group('My data');
-        // console.group();
-        // console.log('Buses:');
-        // console.log(buses);
-        // console.groupEnd();
-        // console.group();
-        // console.log('Places:');
-        // console.log(places);
-        // console.groupEnd();
-        // console.group();
-        // console.log('Users:');
-        // console.log(users);
-        // console.groupEnd();
-        // console.group();
-        // console.log('Trips:');
-        // console.log(trips);
-        // console.groupEnd();
-        // console.group();
-        // console.log('Seats:');
-        // console.log(seats);
-        // console.groupEnd();
-        // console.group();
-        // console.log('Claims:');
-        // console.log(claims);
-        // console.groupEnd();
-        // console.groupEnd();
+            const depDesDatetimeList = [], datetimeBusList = [], uniqueDepDesDatetimeBusList = [];
 
-        // Logout a user after 10 Sec he's logged in
-        // setTimeout(() => {
-        //     logoutUser();
-        //     window.location.reload()
-        // }, 10000);
+            dateTimeFromRanDates.forEach(dt => {
+                randDepartDest.slice(0, 10).forEach(dd => depDesDatetimeList.push([dd, dt.date]));
+                buses.forEach(bus => {
+                    datetimeBusList.push([bus.id, dt.date])
+                });
+            });
 
-        // Restrict access based on claims
-        currentUserClaims.forEach(claim => {
-            const allClaimsElements = document.querySelectorAll('[class^=can__]');
-            const allowedClaimsElements = elsByClass(`can__${claim}`);
-            const notAllowedClaimsElements = [...allClaimsElements].filter(element => ![...allowedClaimsElements].includes(element));
-            [...notAllowedClaimsElements].forEach(element => element['classList'].add('not-allowed'))
-        });
-
-        // Current User trips
-        const currentUserSeats = seats.filter(seat => seat.booked === loggedUserId);
-
-        const currentUserTrips = [];
-        trips.forEach(trip => {
-            if (currentUserSeats.map(seat => seat.trip_id).includes(trip.id)) {
-                currentUserTrips.push(trip);
+            const newDepDesDatetimeList = [];
+            const newDepDatetimeBusList = [];
+            for (let i = 0; i < 1000; i++) {
+                if (
+                    !newDepDesDatetimeList.includes(depDesDatetimeList[i]) &&
+                    !newDepDatetimeBusList.includes(datetimeBusList[i])
+                ) {
+                    newDepDesDatetimeList.push(depDesDatetimeList[i]);
+                    newDepDatetimeBusList.push(datetimeBusList[i]);
+                }
             }
-        });
 
-        // Add the Trips to the html trips table
-        const allTipsTable = elById('all-trips');
+            for (let i = 0; i < newDepDatetimeBusList.length; i++) {
+                uniqueDepDesDatetimeBusList.push({
+                    id: i,
+                    trip: `${newDepDesDatetimeList[i][0]}-${newDepDesDatetimeList[i][1]}-${newDepDatetimeBusList[i][0] === 10 ? 10 : '0' + newDepDatetimeBusList[i][0]}`
+                })
+            }
 
+            // Shuffle the List of Unique DEPARTURE-DESTINATION-DATETIME-BUS objects,
+            // first 100 of the list and reorder the new list base of the increasing ids
+            // And push the results in the trips array
+            (sort((shuffle(uniqueDepDesDatetimeBusList)).slice(0, 100), 'id')).forEach(e => trips.push({id: e.trip}));
 
-        // Opening a trip from the list
-        let openedTripId = null;
+            // The result from the above TRIPS list is used to build seats (40 by trip)
+            // And assigned to the users randomly
+            trips.forEach(t => {
+                seatNumbers.forEach((val, idx) => {
 
-        const tripArrayFromTrip = trip => {
-            let arr = trip['id'].trim().split('-');
-            return [arr[0] * 1, arr[1] * 1, arr[2], arr[3], arr[4] * 1];
-        };
+                    // Make the 10 available users book a few of the seats randomly
+                    const bookingGenerator = [];
+                    (shuffle(rangeFrom1To(seatNumbers.length))).forEach(nbr => {
+                        nbr = nbr > 10 ? 0 : nbr;
+                        bookingGenerator.push(nbr)
+                    });
+                    seats.push({trip_id: t.id, booked: bookingGenerator[idx], number: val})
+                })
+            });
 
-        // Book a seat by clicking on it
-        let chosenSeatsElements;
+            // console.group('My data');
+            // console.group();
+            // console.log('Buses:');
+            // console.log(buses);
+            // console.groupEnd();
+            // console.group();
+            // console.log('Places:');
+            // console.log(places);
+            // console.groupEnd();
+            // console.group();
+            // console.log('Users:');
+            // console.log(users);
+            // console.groupEnd();
+            // console.group();
+            // console.log('Trips:');
+            // console.log(trips);
+            // console.groupEnd();
+            // console.group();
+            // console.log('Seats:');
+            // console.log(seats);
+            // console.groupEnd();
+            // console.group();
+            // console.log('Claims:');
+            // console.log(claims);
+            // console.groupEnd();
+            // console.groupEnd();
 
+            // Restrict access based on claims
+            currentUserClaims.forEach(claim => {
+                const allClaimsElements = document.querySelectorAll('[class^=can__]');
+                const allowedClaimsElements = elsByClass(`can__${claim}`);
+                const notAllowedClaimsElements = [...allClaimsElements].filter(element => ![...allowedClaimsElements].includes(element));
+                [...notAllowedClaimsElements].forEach(element => element['classList'].add('not-allowed'))
+            });
 
-        // Single Trip Actions
-        const handleSingleTripDisplay = trip => {
+            // Current User trips
+            const currentUserSeats = seats.filter(seat => seat.booked === loggedUserId);
 
-            const tripArray = tripArrayFromTrip(trip);
-            const tripDeparture = (places.filter(place => place.id === tripArray[0])[0])['name'];
-            const tripDestination = (places.filter(place => place.id === tripArray[1])[0])['name'];
-            const tripDate = tripArray[2];
-            const tripTime = departureTimes.filter(time => time === tripArray[3])[0];
-            const tripBusPlate = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
-            const tripBusDriverName = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['driver_name'];
-            const tripSeats = seats.filter(seat => seat.trip_id === trip.id);
-            const currentUserBookedSeatsOnTripIDs = () => (tripSeats.filter(seat => seat.booked === currentUser.id)).map(el => el.number);
-            const submitBookingsBtn = elById('submit-bookings');
-
-            elById('trip-departure').innerText = tripDeparture;
-            elById('trip-destination').innerText = tripDestination;
-            elById('trip-date').innerText = tripDate;
-            elById('trip-time').innerText = tripTime;
-            elById('trip-plate-no').innerText = tripBusPlate;
-            elById('trip-driver-name').innerText = tripBusDriverName;
-
-            const clickToChooseSeat = (el) => {
-                if (el.classList.contains('is__chosen-seat')) el.classList.remove("is__chosen-seat");
-                else el.classList.add('is__chosen-seat');
-
-                chosenSeatsElements = (elsByClass('is__chosen-seat'));
-
-                console.log(chosenSeatsElements.length);
-
-                if (chosenSeatsElements.length) {
-                    submitBookingsBtn.classList.add('primary');
-                    submitBookingsBtn.classList.remove('default');
-                    submitBookingsBtn.disabled = false;
-                    submitBookingsBtn.innerText = chosenSeatsElements.length > 1 ? 'SUBMIT BOOKINGS' : 'SUBMIT BOOKING';
-                } else {
-                    submitBookingsBtn.classList.remove('primary');
-                    submitBookingsBtn.classList.add('default');
-                    submitBookingsBtn.disabled = true;
-                    submitBookingsBtn.innerText = 'PICK SOME SEATS';
+            const currentUserTrips = [];
+            trips.forEach(trip => {
+                if (currentUserSeats.map(seat => seat.trip_id).includes(trip.id)) {
+                    currentUserTrips.push(trip);
                 }
+            });
+
+            // Add the Trips to the html trips table
+            const allTipsTable = elById('all-trips');
+
+
+            // Opening a trip from the list
+            let openedTripId = null;
+
+            const tripArrayFromTrip = trip => {
+                let arr = trip['id'].trim().split('-');
+                return [arr[0] * 1, arr[1] * 1, arr[2], arr[3], arr[4] * 1];
             };
 
-            let busSeatsTable = null;
+            // Book a seat by clicking on it
+            let chosenSeatsElements;
 
-            busSeatsTable = elById('bus-seats');
 
-            // Close a trip and go back to the list view
-            const tripCloseBtn = elsByClass('trip--close')[0];
-            tripCloseBtn.onclick = () => {
+            // Single Trip Actions
+            const handleSingleTripDisplay = trip => {
 
-                openedTripId = null;
-                while (busSeatsTable.firstChild) {
-                    busSeatsTable.removeChild(busSeatsTable.firstChild);
-                }
-                toggleSingleAllView();
-            };
+                const tripArray = tripArrayFromTrip(trip);
+                const tripDeparture = (places.filter(place => place.id === tripArray[0])[0])['name'];
+                const tripDestination = (places.filter(place => place.id === tripArray[1])[0])['name'];
+                const tripDate = tripArray[2];
+                const tripTime = departureTimes.filter(time => time === tripArray[3])[0];
+                const tripBusPlate = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
+                const tripBusDriverName = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['driver_name'];
+                const tripSeats = seats.filter(seat => seat.trip_id === trip.id);
+                const currentUserBookedSeatsOnTripIDs = () => (tripSeats.filter(seat => seat.booked === currentUser.id)).map(el => el.number);
+                const submitBookingsBtn = elById('submit-bookings');
 
-            const bookedSeats = tripSeats.filter(e => e.booked !== 0 && e.booked !== loggedUserId);
-            const AvailableSeatsLeft = tripSeats.length - bookedSeats.length;
+                elById('trip-departure').innerText = tripDeparture;
+                elById('trip-destination').innerText = tripDestination;
+                elById('trip-date').innerText = tripDate;
+                elById('trip-time').innerText = tripTime;
+                elById('trip-plate-no').innerText = tripBusPlate;
+                elById('trip-driver-name').innerText = tripBusDriverName;
 
-            for (let i = 0; i < 12; i++) {
+                const clickToChooseSeat = (el) => {
+                    if (el.classList.contains('is__chosen-seat')) el.classList.remove("is__chosen-seat");
+                    else el.classList.add('is__chosen-seat');
 
-                const row = busSeatsTable.insertRow(i);
-                const td1 = row.insertCell(0);
-                const td2 = row.insertCell(1);
-                const td3 = row.insertCell(2);
-                const td4 = row.insertCell(3);
-                const td5 = row.insertCell(4);
-                td1.classList.add('bus-side');
-                td1.classList.add('left');
-                td5.classList.add('bus-side');
-                td5.classList.add('right');
+                    chosenSeatsElements = (elsByClass('is__chosen-seat'));
 
-                if (i > 1) {
-                    td3.classList.add('corridor');
-                    createButton(td2, (i * 2) - 3 + 'A', 'trip--seat', (i * 2) - 3 + 'A', e => clickToChooseSeat(e.target));
-                    createButton(td2, (i * 2) - 3 + 'B', 'trip--seat', (i * 2) - 3 + 'B', e => clickToChooseSeat(e.target));
-                    createButton(td4, (i * 2) - 2 + 'B', 'trip--seat', (i * 2) - 2 + 'B', e => clickToChooseSeat(e.target));
-                    createButton(td4, (i * 2) - 2 + 'A', 'trip--seat', (i * 2) - 2 + 'A', e => clickToChooseSeat(e.target));
+                    console.log(chosenSeatsElements.length);
 
-                    if (i === 11) {
-                        td2.classList.add('last-seat');
-                        td3.classList.add('last-seat');
-                        td4.classList.add('last-seat');
+                    if (chosenSeatsElements.length) {
+                        submitBookingsBtn.classList.add('primary');
+                        submitBookingsBtn.classList.remove('default');
+                        submitBookingsBtn.disabled = false;
+                        submitBookingsBtn.innerText = chosenSeatsElements.length > 1 ? 'SUBMIT BOOKINGS' : 'SUBMIT BOOKING';
+                    } else {
+                        submitBookingsBtn.classList.remove('primary');
+                        submitBookingsBtn.classList.add('default');
+                        submitBookingsBtn.disabled = true;
+                        submitBookingsBtn.innerText = 'PICK SOME SEATS';
                     }
+                };
 
-                    if (i === 2 || i === 9) {
-                        td1.classList.add('tyre-left');
-                        td5.classList.add('tyre-right');
+                let busSeatsTable = null;
+
+                busSeatsTable = elById('bus-seats');
+
+                // Close a trip and go back to the list view
+                const tripCloseBtn = elsByClass('trip--close')[0];
+                tripCloseBtn.onclick = () => {
+
+                    openedTripId = null;
+                    while (busSeatsTable.firstChild) {
+                        busSeatsTable.removeChild(busSeatsTable.firstChild);
                     }
-                } else if (i === 1) {
-                    createButton(td2, 'DRIVER', null, '00', null);
-                    createButton(td4, 'EXIT >>', null, 'bus-door', null);
-                    td2.classList.add('driver');
-                    td4.classList.add('bus-door');
-                    td3.innerText = AvailableSeatsLeft + ' LEFT';
-                } else {
-                    td1.classList.add('mirror');
+                    toggleSingleAllView();
+                };
+
+                const bookedSeats = tripSeats.filter(e => e.booked !== 0 && e.booked !== loggedUserId);
+                const AvailableSeatsLeft = tripSeats.length - bookedSeats.length;
+
+                for (let i = 0; i < 12; i++) {
+
+                    const row = busSeatsTable.insertRow(i);
+                    const td1 = row.insertCell(0);
+                    const td2 = row.insertCell(1);
+                    const td3 = row.insertCell(2);
+                    const td4 = row.insertCell(3);
+                    const td5 = row.insertCell(4);
+                    td1.classList.add('bus-side');
                     td1.classList.add('left');
-                    td5.classList.add('mirror');
+                    td5.classList.add('bus-side');
                     td5.classList.add('right');
-                    td2.classList.add('front');
-                    td3.classList.add('front');
-                    td4.classList.add('front');
-                    td2.innerText = 'BUS';
-                    td3.innerText = 'FRONT';
-                    td4.innerText = 'SIDE';
+
+                    if (i > 1) {
+                        td3.classList.add('corridor');
+                        createButton(td2, (i * 2) - 3 + 'A', 'trip--seat', (i * 2) - 3 + 'A', e => clickToChooseSeat(e.target));
+                        createButton(td2, (i * 2) - 3 + 'B', 'trip--seat', (i * 2) - 3 + 'B', e => clickToChooseSeat(e.target));
+                        createButton(td4, (i * 2) - 2 + 'B', 'trip--seat', (i * 2) - 2 + 'B', e => clickToChooseSeat(e.target));
+                        createButton(td4, (i * 2) - 2 + 'A', 'trip--seat', (i * 2) - 2 + 'A', e => clickToChooseSeat(e.target));
+
+                        if (i === 11) {
+                            td2.classList.add('last-seat');
+                            td3.classList.add('last-seat');
+                            td4.classList.add('last-seat');
+                        }
+
+                        if (i === 2 || i === 9) {
+                            td1.classList.add('tyre-left');
+                            td5.classList.add('tyre-right');
+                        }
+                    } else if (i === 1) {
+                        createButton(td2, 'DRIVER', null, '00', null);
+                        createButton(td4, 'EXIT >>', null, 'bus-door', null);
+                        td2.classList.add('driver');
+                        td4.classList.add('bus-door');
+                        td3.innerText = AvailableSeatsLeft + ' LEFT';
+                    } else {
+                        td1.classList.add('mirror');
+                        td1.classList.add('left');
+                        td5.classList.add('mirror');
+                        td5.classList.add('right');
+                        td2.classList.add('front');
+                        td3.classList.add('front');
+                        td4.classList.add('front');
+                        td2.innerText = 'BUS';
+                        td3.innerText = 'FRONT';
+                        td4.innerText = 'SIDE';
+                    }
                 }
-            }
 
-            // Get the already booked seats by the current user in the current Trip
-            const userBookedSeatsOnTripIDList = currentUserBookedSeatsOnTripIDs();
-            userBookedSeatsOnTripIDList.forEach(id => {
-                const ownSeatsBtnEl = elById(id);
-                ownSeatsBtnEl.classList.add('seat-own-booked');
-                ownSeatsBtnEl.classList.add('seat-own-booked');
-                ownSeatsBtnEl.title = 'Already in my bookings';
+                // Get the already booked seats by the current user in the current Trip
+                const userBookedSeatsOnTripIDList = currentUserBookedSeatsOnTripIDs();
+                userBookedSeatsOnTripIDList.forEach(id => {
+                    const ownSeatsBtnEl = elById(id);
+                    ownSeatsBtnEl.classList.add('seat-own-booked');
+                    ownSeatsBtnEl.classList.add('seat-own-booked');
+                    ownSeatsBtnEl.title = 'Already in my bookings';
+                });
+
+                // Add event handler to the Booking Button
+                submitBookingsBtn.addEventListener('click', () => {
+                    const testArray = tripSeats.filter(seat => [...chosenSeatsElements].map(e => e['id']).includes(seat.number));
+                    console.log(testArray); // TODO Submit and add to the array
+                }, false);
+
+                // Prevent already booked seat to be selectable
+                bookedSeats.forEach(seat => {
+                    const bookedSeatBtn = elById(seat.number);
+                    bookedSeatBtn.classList.add('seat-booked');
+                    bookedSeatBtn.title = 'Booked by someone';
+                });
+            };
+
+            // A list of all trips
+            trips.forEach((trip, i) => {
+                const newRow = allTipsTable.insertRow(i);
+                const tripArray = tripArrayFromTrip(trip);
+
+                // Trip Departure Place Id
+                newRow.insertCell(0).innerHTML = (places.filter(place => place.id === tripArray[0])[0])['name'];
+
+                // Trip Destination Place Id
+                newRow.insertCell(1).innerHTML = (places.filter(place => place.id === tripArray[1])[0])['name'];
+
+                // Trip Departure Date
+                newRow.insertCell(2).innerHTML = tripArray[2];
+
+                // Trip Departure Time
+                newRow.insertCell(3).innerHTML = departureTimes.filter(time => time === tripArray[3])[0];
+
+                // Trip Bus PlateNo
+                newRow.insertCell(4).innerHTML = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
+
+                // Open Button
+                createButton(newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
+                    openedTripId = trips[i].id;
+                    toggleSingleAllView();
+                    handleSingleTripDisplay(trips[i])
+                })
             });
 
-            // Add event handler to the Booking Button
-            submitBookingsBtn.addEventListener('click', () => {
-                const testArray = tripSeats.filter(seat => [...chosenSeatsElements].map(e => e['id']).includes(seat.number));
-                console.log(testArray); // TODO Submit and add to the array
-            }, false);
-
-            // Prevent already booked seat to be selectable
-            bookedSeats.forEach(seat => {
-                const bookedSeatBtn = elById(seat.number);
-                bookedSeatBtn.classList.add('seat-booked');
-                bookedSeatBtn.title = 'Booked by someone';
-            });
-        };
-
-        // A list of all trips
-        trips.forEach((trip, i) => {
-            const newRow = allTipsTable.insertRow(i);
-            const tripArray = tripArrayFromTrip(trip);
-
-            // Trip Departure Place Id
-            newRow.insertCell(0).innerHTML = (places.filter(place => place.id === tripArray[0])[0])['name'];
-
-            // Trip Destination Place Id
-            newRow.insertCell(1).innerHTML = (places.filter(place => place.id === tripArray[1])[0])['name'];
-
-            // Trip Departure Date
-            newRow.insertCell(2).innerHTML = tripArray[2];
-
-            // Trip Departure Time
-            newRow.insertCell(3).innerHTML = departureTimes.filter(time => time === tripArray[3])[0];
-
-            // Trip Bus PlateNo
-            newRow.insertCell(4).innerHTML = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
-
-            // Open Button
-            createButton(newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
-                openedTripId = trips[i].id;
-                toggleSingleAllView();
-                handleSingleTripDisplay(trips[i])
-            })
+            // TODO Scroll of the table title with the content:
+            // https://jsfiddle.net/sgcer/1274/
         });
-
-        // TODO Scroll of the table title with the content:
-        // https://jsfiddle.net/sgcer/1274/
-    });
+    }
 </script>
 </body>
 </html>

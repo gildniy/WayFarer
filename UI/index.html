@@ -15,6 +15,8 @@
 <div class="page-container">
     <nav class="client-nav">
         <div class="logo"></div>
+        <div class="btn default btn-login" id="user-login">Test as User</div>
+        <div class="btn default btn-login" id="admin-login">Test as Admin</div>
     </nav>
     <div class="form-wrapper">
         <div class="auth-area">
@@ -87,14 +89,65 @@
 </div>
 <script type="application/javascript">
 
-    localStorage.removeItem('loggedUserId');
-    localStorage.setItem('loggedUserId', 2);
+    "use strict";
 
-    // setTimeout(() => {
-    //     const currentUserId = localStorage.getItem('loggedUserId');
-    //     if (currentUserId)
-    //         window.location.replace('dashboard.html');
-    // }, 20000);
+    // localStorage.removeItem('loggedUserId');
+    // localStorage.setItem('loggedUserId', 2);
+    const elById = (id) => document.getElementById(id);
+
+    const isAnyUserLoggedId = (localStorage.getItem('loggedUserId'));
+
+    let message;
+    let messageBox = elById('login_msg');
+
+    const buildMessage = (messageObj) => {
+        if (typeof message.type === 'string') {
+            if (message.type === 'success') {
+                messageBox.classList.remove('msg-hidden');
+                messageBox.classList.add('success');
+                messageBox.innerHTML = message.text
+            } else {
+                messageBox.classList.remove('msg-hidden');
+                messageBox.classList.add('error');
+                messageBox.innerHTML = message.text
+            }
+        } else {
+            messageBox.classList.add('msg-hidden');
+            messageBox.classList.contains('error') && messageBox.classList.remove('error');
+            messageBox.classList.contains('success') && messageBox.classList.remove('success');
+            messageBox.innerHTML = ''
+        }
+    };
+
+    if (!!isAnyUserLoggedId) {
+        window.location.replace('dashboard.html');
+    } else {
+        const loginAdminBtn = elById('admin-login');
+        const loginUserBtn = elById('user-login');
+
+        localStorage.removeItem('loggedUserId');
+        [loginAdminBtn, loginUserBtn].forEach(el => el.addEventListener('click', ev => {
+            // fetch("./db.json").then(res => res.json()).then(db => {})
+            localStorage.setItem('loggedUserId', (
+                ev.target['id'] === 'admin-login' ? 1 : ( // If the clicked button is admin set the current user to admin
+                    Math.floor(Math.random() * (10 - 2 + 1) + 2) // Other wise set to a rendom Other user (id = 2 -> 10)
+                )
+            ) + '');
+            window.location.replace('dashboard.html');
+        }));
+
+        // In other to As the user to log with a click to
+        // the 'ENTER AS A USER' OR 'ENTER AS ADMIN'
+        if (!!(localStorage.getItem('needToBeLogged'))) {
+
+            message = {
+                type: 'error',
+                text: 'Use the above buttons to access the Dasbor as "ADMIN" or "USER"'
+            };
+            buildMessage(message);
+            localStorage.removeItem('needToBeLogged');
+        }
+    }
 
     // LOGIN / REGISTER switch
     const authSwitcherBtnElements = document.getElementsByClassName('switch-auth-btn');
@@ -107,9 +160,7 @@
 
     // AUTH FORM validation
     const submitBtnElements = document.getElementsByClassName('submit-btn');
-    let message;
     let formSubmitable = false;
-    let messageBox;
 
     Array.from(submitBtnElements).forEach(btn => btn.addEventListener('click', (e) => {
         const target = e.target;
@@ -118,10 +169,8 @@
         // Login form
         if (submitBtnType === 'login_submit') {
 
-            const userNameField = document.getElementById('login_username');
-            const PasswordField = document.getElementById('login_password');
-
-            messageBox = document.getElementById('login_msg');
+            const userNameField = elById('login_username');
+            const PasswordField = elById('login_password');
 
             if (userNameField.value === '') {
                 message = {type: 'error', text: 'The username can not be empty'};
@@ -138,12 +187,12 @@
 
         } else { // Register form
 
-            const userNameField = document.getElementById('register_username');
-            const EmailField = document.getElementById('register_email');
-            const PasswordField = document.getElementById('register_password');
-            const PasswordConfirmationField = document.getElementById('register_confirm_password');
+            const userNameField = elById('register_username');
+            const EmailField = elById('register_email');
+            const PasswordField = elById('register_password');
+            const PasswordConfirmationField = elById('register_confirm_password');
 
-            messageBox = document.getElementById('register_msg');
+            messageBox = elById('register_msg');
 
             if (userNameField.value === '') {
                 message = {type: 'error', text: 'The username can not be empty'};
@@ -174,27 +223,11 @@
                 formSubmitable = true
             }
         }
-
-        if (typeof message.type === 'string') {
-            if (message.type === 'success') {
-                messageBox.classList.remove('msg-hidden');
-                messageBox.classList.add('success');
-                messageBox.innerHTML = message.text
-            } else {
-                messageBox.classList.remove('msg-hidden');
-                messageBox.classList.add('error');
-                messageBox.innerHTML = message.text
-            }
-        } else {
-            messageBox.classList.add('msg-hidden');
-            messageBox.classList.contains('error') && messageBox.classList.remove('error');
-            messageBox.classList.contains('success') && messageBox.classList.remove('success');
-            messageBox.innerHTML = ''
-        }
+        buildMessage(message);
     }));
     // Current year for copyright
     const currentTime = new Date();
-    document.getElementById("year").innerHTML = currentTime.getFullYear();
+    elById("year").innerHTML = currentTime.getFullYear();
 </script>
 </body>
 </html>

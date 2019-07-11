@@ -79,6 +79,10 @@ html {
     overflow-y: scroll;
 }
 
+.not-visible {
+    opacity: 0 !important;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -232,7 +236,10 @@ input {
 }
 
 .btn {
+    min-width: 50px !important;
+    width: auto !important;
     opacity: 0.8;
+    margin: 0 var(--default-element-padding);
 }
 
 .btn.default {
@@ -366,12 +373,11 @@ label.checkbox-input > span:after {
 
 /* DASHBOARD SPECIFIC STYLES */
 /* CLAIMS ACCESS CLASSES */
-.logout {
-    width: 100px !important;
-    text-align: center;
-    display: inline-block;
+.logout, .btn-login {
     float: right;
     margin-top: -45px;
+    text-align: center;
+    display: inline-block;
 }
 
 .book {
