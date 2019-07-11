@@ -19,8 +19,9 @@
     </nav>
     <div class="content-wrapper">
         <div class="column column-l">
-            <div class="filter-container"></div>
-            <div class="list-container can__view_all_trips">
+            <!--                STARTS - TRIPS LIST -->
+            <div class="trip--filter-container can__view_all_trips"></div>
+            <div class="trip--list-container can__view_all_trips">
                 <table border="1" class="table-header">
                     <tr>
                         <th>DEPARTURE</th>
@@ -32,17 +33,42 @@
                     </tr>
                 </table>
                 <div class="scroll">
-                    <table class="trips" id="all-trips">
+                    <table class="trip--table" id="all-trips">
                     </table>
                 </div>
             </div>
-            <div class="pager-container"></div>
+            <div class="pager-container can__view_all_trips"></div>
+            <!--            ENDS - TRIPS LIST -->
+
+            <!--            STARTS - TRIP CREATE FORM -->
+            <!--            ENDS - TRIP CREATE FORM -->
+
+            <!--            STARTS - SINGLE TRIP VIEW -->
+            <div class="trip--container can__view_a_trip is__hidden">
+                <div class="trip--bus-wrapper">
+                    <table id="bus-seats"></table>
+                </div>
+                <div class="trip--details">
+                    <h2>TRIP DETAILS</h2>
+                    <ul>
+                        <li>DEPARTURE <span id="trip-departure"></span></li>
+                        <li>DESTINATION <span id="trip-destination"></span></li>
+                        <li>DATE <span id="trip-date"></span></li>
+                        <li>TIME <span id="trip-time"></span></li>
+                        <li>BUS PLATE NO <span id="trip-plate-no"></span></li>
+                        <li>DRIVER NAME <span id="trip-driver-name"></span></li>
+                    </ul>
+                    <button class="trip--close btn default">BACK TO THE LIST</button>
+                    <button class="btn default" disabled="disabled" id="submit-bookings">PICK SOME SEATS</button>
+                </div>
+            </div>
+            <!--            ENDS - SINGLE TRIP VIEW -->
         </div>
         <div class="column column-r">
-            <div class="filter-container"></div>
-            <div class="list-container">
+            <div class="trip--filter-container"></div>
+            <div class="trip--list-container">
             </div>
-            <div class="pager-container"></div>
+            <div class="trip--pager-container"></div>
         </div>
     </div>
     <footer class="footer">
@@ -55,19 +81,28 @@
 
     "use strict";
 
+    // METHODS TO BE ACCESSED IN HTML FILE
+    let logoutUser;
 
-    const loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
+    // STARTS - HELPERS FUNCTIONS
 
-    const logoutUser = () => {
-        if (loggedUserId) {
-            localStorage.removeItem('loggedUserId');
-            window.location.reload()
+    const elsByClass = (c) => document.getElementsByClassName(c);
+    const elById = (id) => document.getElementById(id);
+    const rangeFrom1To = n => [...Array(n)].map((_, i) => i + 1);
+    const shuffle = arr => {
+        const newArr = arr.slice();
+        for (let i = newArr.length - 1; i > 0; i--) {
+            const rand = Math.floor(Math.random() * (i + 1));
+            [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
         }
+        return newArr
     };
+
+    const sort = (arr, field) => arr.sort((a, b) => (a[field] > b[field]) ? 1 : -1);
 
     // Current year for copyright
     const currentTime = new Date();
-    document.getElementById("year").innerHTML = currentTime.getFullYear();
+    elById("year").innerHTML = '' + currentTime.getFullYear();
 
     fetch("./db.json").then(res => res.json()).then(db => {
 
@@ -77,6 +112,8 @@
         const trips = [];
         const seats = [];
         let currentUser;
+
+        const loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
 
         // Get the logged user object
         if (loggedUserId) currentUser = users.filter(user => user.id === loggedUserId)[0];
@@ -105,7 +142,7 @@
 
         const currentUserClaims = currentUser && (currentUser.role === 'admin' ? adminClaims : userClaims) || '';
 
-        const logoutUser = () => {
+        logoutUser = () => {
             if (loggedUserId) {
                 localStorage.removeItem('loggedUserId');
                 window.location.reload()
@@ -162,18 +199,33 @@
         // Trips random creation
 
         // Random 20 DEPARTURE-DESTINATION pairs (DEPARTURE may always differ from DESTINATION)
-        // HELPERS FUNCTIONS
-        const rangeFrom1To = n => [...Array(n)].map((_, i) => i + 1);
-        const shuffle = arr => {
-            const newArr = arr.slice();
-            for (let i = newArr.length - 1; i > 0; i--) {
-                const rand = Math.floor(Math.random() * (i + 1));
-                [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+
+
+        const allTripsElements = elsByClass('can__view_all_trips');
+        const singleTripElements = elsByClass('can__view_a_trip');
+
+        // Check if need to show list or the single Trip
+        const toggleSingleAllView = () => {
+            if (openedTripId) {
+                [...allTripsElements].forEach(el => el['classList'].add('is__hidden'));
+                [...singleTripElements].forEach(el => el['classList'].remove('is__hidden'));
+            } else {
+                console.log('TO ALL');
+                [...allTripsElements].forEach(el => el['classList'].remove('is__hidden'));
+                [...singleTripElements].forEach(el => el['classList'].add('is__hidden'));
             }
-            return newArr
         };
 
-        const sort = (arr, field) => arr.sort((a, b) => (a[field] > b[field]) ? 1 : -1);
+        const createButton = (el, value = null, classes = null, id = null, fun = null) => {
+            const btn = document.createElement('input');
+            btn.type = 'button';
+            classes && (btn.className = classes);
+            id && (btn.id = id);
+            value && (btn.value = value);
+            fun && (btn.onclick = fun);
+            el.appendChild(btn);
+        };
+        // ENDS - HELPERS FUNCTIONS
 
         const placeIds = rangeFrom1To(5);
         let randDepartDest = [], randDates = [], i = 1;
@@ -253,32 +305,32 @@
             })
         });
 
-        console.group('My data');
-        console.group();
-        console.log('Buses:');
-        console.log(buses);
-        console.groupEnd();
-        console.group();
-        console.log('Places:');
-        console.log(places);
-        console.groupEnd();
-        console.group();
-        console.log('Users:');
-        console.log(users);
-        console.groupEnd();
-        console.group();
-        console.log('Trips:');
-        console.log(trips);
-        console.groupEnd();
-        console.group();
-        console.log('Seats:');
-        console.log(seats);
-        console.groupEnd();
-        console.group();
-        console.log('Claims:');
-        console.log(claims);
-        console.groupEnd();
-        console.groupEnd();
+        // console.group('My data');
+        // console.group();
+        // console.log('Buses:');
+        // console.log(buses);
+        // console.groupEnd();
+        // console.group();
+        // console.log('Places:');
+        // console.log(places);
+        // console.groupEnd();
+        // console.group();
+        // console.log('Users:');
+        // console.log(users);
+        // console.groupEnd();
+        // console.group();
+        // console.log('Trips:');
+        // console.log(trips);
+        // console.groupEnd();
+        // console.group();
+        // console.log('Seats:');
+        // console.log(seats);
+        // console.groupEnd();
+        // console.group();
+        // console.log('Claims:');
+        // console.log(claims);
+        // console.groupEnd();
+        // console.groupEnd();
 
         // Logout a user after 10 Sec he's logged in
         // setTimeout(() => {
@@ -286,16 +338,17 @@
         //     window.location.reload()
         // }, 10000);
 
-        // Allow access based on claims
+        // Restrict access based on claims
         currentUserClaims.forEach(claim => {
-            const allowedClaimsElements = document.getElementsByClassName(`can__${claim}`);
-            [...allowedClaimsElements].forEach(el => el['classList'].remove(`can__${claim}`))
+            const allClaimsElements = document.querySelectorAll('[class^=can__]');
+            const allowedClaimsElements = elsByClass(`can__${claim}`);
+            const notAllowedClaimsElements = [...allClaimsElements].filter(element => ![...allowedClaimsElements].includes(element));
+            [...notAllowedClaimsElements].forEach(element => element['classList'].add('not-allowed'))
         });
 
         // Current User trips
         const currentUserSeats = seats.filter(seat => seat.booked === loggedUserId);
 
-        console.log('USER Seats', currentUserSeats);
         const currentUserTrips = [];
         trips.forEach(trip => {
             if (currentUserSeats.map(seat => seat.trip_id).includes(trip.id)) {
@@ -303,54 +356,185 @@
             }
         });
 
-        console.log('CURRENT USER TRIPS: ', currentUserTrips);
-
         // Add the Trips to the html trips table
-        const allTipsTable = document.getElementById('all-trips')/*.getElementsByTagName('tbody')[0]*/;
+        const allTipsTable = elById('all-trips');
 
-        for (let i = 0; i < trips.length; i++) {
 
-            const newRow = allTipsTable.insertRow(i);
-            const tripArray = trips[i]['id'].trim().split('-');
+        // Opening a trip from the list
+        let openedTripId = null;
 
-            for (let j = 0; j <= tripArray.length; j++) {
+        const tripArrayFromTrip = trip => {
+            let arr = trip['id'].trim().split('-');
+            return [arr[0] * 1, arr[1] * 1, arr[2], arr[3], arr[4] * 1];
+        };
 
-                const cell = newRow.insertCell(j);
+        // Book a seat by clicking on it
+        let chosenSeatsElements;
 
-                switch (j) {
-                    case 0: //tripDeparturePlaceId
-                        const tripDeparturePlace = places.filter(place => place.id === tripArray[0] * 1)[0];
-                        cell.innerHTML = tripDeparturePlace.name;
-                        break;
-                    case 1: //tripDestinationPlaceId
-                        const tripDestinationPlace = places.filter(place => place.id === tripArray[1] * 1)[0];
-                        cell.innerHTML = tripDestinationPlace.name;
-                        break;
-                    case 2: //tripDepartureDateId
-                        // const tripDepartureDate = [...past30days, coming30days].filter(date => date.date === tripArray[2])[0];
-                        cell.innerHTML = tripArray[2];
-                        break;
-                    case 3: //tripDepartureTime
-                        const tripDepartureTime = departureTimes.filter(time => time === tripArray[3])[0];
-                        cell.innerHTML = tripDepartureTime;
-                        break;
-                    case 4: //tripBusId
-                        const tripBus = buses.filter(bus => bus.id === tripArray[4] * 1)[0];
-                        cell.innerHTML = tripBus.plate_no;
-                        break;
-                    default:
-                        const btn = document.createElement('input');
-                        btn.type = "button";
-                        btn.className = "btn primary book";
-                        btn.value = 'Open';
-                        btn.onclick = () => alert('CLICKED TIP: ' + trips[i].id);
-                        cell.appendChild(btn);
+
+        // Single Trip Actions
+        const handleSingleTripDisplay = trip => {
+
+            const tripArray = tripArrayFromTrip(trip);
+            const tripDeparture = (places.filter(place => place.id === tripArray[0])[0])['name'];
+            const tripDestination = (places.filter(place => place.id === tripArray[1])[0])['name'];
+            const tripDate = tripArray[2];
+            const tripTime = departureTimes.filter(time => time === tripArray[3])[0];
+            const tripBusPlate = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
+            const tripBusDriverName = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['driver_name'];
+            const tripSeats = seats.filter(seat => seat.trip_id === trip.id);
+            const currentUserBookedSeatsOnTripIDs = () => (tripSeats.filter(seat => seat.booked === currentUser.id)).map(el => el.number);
+            const submitBookingsBtn = elById('submit-bookings');
+
+            elById('trip-departure').innerText = tripDeparture;
+            elById('trip-destination').innerText = tripDestination;
+            elById('trip-date').innerText = tripDate;
+            elById('trip-time').innerText = tripTime;
+            elById('trip-plate-no').innerText = tripBusPlate;
+            elById('trip-driver-name').innerText = tripBusDriverName;
+
+            const clickToChooseSeat = (el) => {
+                if (el.classList.contains('is__chosen-seat')) el.classList.remove("is__chosen-seat");
+                else el.classList.add('is__chosen-seat');
+
+                chosenSeatsElements = (elsByClass('is__chosen-seat'));
+
+                console.log(chosenSeatsElements.length);
+
+                if (chosenSeatsElements.length) {
+                    submitBookingsBtn.classList.add('primary');
+                    submitBookingsBtn.classList.remove('default');
+                    submitBookingsBtn.disabled = false;
+                    submitBookingsBtn.innerText = chosenSeatsElements.length > 1 ? 'SUBMIT BOOKINGS' : 'SUBMIT BOOKING';
+                } else {
+                    submitBookingsBtn.classList.remove('primary');
+                    submitBookingsBtn.classList.add('default');
+                    submitBookingsBtn.disabled = true;
+                    submitBookingsBtn.innerText = 'PICK SOME SEATS';
+                }
+            };
+
+            let busSeatsTable = null;
+
+            busSeatsTable = elById('bus-seats');
+
+            // Close a trip and go back to the list view
+            const tripCloseBtn = elsByClass('trip--close')[0];
+            tripCloseBtn.onclick = () => {
+
+                openedTripId = null;
+                while (busSeatsTable.firstChild) {
+                    busSeatsTable.removeChild(busSeatsTable.firstChild);
+                }
+                toggleSingleAllView();
+            };
+
+            const bookedSeats = tripSeats.filter(e => e.booked !== 0 && e.booked !== loggedUserId);
+            const AvailableSeatsLeft = tripSeats.length - bookedSeats.length;
+
+            for (let i = 0; i < 12; i++) {
+
+                const row = busSeatsTable.insertRow(i);
+                const td1 = row.insertCell(0);
+                const td2 = row.insertCell(1);
+                const td3 = row.insertCell(2);
+                const td4 = row.insertCell(3);
+                const td5 = row.insertCell(4);
+                td1.classList.add('bus-side');
+                td1.classList.add('left');
+                td5.classList.add('bus-side');
+                td5.classList.add('right');
+
+                if (i > 1) {
+                    td3.classList.add('corridor');
+                    createButton(td2, (i * 2) - 3 + 'A', 'trip--seat', (i * 2) - 3 + 'A', e => clickToChooseSeat(e.target));
+                    createButton(td2, (i * 2) - 3 + 'B', 'trip--seat', (i * 2) - 3 + 'B', e => clickToChooseSeat(e.target));
+                    createButton(td4, (i * 2) - 2 + 'B', 'trip--seat', (i * 2) - 2 + 'B', e => clickToChooseSeat(e.target));
+                    createButton(td4, (i * 2) - 2 + 'A', 'trip--seat', (i * 2) - 2 + 'A', e => clickToChooseSeat(e.target));
+
+                    if (i === 11) {
+                        td2.classList.add('last-seat');
+                        td3.classList.add('last-seat');
+                        td4.classList.add('last-seat');
+                    }
+
+                    if (i === 2 || i === 9) {
+                        td1.classList.add('tyre-left');
+                        td5.classList.add('tyre-right');
+                    }
+                } else if (i === 1) {
+                    createButton(td2, 'DRIVER', null, '00', null);
+                    createButton(td4, 'EXIT >>', null, 'bus-door', null);
+                    td2.classList.add('driver');
+                    td4.classList.add('bus-door');
+                    td3.innerText = AvailableSeatsLeft + ' LEFT';
+                } else {
+                    td1.classList.add('mirror');
+                    td1.classList.add('left');
+                    td5.classList.add('mirror');
+                    td5.classList.add('right');
+                    td2.classList.add('front');
+                    td3.classList.add('front');
+                    td4.classList.add('front');
+                    td2.innerText = 'BUS';
+                    td3.innerText = 'FRONT';
+                    td4.innerText = 'SIDE';
                 }
             }
 
-            console.log('', tripArray);
-            // newRow.innerHTML = myHtmlContent;
-        }
+            // Get the already booked seats by the current user in the current Trip
+            const userBookedSeatsOnTripIDList = currentUserBookedSeatsOnTripIDs();
+            userBookedSeatsOnTripIDList.forEach(id => {
+                const ownSeatsBtnEl = elById(id);
+                ownSeatsBtnEl.classList.add('seat-own-booked');
+                ownSeatsBtnEl.classList.add('seat-own-booked');
+                ownSeatsBtnEl.title = 'Already in my bookings';
+            });
+
+            // Add event handler to the Booking Button
+            submitBookingsBtn.addEventListener('click', () => {
+                const testArray = tripSeats.filter(seat => [...chosenSeatsElements].map(e => e['id']).includes(seat.number));
+                console.log(testArray); // TODO Submit and add to the array
+            }, false);
+
+            // Prevent already booked seat to be selectable
+            bookedSeats.forEach(seat => {
+                const bookedSeatBtn = elById(seat.number);
+                bookedSeatBtn.classList.add('seat-booked');
+                bookedSeatBtn.title = 'Booked by someone';
+            });
+        };
+
+        // A list of all trips
+        trips.forEach((trip, i) => {
+            const newRow = allTipsTable.insertRow(i);
+            const tripArray = tripArrayFromTrip(trip);
+
+            // Trip Departure Place Id
+            newRow.insertCell(0).innerHTML = (places.filter(place => place.id === tripArray[0])[0])['name'];
+
+            // Trip Destination Place Id
+            newRow.insertCell(1).innerHTML = (places.filter(place => place.id === tripArray[1])[0])['name'];
+
+            // Trip Departure Date
+            newRow.insertCell(2).innerHTML = tripArray[2];
+
+            // Trip Departure Time
+            newRow.insertCell(3).innerHTML = departureTimes.filter(time => time === tripArray[3])[0];
+
+            // Trip Bus PlateNo
+            newRow.insertCell(4).innerHTML = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
+
+            // Open Button
+            createButton(newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
+                openedTripId = trips[i].id;
+                toggleSingleAllView();
+                handleSingleTripDisplay(trips[i])
+            })
+        });
+
+        // TODO Scroll of the table title with the content:
+        // https://jsfiddle.net/sgcer/1274/
     });
 </script>
 </body>

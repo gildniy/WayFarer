@@ -90,6 +90,12 @@
     localStorage.removeItem('loggedUserId');
     localStorage.setItem('loggedUserId', 2);
 
+    // setTimeout(() => {
+    //     const currentUserId = localStorage.getItem('loggedUserId');
+    //     if (currentUserId)
+    //         window.location.replace('dashboard.html');
+    // }, 20000);
+
     // LOGIN / REGISTER switch
     const authSwitcherBtnElements = document.getElementsByClassName('switch-auth-btn');
 
