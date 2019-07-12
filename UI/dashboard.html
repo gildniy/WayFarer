@@ -22,17 +22,26 @@
     </nav>
     <div class="content-wrapper">
         <div class="column column-l">
-            <!--                STARTS - TRIPS LIST -->
-            <div class="trip--filter-container can__view_all_trips"></div>
+            <div class="trip--filter-container can__view_all_trips">
+                <p class="trip--filter-input-group">
+                    <label for="filter-trips-by-place">Filter trips</label>
+                    <select class="trip--filter-input" id="filter-trips-by-place" name="filter-trip-places">
+                        <option value="">Select a Place</option>
+                    </select>
+                    <input class="btn default submit-btn" id="trips-filter-type" name="trip-create_submit"
+                           type="button"
+                           value="FILTER BY...">
+                </p>
+            </div>
             <div class="trip--list-container can__view_all_trips">
-                <table border="1" class="table-header">
+                <table class="table-header">
                     <tr>
-                        <th>DEPARTURE</th>
-                        <th>DESTINATION</th>
-                        <th>DATE</th>
-                        <th>TIME</th>
-                        <th>BUS PLATE</th>
-                        <th>ACTION</th>
+                        <th class="table-departure">DEPARTURE</th>
+                        <th class="table-destination">DESTINATION</th>
+                        <th class="table-date">DATE</th>
+                        <th class="table-time">TIME</th>
+                        <th class="table-bus">BUS PLATE</th>
+                        <th class="table-action">ACTION</th>
                     </tr>
                 </table>
                 <div class="scroll">
@@ -40,13 +49,6 @@
                     </table>
                 </div>
             </div>
-            <div class="pager-container can__view_all_trips"></div>
-            <!--            ENDS - TRIPS LIST -->
-
-            <!--            STARTS - TRIP CREATE FORM -->
-            <!--            ENDS - TRIP CREATE FORM -->
-
-            <!--            STARTS - SINGLE TRIP VIEW -->
             <div class="trip--container can__view_a_trip is__hidden">
                 <div class="trip--bus-wrapper">
                     <table id="bus-seats"></table>
@@ -65,13 +67,36 @@
                     <button class="btn default" disabled="disabled" id="submit-bookings">PICK SOME SEATS</button>
                 </div>
             </div>
-            <!--            ENDS - SINGLE TRIP VIEW -->
         </div>
         <div class="column column-r">
-            <!--            <div class="switch can__create_a_trip">-->
-            <!--                <button id="switch-form-bookings" class="btn default">VIEW BOOKINGS</button>-->
-            <!--            </div>-->
-            <div class="trip--create-form can__create_a_trip">
+            <div class="bookings">
+                <h2>BOOKINGS LIST</h2>
+                <div class="booking--filter-container can__view_user_bookings  only__admin">
+                    <p class="booking--sort-input-group">
+                        <label for="sort-bookings-by-id">Filter booking</label>
+                        <select class="trip--create-input" id="sort-bookings-by-id" name="create-trip-destination">
+                            <option value="">Select a Name</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="booking--list-container">
+                    <div class="list-format">
+                        <span class="only__admin">BOOKED BY</span>
+                        <span>DEPARTURE</span>
+                        <span>DESTINATION</span>
+                        <span>DATE</span>
+                        <span>TIME</span>
+                        <span>BUS PLATE NO</span>
+                        <span>SEAT NO</span>
+                        <span class="only__user">ACTION</span>
+                    </div>
+                    <ul class="booking--list"></ul>
+                </div>
+                <p class="only__admin">
+                    <a class="btn default" id="switch-bookings-form">CREATE A TRIP</a>
+                </p>
+            </div>
+            <div class="trip--create-form is__hidden can__create_a_trip only__admin">
                 <h2>CREATE A TRIP</h2>
                 <form id="create-new-trip" method="post">
                     <p class="trip--create-input-group">
@@ -108,18 +133,9 @@
                         <input class="btn primary submit-btn" id="trip-create_submit" name="trip-create_submit"
                                type="button"
                                value="Submit">
-                        <a class="btn default" id="switch-form-bookings">VIEW BOOKINGS</a>
+                        <a class="btn default" id="switch-form-bookings">BACK TO BOOKINGS</a>
                     </p>
                 </form>
-            </div>
-            <div class="bookings is__hidden">
-                <div class="booking--filter-container can__view_user_bookings"></div>
-                <div class="booking--list-container">
-                    <p>ARE YOU HIDDEN?</p>
-                </div>
-                <p>
-                    <a class="btn default" id="switch-bookings-form">VIEW BOOKINGS</a>
-                </p>
             </div>
         </div>
     </div>
@@ -142,7 +158,7 @@
         window.location.replace('index.html');
     } else {
         // ONLY ACCESS THE DASHBOARD IF THE USER IS AUTHENTICATED
-        let loggedUserId = null;
+        let loggedUserId;
         loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
 
         // STARTS - HELPERS FUNCTIONS
@@ -168,6 +184,19 @@
         // This help to not load html before javascript is loaded
         const pageContainer = [...elsByClass('not-visible')][0];
         pageContainer.classList.remove('not-visible');
+
+        const showOnRole = () => {
+            if (loggedUserId === 1) {
+                console.log('WE ARE HERE');
+                elsByClass('only__admin').length && [...elsByClass('only__admin')].forEach(e => e['classList'].remove('only__admin'))
+            } else {
+                console.log('WE ARE THERE');
+                elsByClass('only__user').length && [...elsByClass('only__user')].forEach(e => e['classList'].remove('only__user'))
+            }
+        };
+
+        showOnRole();
+
 
         // Current year for copyright
         const currentTime = new Date();
@@ -408,12 +437,12 @@
             // Current User trips
             const currentUserSeats = seats.filter(seat => seat.booked === loggedUserId);
 
-            const currentUserTrips = [];
-            trips.forEach(trip => {
-                if (currentUserSeats.map(seat => seat.trip_id).includes(trip.id)) {
-                    currentUserTrips.push(trip);
-                }
-            });
+            // const currentUserTrips = [];
+            // trips.forEach(trip => {
+            //     if (currentUserSeats.map(seat => seat.trip_id).includes(trip.id)) {
+            //         currentUserTrips.push(trip);
+            //     }
+            // });
 
             // Add the Trips to the html trips table
             const allTipsTable = elById('all-trips');
@@ -459,18 +488,26 @@
 
                     console.log(chosenSeatsElements.length);
 
-                    if (chosenSeatsElements.length) {
-                        submitBookingsBtn.classList.add('primary');
-                        submitBookingsBtn.classList.remove('default');
-                        submitBookingsBtn.disabled = false;
-                        submitBookingsBtn.innerText = chosenSeatsElements.length > 1 ? 'SUBMIT BOOKINGS' : 'SUBMIT BOOKING';
-                    } else {
-                        submitBookingsBtn.classList.remove('primary');
-                        submitBookingsBtn.classList.add('default');
-                        submitBookingsBtn.disabled = true;
-                        submitBookingsBtn.innerText = 'PICK SOME SEATS';
+                    if (loggedUserId !== 1) {
+                        if (chosenSeatsElements.length) {
+                            submitBookingsBtn.classList.add('primary');
+                            submitBookingsBtn.classList.remove('default');
+                            submitBookingsBtn.disabled = false;
+                            submitBookingsBtn.innerText = chosenSeatsElements.length > 1 ? 'SUBMIT BOOKINGS' : 'SUBMIT BOOKING';
+                        } else {
+                            submitBookingsBtn.classList.remove('primary');
+                            submitBookingsBtn.classList.add('default');
+                            submitBookingsBtn.disabled = true;
+                            submitBookingsBtn.innerText = 'PICK SOME SEATS';
+                        }
                     }
                 };
+
+                if (loggedUserId === 1) {
+                    submitBookingsBtn.classList.add('danger');
+                    submitBookingsBtn.disabled = false;
+                    submitBookingsBtn.innerText = 'CANCEL THIS TRIP';
+                }
 
                 let busSeatsTable = null;
 
@@ -577,8 +614,6 @@
                     const newRow = allTipsTable.insertRow(i);
                     const tripArray = tripArrayFromTrip(trip);
 
-                    // if (i === tripsDescendent.length - 1) console.log(tripArray/*places.filter(place => place.id === tripArray[0])[0]*/);
-
                     // Trip Departure Place Id
                     newRow.insertCell(0).innerHTML = (places.filter(place => place.id === tripArray[0])[0])['name'];
 
@@ -587,21 +622,22 @@
 
                     // Trip Departure Date
                     newRow.insertCell(2).innerHTML = tripArray[2];
-
                     // Trip Departure Time
                     newRow.insertCell(3).innerHTML = departureTimes.filter(time => time === tripArray[3])[0];
 
                     // Trip Bus PlateNo
                     newRow.insertCell(4).innerHTML = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
 
+
                     // Open Button
-                    createButton(newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
-                        openedTripId = trips[i].id;
-                        toggleSingleAllView();
-                        handleSingleTripDisplay(trips[i])
-                    })
+                    createButton(
+                        newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
+                            openedTripId = trips[i].id;
+                            toggleSingleAllView();
+                            handleSingleTripDisplay(trips[i])
+                        });
                 });
-                console.log('IN THE FUNCTION: ', tripsDescendent[tripsDescendent.length - 1].id)
+                // console.log('IN THE FUNCTION: ', tripsDescendent[tripsDescendent.length - 1].id)
             };
 
             let tripCreateInputs = [...elsByClass('trip--create-input')];
@@ -742,7 +778,91 @@
                 })
             };
 
-            switchFormBookings()
+            switchFormBookings();
+
+            const buildBookingsListFn = (seats) => {
+                const bookingListElement = elsByClass('booking--list')[0];
+                seats.forEach(seat => {
+                    const bookedTrip = tripsDescendent.filter(trip => trip.id === seat.trip_id)[0];
+                    const tripArray = tripArrayFromTrip(bookedTrip);
+                    const displayDepartureName = (places.filter(place => place.id === tripArray[0])[0])['short_name'];
+                    const displayDestinationName = (places.filter(place => place.id === tripArray[1])[0])['short_name'];
+                    const displayBusPlateNo = (buses.filter(bus => bus.id === tripArray[4])[0])['plate_no'];
+                    const item = document.createElement('li');
+                    const bookedBy = (users.filter(user => user.id === seat.booked)[0]).username.slice(0, 3).replace(/./, x => x.toUpperCase());
+
+                    console.log(bookedBy);
+
+                    item.innerHTML = `
+                            <span class="booking-booked-by only__admin">${bookedBy}</span>
+                            <span class="booking-departure">${displayDepartureName}</span>
+                            <span class="booking-destination">${displayDestinationName}</span>
+                            <span class="booking-date">${tripArray[2]}</span>
+                            <span class="booking-time">${tripArray[3]}</span>
+                            <span class="booking-bus-plate-no">${displayBusPlateNo}</span>
+                            <span class="booking-seat-no">${seat.number}</span>
+                            <a href="#" class="booking-delete only__user" id="${seat.number}">DELETE</a>
+                        `;
+
+                    bookingListElement.appendChild(item);
+                });
+                showOnRole();
+            };
+
+            // The numbers was too long for testing, I sliced it to 200
+            const bookedTripsSeatByUserIdsFn = userId => (userId === '') ? seats.slice(0, 400).filter(s => s.booked !== 0) : seats.slice(0, 400).filter(s => s.booked === userId);
+
+
+            const createBookingSortElement = elById('sort-bookings-by-id');
+
+            const createBookingSortElementFn = () => users.forEach((user, i) => {
+                const opt = document.createElement("option");
+                opt.text = user.username;
+                opt.value = user.id;
+                createBookingSortElement.add(opt, createBookingSortElement[i + 1]);
+            });
+            createBookingSortElementFn();
+
+            createBookingSortElement.addEventListener('change', e => {
+                const selectedUserID = createBookingSortElement.options[createBookingSortElement.selectedIndex].value;
+                // bookedTripsSeatByUserIds = bookedTripsSeatByUserIdsFn(selectedUserID);
+                bookedTripsSeatByUserIdsFn(selectedUserID);
+            });
+
+            let bookedTripsSeatByUserIds = loggedUserId === 1 ? bookedTripsSeatByUserIdsFn('') : bookedTripsSeatByUserIdsFn(loggedUserId);
+            buildBookingsListFn(bookedTripsSeatByUserIds);
+            // console.log(bookedTripsSeatByUserIds);
+
+            elById('trips-filter-type').addEventListener('click', event => {
+                if (event.target.value === 'FILTER BY...') {
+                    event.target.value = 'DEPARTURE';
+                    event.target.classList.remove('default');
+                    event.target.classList.add('primary');
+                } else {
+                    if (event.target.value === 'DEPARTURE') {
+                        event.target.value = 'DESTINATION'
+                    } else {
+                        event.target.value = 'FILTER BY...';
+                        event.target.classList.remove('primary');
+                        event.target.classList.add('default');
+                    }
+                }
+            });
+
+
+            const tripsFilterElement = elById('filter-trips-by-place');
+
+            const tripsFilterElementElementFn = () => places.forEach((place, i) => {
+                const opt = document.createElement("option");
+                opt.text = place.name;
+                opt.value = place.id;
+                tripsFilterElement.add(opt, tripsFilterElement[i + 1]);
+            });
+            tripsFilterElementElementFn();
+
+            tripsFilterElement.addEventListener('change', e => {
+                // Handle the trips filtering
+            });
         });
     }
 </script>
