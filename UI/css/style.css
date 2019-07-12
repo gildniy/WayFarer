@@ -168,6 +168,7 @@ input {
 
 .client-nav {
     border-bottom: 10px solid var(--default-link-text-color);
+    display: flex;
 }
 
 .footer {
@@ -186,9 +187,19 @@ input {
     color: var(--color-primary);
 }
 
+
 .logo {
     font-size: 30px;
     font-weight: bolder;
+    float: left;
+}
+
+.logo, .btn-wrapper {
+    flex: 1;
+}
+
+.btn-wrapper {
+    text-align: right;
 }
 
 .form-wrapper {
@@ -373,12 +384,19 @@ label.checkbox-input > span:after {
 
 /* DASHBOARD SPECIFIC STYLES */
 /* CLAIMS ACCESS CLASSES */
+
+/*.client-nav {*/
+/*    text-align: right;*/
+/*}*/
+
 .logout, .btn-login {
-    float: right;
-    margin-top: -45px;
+    /*float: right;*/
+    /*margin-top: -45px;*/
     text-align: center;
     display: inline-block;
 }
+
+/*.btn-wrapper*/
 
 .book {
     min-width: 100px !important;
@@ -727,6 +745,25 @@ button#submit-bookings {
         display: block;
         width: 95%;
     }
+
+    .client-nav {
+        display: block;
+    }
+
+    .btn-wrapper, .logo {
+        /*flex: 1;*/
+        /*display: block;*/
+        /*margin: 20px;*/
+        display: block;
+        width: 100%;
+    }
+
+    /*.btn-login{*/
+    /*    width: 100%;*/
+    /*}*/
+    /*.logout {*/
+    /*    width: 100%;*/
+    /*}*/
 }
 
 /* THIS SHOULD BE BELOWWWWWW.........*/

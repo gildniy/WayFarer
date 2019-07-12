@@ -15,7 +15,10 @@
 <div class="page-container not-visible">
     <nav class="client-nav">
         <div class="logo"></div>
-        <div class="btn primary logout can__see-dashboard" id="user-logout">logout</div>
+        <div class="btn-wrapper">
+            <div class="btn primary logout can__see-dashboard" id="user-logout">logout</div>
+        </div>
+
     </nav>
     <div class="content-wrapper">
         <div class="column column-l">
@@ -101,21 +104,22 @@
                             <option disabled="disabled" selected value="">Select the trip bus</option>
                         </select>
                     </p>
-                    <p class="trip--create-input-group">
-                        <!--                        <label class="submit-switch can__create_a_trip">-->
+                    <p class="trip--create-input-group submit-switch">
                         <input class="btn primary submit-btn" id="trip-create_submit" name="trip-create_submit"
                                type="button"
                                value="Submit">
-                        <button class="btn default" id="switch-form-bookings">VIEW BOOKINGS</button>
-                        </label>
+                        <a class="btn default" id="switch-form-bookings">VIEW BOOKINGS</a>
                     </p>
                 </form>
             </div>
-            <div class="booking is__hidden">
+            <div class="bookings is__hidden">
                 <div class="booking--filter-container can__view_user_bookings"></div>
                 <div class="booking--list-container">
                     <p>ARE YOU HIDDEN?</p>
                 </div>
+                <p>
+                    <a class="btn default" id="switch-bookings-form">VIEW BOOKINGS</a>
+                </p>
             </div>
         </div>
     </div>
@@ -724,6 +728,21 @@
 
             displayTripsList(trips);
             //  FILTERING TRIPS ON THE USERS TRIP LIST
+
+            // SWITCH FROM CREATE FORM TO VIEW TRIPS LIST FOR THE ADMIN AND VICE VERSA
+
+            const switchFormBookings = () => {
+                elById('switch-form-bookings').addEventListener('click', event => {
+                    [...elsByClass('trip--create-form')][0].classList.add('is__hidden');
+                    [...elsByClass('bookings')][0].classList.remove('is__hidden');
+                });
+                elById('switch-bookings-form').addEventListener('click', event => {
+                    [...elsByClass('bookings')][0].classList.add('is__hidden');
+                    [...elsByClass('trip--create-form')][0].classList.remove('is__hidden');
+                })
+            };
+
+            switchFormBookings()
         });
     }
 </script>
