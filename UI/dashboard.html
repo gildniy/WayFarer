@@ -65,15 +65,64 @@
             <!--            ENDS - SINGLE TRIP VIEW -->
         </div>
         <div class="column column-r">
-            <div class="trip--filter-container"></div>
-            <div class="trip--list-container">
+            <!--            <div class="switch can__create_a_trip">-->
+            <!--                <button id="switch-form-bookings" class="btn default">VIEW BOOKINGS</button>-->
+            <!--            </div>-->
+            <div class="trip--create-form can__create_a_trip">
+                <h2>CREATE A TRIP</h2>
+                <form id="create-new-trip" method="post">
+                    <p class="trip--create-input-group">
+                        <label for="create-trip-departure">Departure</label>
+                        <select class="trip--create-input" id="create-trip-departure" name="create-trip-departure">
+                            <option disabled="disabled" selected value="">Select a Departure Place</option>
+                        </select>
+                    </p>
+                    <p class="trip--create-input-group">
+                        <label for="create-trip-destination">Destination</label>
+                        <select class="trip--create-input" id="create-trip-destination" name="create-trip-destination">
+                            <option disabled="disabled" selected value="">Select a Destination place</option>
+                        </select>
+                    </p>
+                    <p class="trip--create-input-group">
+                        <label for="create-trip-date">Date</label>
+                        <select class="trip--create-input" id="create-trip-date" name="create-trip-date">
+                            <option disabled="disabled" selected value="">Select a trip date</option>
+                        </select>
+                    </p>
+                    <p class="trip--create-input-group">
+                        <label for="create-trip-time">Time</label>
+                        <select class="trip--create-input" id="create-trip-time" name="create-trip-time">
+                            <option disabled="disabled" selected value="">Select a departure time</option>
+                        </select>
+                    </p>
+                    <p class="trip--create-input-group">
+                        <label for="create-trip-bus">Bus Plate</label>
+                        <select class="trip--create-input" id="create-trip-bus" name="create-trip-bus">
+                            <option disabled="disabled" selected value="">Select the trip bus</option>
+                        </select>
+                    </p>
+                    <p class="trip--create-input-group">
+                        <!--                        <label class="submit-switch can__create_a_trip">-->
+                        <input class="btn primary submit-btn" id="trip-create_submit" name="trip-create_submit"
+                               type="button"
+                               value="Submit">
+                        <button class="btn default" id="switch-form-bookings">VIEW BOOKINGS</button>
+                        </label>
+                    </p>
+                </form>
             </div>
-            <div class="trip--pager-container"></div>
+            <div class="booking is__hidden">
+                <div class="booking--filter-container can__view_user_bookings"></div>
+                <div class="booking--list-container">
+                    <p>ARE YOU HIDDEN?</p>
+                </div>
+            </div>
         </div>
     </div>
     <footer class="footer">
         <p>
-            &copy; Gildas Niyigena, <span id="year">2018</span>
+            &copy; Gildas Niyigena, <span id="year">2018</span> <span class="can__create_a_trip">Admin</span> <span
+                class="can__view-own-bookings">User</span>
         </p>
     </footer>
 </div>
@@ -92,8 +141,6 @@
         let loggedUserId = null;
         loggedUserId = (localStorage.getItem('loggedUserId')) * 1;
 
-        console.log(loggedUserId);
-
         // STARTS - HELPERS FUNCTIONS
         const elsByClass = (c) => document.getElementsByClassName(c);
         const elById = (id) => !!document.getElementById(id) && document.getElementById(id);
@@ -108,6 +155,10 @@
         };
 
         const sort = (arr, field) => arr.sort((a, b) => (a[field] > b[field]) ? 1 : -1);
+
+        const reverseList = ([x, ...s]) => x ? [...reverseList(s), x] : [];
+
+        // ENDS - HELPERS FUNCTIONS
 
         // As the oage container was hidden to the no-authenticated user
         // This help to not load html before javascript is loaded
@@ -236,7 +287,6 @@
                 fun && (btn.onclick = fun);
                 el.appendChild(btn);
             };
-            // ENDS - HELPERS FUNCTIONS
 
             const placeIds = rangeFrom1To(5);
             let randDepartDest = [], randDates = [], i = 1;
@@ -316,32 +366,32 @@
                 })
             });
 
-            // console.group('My data');
-            // console.group();
-            // console.log('Buses:');
-            // console.log(buses);
-            // console.groupEnd();
-            // console.group();
-            // console.log('Places:');
-            // console.log(places);
-            // console.groupEnd();
-            // console.group();
-            // console.log('Users:');
-            // console.log(users);
-            // console.groupEnd();
-            // console.group();
-            // console.log('Trips:');
-            // console.log(trips);
-            // console.groupEnd();
-            // console.group();
-            // console.log('Seats:');
-            // console.log(seats);
-            // console.groupEnd();
-            // console.group();
-            // console.log('Claims:');
-            // console.log(claims);
-            // console.groupEnd();
-            // console.groupEnd();
+            console.group('My data');
+            console.group();
+            console.log('Buses:');
+            console.log(buses);
+            console.groupEnd();
+            console.group();
+            console.log('Places:');
+            console.log(places);
+            console.groupEnd();
+            console.group();
+            console.log('Users:');
+            console.log(users);
+            console.groupEnd();
+            console.group();
+            console.log('Trips:');
+            console.log(trips);
+            console.groupEnd();
+            console.group();
+            console.log('Seats:');
+            console.log(seats);
+            console.groupEnd();
+            console.group();
+            console.log('Claims:');
+            console.log(claims);
+            console.groupEnd();
+            console.groupEnd();
 
             // Restrict access based on claims
             currentUserClaims.forEach(claim => {
@@ -369,13 +419,12 @@
             let openedTripId = null;
 
             const tripArrayFromTrip = trip => {
-                let arr = trip['id'].trim().split('-');
-                return [arr[0] * 1, arr[1] * 1, arr[2], arr[3], arr[4] * 1];
+                let arr = trip['id'] && trip['id'].trim().split('-');
+                return arr && [arr[0] * 1, arr[1] * 1, arr[2], arr[3], arr[4] * 1];
             };
 
             // Book a seat by clicking on it
             let chosenSeatsElements;
-
 
             // Single Trip Actions
             const handleSingleTripDisplay = trip => {
@@ -437,55 +486,58 @@
                 const bookedSeats = tripSeats.filter(e => e.booked !== 0 && e.booked !== loggedUserId);
                 const AvailableSeatsLeft = tripSeats.length - bookedSeats.length;
 
-                for (let i = 0; i < 12; i++) {
+                const buildBusSeats = () => {
+                    for (let i = 0; i < 12; i++) {
 
-                    const row = busSeatsTable.insertRow(i);
-                    const td1 = row.insertCell(0);
-                    const td2 = row.insertCell(1);
-                    const td3 = row.insertCell(2);
-                    const td4 = row.insertCell(3);
-                    const td5 = row.insertCell(4);
-                    td1.classList.add('bus-side');
-                    td1.classList.add('left');
-                    td5.classList.add('bus-side');
-                    td5.classList.add('right');
-
-                    if (i > 1) {
-                        td3.classList.add('corridor');
-                        createButton(td2, (i * 2) - 3 + 'A', 'trip--seat', (i * 2) - 3 + 'A', e => clickToChooseSeat(e.target));
-                        createButton(td2, (i * 2) - 3 + 'B', 'trip--seat', (i * 2) - 3 + 'B', e => clickToChooseSeat(e.target));
-                        createButton(td4, (i * 2) - 2 + 'B', 'trip--seat', (i * 2) - 2 + 'B', e => clickToChooseSeat(e.target));
-                        createButton(td4, (i * 2) - 2 + 'A', 'trip--seat', (i * 2) - 2 + 'A', e => clickToChooseSeat(e.target));
-
-                        if (i === 11) {
-                            td2.classList.add('last-seat');
-                            td3.classList.add('last-seat');
-                            td4.classList.add('last-seat');
-                        }
-
-                        if (i === 2 || i === 9) {
-                            td1.classList.add('tyre-left');
-                            td5.classList.add('tyre-right');
-                        }
-                    } else if (i === 1) {
-                        createButton(td2, 'DRIVER', null, '00', null);
-                        createButton(td4, 'EXIT >>', null, 'bus-door', null);
-                        td2.classList.add('driver');
-                        td4.classList.add('bus-door');
-                        td3.innerText = AvailableSeatsLeft + ' LEFT';
-                    } else {
-                        td1.classList.add('mirror');
+                        const row = busSeatsTable.insertRow(i);
+                        const td1 = row.insertCell(0);
+                        const td2 = row.insertCell(1);
+                        const td3 = row.insertCell(2);
+                        const td4 = row.insertCell(3);
+                        const td5 = row.insertCell(4);
+                        td1.classList.add('bus-side');
                         td1.classList.add('left');
-                        td5.classList.add('mirror');
+                        td5.classList.add('bus-side');
                         td5.classList.add('right');
-                        td2.classList.add('front');
-                        td3.classList.add('front');
-                        td4.classList.add('front');
-                        td2.innerText = 'BUS';
-                        td3.innerText = 'FRONT';
-                        td4.innerText = 'SIDE';
+
+                        if (i > 1) {
+                            td3.classList.add('corridor');
+                            createButton(td2, (i * 2) - 3 + 'A', 'trip--seat', (i * 2) - 3 + 'A', e => clickToChooseSeat(e.target));
+                            createButton(td2, (i * 2) - 3 + 'B', 'trip--seat', (i * 2) - 3 + 'B', e => clickToChooseSeat(e.target));
+                            createButton(td4, (i * 2) - 2 + 'B', 'trip--seat', (i * 2) - 2 + 'B', e => clickToChooseSeat(e.target));
+                            createButton(td4, (i * 2) - 2 + 'A', 'trip--seat', (i * 2) - 2 + 'A', e => clickToChooseSeat(e.target));
+
+                            if (i === 11) {
+                                td2.classList.add('last-seat');
+                                td3.classList.add('last-seat');
+                                td4.classList.add('last-seat');
+                            }
+
+                            if (i === 2 || i === 9) {
+                                td1.classList.add('tyre-left');
+                                td5.classList.add('tyre-right');
+                            }
+                        } else if (i === 1) {
+                            createButton(td2, 'DRIVER', null, '00', null);
+                            createButton(td4, 'EXIT >>', null, 'bus-door', null);
+                            td2.classList.add('driver');
+                            td4.classList.add('bus-door');
+                            td3.innerText = AvailableSeatsLeft + ' LEFT';
+                        } else {
+                            td1.classList.add('mirror');
+                            td1.classList.add('left');
+                            td5.classList.add('mirror');
+                            td5.classList.add('right');
+                            td2.classList.add('front');
+                            td3.classList.add('front');
+                            td4.classList.add('front');
+                            td2.innerText = 'BUS';
+                            td3.innerText = 'FRONT';
+                            td4.innerText = 'SIDE';
+                        }
                     }
-                }
+                };
+                buildBusSeats();
 
                 // Get the already booked seats by the current user in the current Trip
                 const userBookedSeatsOnTripIDList = currentUserBookedSeatsOnTripIDs();
@@ -510,36 +562,168 @@
                 });
             };
 
-            // A list of all trips
-            trips.forEach((trip, i) => {
-                const newRow = allTipsTable.insertRow(i);
-                const tripArray = tripArrayFromTrip(trip);
+            // WE LIST ALL TRIPS WITH ORDER DESCENDENT
+            const tripsDescendent = [];
 
-                // Trip Departure Place Id
-                newRow.insertCell(0).innerHTML = (places.filter(place => place.id === tripArray[0])[0])['name'];
+            const displayTripsList = (tripsToBeReversed) => {
 
-                // Trip Destination Place Id
-                newRow.insertCell(1).innerHTML = (places.filter(place => place.id === tripArray[1])[0])['name'];
+                tripsDescendent.push(...reverseList(tripsToBeReversed));
 
-                // Trip Departure Date
-                newRow.insertCell(2).innerHTML = tripArray[2];
+                tripsDescendent.forEach((trip, i) => {
+                    const newRow = allTipsTable.insertRow(i);
+                    const tripArray = tripArrayFromTrip(trip);
 
-                // Trip Departure Time
-                newRow.insertCell(3).innerHTML = departureTimes.filter(time => time === tripArray[3])[0];
+                    // if (i === tripsDescendent.length - 1) console.log(tripArray/*places.filter(place => place.id === tripArray[0])[0]*/);
 
-                // Trip Bus PlateNo
-                newRow.insertCell(4).innerHTML = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
+                    // Trip Departure Place Id
+                    newRow.insertCell(0).innerHTML = (places.filter(place => place.id === tripArray[0])[0])['name'];
 
-                // Open Button
-                createButton(newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
-                    openedTripId = trips[i].id;
-                    toggleSingleAllView();
-                    handleSingleTripDisplay(trips[i])
-                })
+                    // Trip Destination Place Id
+                    newRow.insertCell(1).innerHTML = (places.filter(place => place.id === tripArray[1])[0])['name'];
+
+                    // Trip Departure Date
+                    newRow.insertCell(2).innerHTML = tripArray[2];
+
+                    // Trip Departure Time
+                    newRow.insertCell(3).innerHTML = departureTimes.filter(time => time === tripArray[3])[0];
+
+                    // Trip Bus PlateNo
+                    newRow.insertCell(4).innerHTML = (buses.filter(bus => bus.id === tripArray[4] * 1)[0])['plate_no'];
+
+                    // Open Button
+                    createButton(newRow.insertCell(5), 'Open', 'btn primary book can__view_a_trip', null, () => {
+                        openedTripId = trips[i].id;
+                        toggleSingleAllView();
+                        handleSingleTripDisplay(trips[i])
+                    })
+                });
+                console.log('IN THE FUNCTION: ', tripsDescendent[tripsDescendent.length - 1].id)
+            };
+
+            let tripCreateInputs = [...elsByClass('trip--create-input')];
+
+            // CREATE A TRIP WITH A FORM
+            const createDepartureElement = elById('create-trip-departure');
+            const createDestinationElement = elById('create-trip-destination');
+            const createDateElement = elById('create-trip-date');
+            const createTimeElement = elById('create-trip-time');
+            const createBusElement = elById('create-trip-bus');
+
+            const createDepartmentElmentFn = () => places.forEach((place, i) => {
+                const opt = document.createElement("option");
+                opt.text = place.name;
+                opt.value = place.id;
+                createDepartureElement.add(opt, createDepartureElement[i + 1])
             });
 
-            // TODO Scroll of the table title with the content:
-            // https://jsfiddle.net/sgcer/1274/
+            const createDestinationElmentFn = () => places.forEach((place, i) => {
+                const opt = document.createElement("option");
+                opt.text = place.name;
+                opt.value = place.id;
+                createDestinationElement.add(opt, createDestinationElement[i + 1])
+            });
+
+            const createDateElmentFn = () => coming30days.forEach((date, i) => {
+                const opt = document.createElement("option");
+                opt.text = date.date;
+                opt.value = date.date;
+                createDateElement.add(opt, createDateElement[i + 1])
+            });
+
+            const createTimeElmentFn = () => departureTimes.forEach((time, i) => {
+                const opt = document.createElement("option");
+                opt.text = time;
+                opt.value = time;
+                createTimeElement.add(opt, createTimeElement[i + 1])
+            });
+
+            const createBusElmentFn = () => buses.forEach((bus, i) => {
+                const opt = document.createElement("option");
+                opt.text = bus['plate_no'];
+                opt.value = bus.id;
+                createBusElement.add(opt, createBusElement[i + 1])
+            });
+
+            createDepartmentElmentFn();
+            createDestinationElmentFn();
+            createDateElmentFn();
+            createTimeElmentFn();
+            createBusElmentFn();
+
+            const tripCreateSelectElementsList = [
+                createDepartureElement,
+                createDestinationElement,
+                createDateElement,
+                createTimeElement,
+                createBusElement
+            ];
+
+            // Listen to any change of the select box and update the submit button
+            const tripCreateSubmitBtn = elById('trip-create_submit');
+            tripCreateSubmitBtn.setAttribute('disabled', true);
+            createDestinationElement.disabled = true;
+
+            tripCreateSelectElementsList.forEach(e => e.addEventListener('change', event => {
+
+                // To prevent that the Departure can be also the Destination place
+                if (e.id === createDepartureElement.id) {
+                    createDestinationElement.disabled = false;
+                    [...createDestinationElement.options].forEach((option, i) => i !== 0 && (option.hidden = false));
+                    [...createDestinationElement.options].filter(option => option['value'] === event.target.value)[0].setAttribute('hidden', 'hidden');/*.disabled = true*/
+
+                    // Remove the selection of the second Destination
+                    if (createDepartureElement.selectedIndex === createDestinationElement.selectedIndex) {
+                        createDestinationElement.selectedIndex = 0;
+                    }
+                }
+                const selectedDate = createDateElement.options[createDateElement.selectedIndex].value;
+                const selectedTime = createTimeElement.options[createTimeElement.selectedIndex].value;
+
+                [...createBusElement.options].forEach((opt, i) => {
+                    if (selectedDate && selectedTime) {
+
+                        const selectedDayBusesTrips = tripsDescendent
+                            .map(trip => trip.id)
+                            .filter(id => id.includes(selectedDate) && id.endsWith((i === 10 ? '' : '0') + opt['id']));
+
+                        if (selectedDayBusesTrips.length > 0) {
+                            selectedDayBusesTrips.forEach(trip => {
+
+                                const selectedDayTripTimes = tripArrayFromTrip(trip) && tripArrayFromTrip(trip)[3];
+                                console.log(selectedDayTripTimes)
+                            })
+                        }
+                    }
+                });
+
+
+                const isAnyEmptyFormElement = tripCreateSelectElementsList.map(el => el['value']).filter(e => e === '');
+                console.log(isAnyEmptyFormElement);
+
+                if (isAnyEmptyFormElement.length) {
+                    tripCreateSubmitBtn.disabled = true;
+                } else {
+                    tripCreateSubmitBtn.disabled = false;
+                    tripCreateSubmitBtn.addEventListener('click', ev => {
+
+                        const tripFormValues = tripCreateInputs.map(e => e['value']);
+                        const newTripId = `0${tripFormValues[0]}-0${tripFormValues[1]}-${tripFormValues[2]}-${tripFormValues[3]}-0${tripFormValues[4]}`;
+
+                        trips.push({id: newTripId});
+                        // // Add message of success
+
+                        elById('create-new-trip').reset();
+
+                        // console.log('BEFORE THE FUNCTION: ', tripFormValues);
+
+                        displayTripsList(trips);
+                    });
+                }
+
+            }));
+
+            displayTripsList(trips);
+            //  FILTERING TRIPS ON THE USERS TRIP LIST
         });
     }
 </script>

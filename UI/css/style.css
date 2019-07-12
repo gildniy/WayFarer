@@ -71,7 +71,7 @@
     --color-primary: #37474f;
     --color-secondary: grey;
     --default-border-radius: 5px;
-    --default-element-padding: 15px;
+    --default-element-padding: 12px;
 }
 
 /* NORMALIZE */
@@ -659,6 +659,48 @@ button#submit-bookings {
 /* ENDS -- BUS IMAGE*/
 
 /* ENDS - SINGLE TRIP */
+
+.submit-switch, .trip-create {
+    padding: var(--default-element-padding);
+    background-color: var(--default-small-component-bg);
+    text-align: right;
+    width: 100%;
+}
+
+.submit-switch {
+    margin-top: 20px;
+    border-radius: var(--default-border-radius);
+}
+
+.trip--create-form {
+    background-color: var(--default-big-component-bg);
+    position: relative;
+    padding: var(--default-element-padding);
+}
+
+.trip--create-input-group {
+    /*padding: var(--default-element-padding);*/
+    /*background-color: var(--default-small-component-bg);*/
+    /*border-radius: var(--default-border-radius);*/
+    /*display: flex;*/
+}
+
+.trip--create-input-group label {
+    margin-right: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+    min-width: 20%;
+}
+
+.trip--create-input-group > select {
+    padding: var(--default-element-padding);
+    border-radius: var(--default-border-radius);
+    border: 1px solid var(--default-link-text-color);
+    display: inline-block;
+    min-width: 70%;
+}
+
 
 @media screen and (max-width: 768px) {
     .content-wrapper {
