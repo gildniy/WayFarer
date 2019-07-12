@@ -284,6 +284,11 @@ input {
     color: var(--color-white);
 }
 
+.btn.danger {
+    background-color: var(--message-error);
+    color: white;
+}
+
 .checkbox-input-group:focus-within, .login-submit:focus-within, .register-submit:focus-within {
     background-color: var(--default-small-component-bg);
     color: var(--default-text-color);
@@ -426,7 +431,7 @@ label.checkbox-input > span:after {
     /*padding: 20px;*/
     width: 100px;
     /*height: 400px;*/
-    background-color: green;
+    /*background-color: green;*/
     display: inline-block;
     /*overflow-x: auto;*/
 }
@@ -459,10 +464,30 @@ table {
     background-color: #dfdfdf;
 }
 
+/*.table-header {*/
+/*    background-color: #9bade9;*/
+/*    height: 50px;*/
+/*}*/
+
+/*.table-header .detail {*/
+/*    background-color: #294e53;*/
+/*}*/
+
 .scroll {
-    height: 400px;
+    height: 300px;
     overflow: auto;
 }
+
+th.table-departure, th.table-destination, th.table-date, th.table-time, th.table-bus {
+    width: 120px !important;
+}
+
+/*.table-departure{}*/
+/*.table-destination{}*/
+/*.table-date{}*/
+/*.table-time{}*/
+/*.table-bus{}*/
+/*.table-action{}*/
 
 /* STARTS - SINGLE TRIP */
 
@@ -491,7 +516,7 @@ table {
 }
 
 .trip--details ul {
-    background-color: #DBDBDB;
+    background-color: var(--default-small-component-bg) /*#DBDBDB*/;
     border-radius: var(--default-border-radius);
     padding: 10px;
     margin: 15px 0;
@@ -504,7 +529,8 @@ table {
     border-radius: var(--default-border-radius);
 }
 
-.trip--details h2 {
+/*.trip--details */
+h2 {
     border-bottom: 3px solid var(--default-link-text-color);
 }
 
@@ -703,7 +729,7 @@ button#submit-bookings {
     /*display: flex;*/
 }
 
-.trip--create-input-group label {
+.trip--create-input-group label, .booking--sort-input-group label, .trip--filter-input-group label {
     margin-right: 20px;
     font-weight: bold;
     text-transform: uppercase;
@@ -711,7 +737,7 @@ button#submit-bookings {
     min-width: 20%;
 }
 
-.trip--create-input-group > select {
+.trip--create-input-group > select, .booking--sort-input-group > select, .trip--filter-input-group select {
     padding: var(--default-element-padding);
     border-radius: var(--default-border-radius);
     border: 1px solid var(--default-link-text-color);
@@ -719,6 +745,69 @@ button#submit-bookings {
     min-width: 70%;
 }
 
+.trip--filter-input-group select {
+    min-width: 50%;
+}
+
+
+.bookings, .trip--create-form {
+    background-color: var(--default-small-component-bg);
+    border-radius: var(--default-border-radius);
+    padding: var(--default-element-padding);
+}
+
+.booking--list {
+    border-radius: var(--default-border-radius);
+    height: 200px;
+    overflow: hidden;
+    overflow-y: scroll;
+    background-color: var(--default-small-component-bg);
+    /*padding: var(--default-element-padding);*/
+    border: 3px solid white;
+}
+
+.booking--list li {
+    background-color: white;
+    border-radius: var(--default-border-radius);
+    padding: 5px;
+    min-height: 30px;
+    margin: 10px;
+    list-style: none;
+}
+
+.booking--list li span {
+    border-radius: var(--default-border-radius);
+    padding: var(--default-element-padding);
+    margin: 2px;
+}
+
+.booking--list li a {
+    color: var(--message-error);
+    font-weight: bold;
+}
+
+.list-format {
+    display: block;
+    text-align: center;
+    padding-bottom: var(--default-element-padding);
+}
+
+.list-format span {
+    display: inline-block;
+    padding: 2px;
+    /*margin: 2px;*/
+    background-color: #3a4760;
+    color: white;
+    border-radius: 2px;
+}
+
+.submit-switch {
+    padding: 0 !important;
+}
+
+.trip--filter-container {
+    padding: var(--default-element-padding);
+}
 
 @media screen and (max-width: 768px) {
     .content-wrapper {
@@ -767,6 +856,9 @@ button#submit-bookings {
 }
 
 /* THIS SHOULD BE BELOWWWWWW.........*/
-.is__hidden, .not-allowed {
+.is__hidden, .not-allowed,
+.only__admin, .only__user,
+.list-format > span.only__admin,
+.list-format > span.only__user {
     display: none;
 }
