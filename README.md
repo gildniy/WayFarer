@@ -1,9 +1,4 @@
-[![Build Status](https://travis-ci.org/gildniy/WayFarer.svg?branch=master)](https://travis-ci.org/gildniy/WayFarer)
-# WayFarer :bus:
-=======
-
 # WayFarer :bus: [![Build Status](https://travis-ci.org/gildniy/WayFarer.svg?branch=master)](https://travis-ci.org/gildniy/WayFarer)
->>>>>>> cd44815baeec208ac913fc303bfe36e53b42edd0
 **WayFarer** is a public bus transportation booking service.
 >***Project Timeline:***
  ● Total Duration: 7 weeks
