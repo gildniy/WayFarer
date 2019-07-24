@@ -4,7 +4,7 @@
   "description": "**WayFarer** is a public bus transportation booking service.\r >***Project Timeline:***\r  ● Total Duration: 7 weeks\r  ● Start Date: July 3rd, 2019\r  ● Final Due Date: August 16th, 2019\r ## Required Features\r 1. User can sign up.\r 2. User can sign in.\r 3. Admin can create a trip.\r 4. Admin can cancel a trip.\r 5. Both Admin and Users can see all trips.\r 6. Both Admin and Users can see a specific trip.\r 7. Users can book a seat on a trip.\r 8. View all bookings. An Admin can see all bookings, while user can see all of his/her\r bookings.\r 9. Users can delete their booking.\r ## Optional Features\r 1. Users can get a list of filtered trips based on origin.\r 2. Users can get a list of filtered trips based on destination.\r 3. Users can specify their seat numbers when making a booking.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/gildniy/WayFarer/issues"
   },
-  "homepage": "https://github.com/gildniy/WayFarer#readme"
+  "homepage": "https://github.com/gildniy/WayFarer#readme",
+  "devDependencies": {
+    "mocha": "^6.2.0"
+  }
 }
