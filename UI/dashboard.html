@@ -153,7 +153,6 @@
     if (!localStorage.getItem('loggedUserId')) {
 
         // IF THE USER IS NOT AUTHENTICATED HE/SHE'S REDIRECTED TO THE HOME
-
         localStorage.setItem('needToBeLogged', Date.now() + '');
         window.location.replace('index.html');
     } else {

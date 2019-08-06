@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "seating_capacity": 40,
+    "bus_license_number": "111",
+    "origin": "A",
+    "destination": "B",
+    "trip_date": "1111111111111111",
+    "fare": 1,
+    "status": 1
+  },
+  {
+    "id": 2,
+    "seating_capacity": 40,
+    "bus_license_number": "111",
+    "origin": "A",
+    "destination": "B",
+    "trip_date": "1111111111111111",
+    "fare": 1,
+    "status": 1
+  },
+  {
+    "id": 3,
+    "seating_capacity": 40,
+    "bus_license_number": "111",
+    "origin": "A",
+    "destination": "B",
+    "trip_date": "1111111111111111",
+    "fare": 1,
+    "status": 1
+  },
+  {
+    "id": 4,
+    "seating_capacity": 40,
+    "bus_license_number": "111",
+    "origin": "A",
+    "destination": "B",
+    "trip_date": "1111111111111111",
+    "fare": 1,
+    "status": 1
+  },
+  {
+    "id": 5,
+    "seating_capacity": 40,
+    "bus_license_number": "111",
+    "origin": "A",
+    "destination": "B",
+    "trip_date": "1111111111111111",
+    "fare": 1,
+    "status": 1
+  },
+  {
+    "id": 6,
+    "seating_capacity": 40,
+    "bus_license_number": "111",
+    "origin": "A",
+    "destination": "B",
+    "trip_date": "1111111111111111",
+    "fare": 1,
+    "status": 1
+  }
+]
