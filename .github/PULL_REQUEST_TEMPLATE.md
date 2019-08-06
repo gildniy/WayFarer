@@ -15,7 +15,7 @@ Have the following endpoints working
 After cloning the repo, cd into it and run `npm start`
 - Using Postman test `POST /api/v1/auth/signin/` by setting the body as `{"email": "user1@site.com"}` for an admin user and `{"email": "user2@site.com"}` for a regular user
 - Using Postman test `POST /api/v1/auth/signup/` by setting the body as `{ "email": "user10@site.com", "password": "password", "first_name": "fuser10", "last_name": "luser10" }` for a regular user
-- For the rest of the api they requires to set the Auth header which can be copied from the body of the signin or signup end points
+- For the rest of the api they require to set the Authorization header which can be copied from the body of the signin or signup end points
 - The Content type should be set to Application/json
 - Using Postman test `GET /api/v1/trips/` by setting the Authorization Token obtained from the login
 - Using Postman test `POST /api/v1/trips/` by setting the Authorization Token obtained from the login and the body as `{ "seating_capacity": 40, "bus_license_number": 111, "origin": "AAA", "destination": "BBB", "trip_date": "2019-07-18",  "fare": 1000 }` 
