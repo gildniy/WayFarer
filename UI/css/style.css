@@ -306,6 +306,11 @@ input {
 .input-group > label > input[type="checkbox"] {
     height: 0;
     width: 0;
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    left: -199px
 }
 
 label.checkbox-input:hover input ~ span {
@@ -424,6 +429,7 @@ label.checkbox-input > span:after {
     background-color: white;
     margin: 50px;
     border-radius: 5px;
+    min-height: 520px;
 }
 
 .column {
@@ -784,6 +790,10 @@ button#submit-bookings {
 .booking--list li a {
     color: var(--message-error);
     font-weight: bold;
+    font-size: 20px;
+    /*text-align: right;*/
+    padding-right: 25px;
+    float: right;
 }
 
 .list-format {
