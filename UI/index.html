@@ -15,15 +15,15 @@
 <div class="page-container">
     <nav class="client-nav">
         <div class="logo"></div>
-        <div class="btn-wrapper">
-            <div class="btn default btn-login" id="user-login">Test as User</div>
-            <div class="btn default btn-login" id="admin-login">Test as Admin</div>
-        </div>
+<!--        <div class="btn-wrapper">-->
+<!--            <div class="btn default btn-login" id="user-login">Test as User</div>-->
+<!--            <div class="btn default btn-login" id="admin-login">Test as Admin</div>-->
+<!--        </div>-->
     </nav>
     <div class="form-wrapper">
         <div class="auth-area">
             <h2 class="auth-title">Login</h2>
-            <div class="msg msg-hidden" id="login_msg"></div>
+<!--            <div class="msg msg-hidden" id="login_msg"></div>-->
             <form class="auth-form">
                 <!-- <form action="test-login.php" class="auth-form">-->
                 <p class="input-group">
@@ -41,8 +41,8 @@
                     </label>
                 </p>
                 <p class="input-group login-submit">
-                    <label for="login_submit">
-                        <input class="submit-btn" id="login_submit" name="login_submit" type="submit" value="ENTER">
+                    <label for="user-login">
+                        <input class="submit-btn" id="user-login" name="login_submit" type="submit" value="LOGIN">
                     </label>
                 </p>
             </form>
@@ -50,7 +50,7 @@
         </div>
         <div class="auth-area form-hidden">
             <h2 class="auth-title">Register</h2>
-            <div class="msg msg-hidden" id="register_msg"></div>
+<!--            <div class="msg msg-hidden" id="register_msg"></div>-->
             <form class="auth-form">
                 <!-- <form action="test-register.php" class="auth-form">-->
                 <p class="input-group">
@@ -74,8 +74,8 @@
                            type="password">
                 </p>
                 <p class="input-group register-submit">
-                    <label for="register_submit">
-                        <input class="submit-btn" id="register_submit" name="register_submit" type="submit"
+                    <label for="admin-login">
+                        <input class="submit-btn" id="admin-login" name="register_submit" type="submit"
                                value="Register">
                     </label>
                 </p>
@@ -100,26 +100,26 @@
     const isAnyUserLoggedId = (localStorage.getItem('loggedUserId'));
 
     let message;
-    let messageBox = elById('login_msg');
+    // let messageBox = elById('login_msg');
 
-    const buildMessage = (messageObj) => {
-        if (typeof message.type === 'string') {
-            if (message.type === 'success') {
-                messageBox.classList.remove('msg-hidden');
-                messageBox.classList.add('success');
-                messageBox.innerHTML = message.text
-            } else {
-                messageBox.classList.remove('msg-hidden');
-                messageBox.classList.add('error');
-                messageBox.innerHTML = message.text
-            }
-        } else {
-            messageBox.classList.add('msg-hidden');
-            messageBox.classList.contains('error') && messageBox.classList.remove('error');
-            messageBox.classList.contains('success') && messageBox.classList.remove('success');
-            messageBox.innerHTML = ''
-        }
-    };
+    // const buildMessage = (messageObj) => {
+    //     if (typeof message.type === 'string') {
+    //         if (message.type === 'success') {
+    //             messageBox.classList.remove('msg-hidden');
+    //             messageBox.classList.add('success');
+    //             messageBox.innerHTML = message.text
+    //         } else {
+    //             messageBox.classList.remove('msg-hidden');
+    //             messageBox.classList.add('error');
+    //             messageBox.innerHTML = message.text
+    //         }
+    //     } else {
+    //         messageBox.classList.add('msg-hidden');
+    //         messageBox.classList.contains('error') && messageBox.classList.remove('error');
+    //         messageBox.classList.contains('success') && messageBox.classList.remove('success');
+    //         messageBox.innerHTML = ''
+    //     }
+    // };
 
     if (!!isAnyUserLoggedId) {
         window.location.replace('dashboard.html');
@@ -129,26 +129,25 @@
 
         localStorage.removeItem('loggedUserId');
         [loginAdminBtn, loginUserBtn].forEach(el => el.addEventListener('click', ev => {
-            // fetch("./db.json").then(res => res.json()).then(db => {})
             localStorage.setItem('loggedUserId', (
                 ev.target['id'] === 'admin-login' ? 1 : ( // If the clicked button is admin set the current user to admin
-                    Math.floor(Math.random() * (10 - 2 + 1) + 2) // Other wise set to a rendom Other user (id = 2 -> 10)
+                    Math.floor(Math.random() * (10 - 2 + 1) + 2) // Other wise set to a random Other user (id = 2 -> 10)
                 )
             ) + '');
             window.location.replace('dashboard.html');
         }));
 
-        // In other to As the user to log with a click to
-        // the 'ENTER AS A USER' OR 'ENTER AS ADMIN'
-        if (!!(localStorage.getItem('needToBeLogged'))) {
-
-            message = {
-                type: 'error',
-                text: 'Use the above buttons to access the Dasbor as "ADMIN" or "USER"'
-            };
-            buildMessage(message);
-            localStorage.removeItem('needToBeLogged');
-        }
+        // // In other to As the user to log with a click to
+        // // the 'ENTER AS A USER' OR 'ENTER AS ADMIN'
+        // if (!!(localStorage.getItem('needToBeLogged'))) {
+        //
+        //     message = {
+        //         type: 'error',
+        //         text: 'Use the above buttons to access the Dasboard as "ADMIN" or "USER"'
+        //     };
+        //     buildMessage(message);
+        //     localStorage.removeItem('needToBeLogged');
+        // }
     }
 
     // LOGIN / REGISTER switch
@@ -164,69 +163,69 @@
     const submitBtnElements = document.getElementsByClassName('submit-btn');
     let formSubmitable = false;
 
-    Array.from(submitBtnElements).forEach(btn => btn.addEventListener('click', (e) => {
-        const target = e.target;
-        const submitBtnType = target.id;
+    // Array.from(submitBtnElements).forEach(btn => btn.addEventListener('click', (e) => {
+    //     const target = e.target;
+    //     const submitBtnType = target.id;
 
         // Login form
-        if (submitBtnType === 'login_submit') {
-
-            const userNameField = elById('login_username');
-            const PasswordField = elById('login_password');
-
-            if (userNameField.value === '') {
-                message = {type: 'error', text: 'The username can not be empty'};
-                formSubmitable = false
-            } else if (userNameField.value.length < 2 || userNameField.value.length > 13) {
-                message = {type: 'error', text: 'The username can only be between 3 and 12 characters'};
-                formSubmitable = false
-            } else if (PasswordField.value.length === '') {
-                message = {type: 'error', text: 'Password can not be empty'};
-                formSubmitable = false
-            } else {
-                formSubmitable = true
-            }
-
-        } else { // Register form
-
-            const userNameField = elById('register_username');
-            const EmailField = elById('register_email');
-            const PasswordField = elById('register_password');
-            const PasswordConfirmationField = elById('register_confirm_password');
-
-            messageBox = elById('register_msg');
-
-            if (userNameField.value === '') {
-                message = {type: 'error', text: 'The username can not be empty'};
-                formSubmitable = false
-            } else if (userNameField.value.length < 2 || userNameField.value.length > 13) {
-                message = {type: 'error', text: 'The username can only be between 3 and 12 characters'};
-                formSubmitable = false
-            } else if (EmailField.value.length === '') {
-                message = {type: 'error', text: 'The email can not be empty'};
-                formSubmitable = false
-            } else if (EmailField.value.length < 2 || EmailField.value.length > 13) {
-                message = {type: 'error', text: 'The email can only be between 3 and 12 characters'};
-                formSubmitable = false
-            } else if (PasswordField.value.length === '') {
-                message = {type: 'error', text: 'Password can not be empty'};
-                formSubmitable = false
-            } else if (PasswordField.value.length < 6 || PasswordField.value.length > 50) {
-                message = {type: 'error', text: 'The email can only be between 6 and 50 characters'};
-                formSubmitable = false
-            } else if (PasswordConfirmationField.value !== PasswordField.value) {
-                message = {type: 'error', text: 'Password and Password Confirmation may be the same'};
-                formSubmitable = false
-            } else {
-                message = {
-                    type: 'success',
-                    text: 'You successfully created an account, check your email box for confirmation.'
-                };
-                formSubmitable = true
-            }
-        }
-        buildMessage(message);
-    }));
+        // if (submitBtnType === 'login_submit') {
+        //
+        //     const userNameField = elById('login_username');
+        //     const PasswordField = elById('login_password');
+        //
+        //     if (userNameField.value === '') {
+        //         message = {type: 'error', text: 'The username can not be empty'};
+        //         formSubmitable = false
+        //     } else if (userNameField.value.length < 2 || userNameField.value.length > 13) {
+        //         message = {type: 'error', text: 'The username can only be between 3 and 12 characters'};
+        //         formSubmitable = false
+        //     } else if (PasswordField.value.length === '') {
+        //         message = {type: 'error', text: 'Password can not be empty'};
+        //         formSubmitable = false
+        //     } else {
+        //         formSubmitable = true
+        //     }
+        //
+        // } else { // Register form
+        //
+        //     const userNameField = elById('register_username');
+        //     const EmailField = elById('register_email');
+        //     const PasswordField = elById('register_password');
+        //     const PasswordConfirmationField = elById('register_confirm_password');
+        //
+        //     // messageBox = elById('register_msg');
+        //     //
+        //     // if (userNameField.value === '') {
+        //     //     message = {type: 'error', text: 'The username can not be empty'};
+        //     //     formSubmitable = false
+        //     // } else if (userNameField.value.length < 2 || userNameField.value.length > 13) {
+        //     //     message = {type: 'error', text: 'The username can only be between 3 and 12 characters'};
+        //     //     formSubmitable = false
+        //     // } else if (EmailField.value.length === '') {
+        //     //     message = {type: 'error', text: 'The email can not be empty'};
+        //     //     formSubmitable = false
+        //     // } else if (EmailField.value.length < 2 || EmailField.value.length > 13) {
+        //     //     message = {type: 'error', text: 'The email can only be between 3 and 12 characters'};
+        //     //     formSubmitable = false
+        //     // } else if (PasswordField.value.length === '') {
+        //     //     message = {type: 'error', text: 'Password can not be empty'};
+        //     //     formSubmitable = false
+        //     // } else if (PasswordField.value.length < 6 || PasswordField.value.length > 50) {
+        //     //     message = {type: 'error', text: 'The email can only be between 6 and 50 characters'};
+        //     //     formSubmitable = false
+        //     // } else if (PasswordConfirmationField.value !== PasswordField.value) {
+        //     //     message = {type: 'error', text: 'Password and Password Confirmation may be the same'};
+        //     //     formSubmitable = false
+        //     // } else {
+        //     //     message = {
+        //     //         type: 'success',
+        //     //         text: 'You successfully created an account, check your email box for confirmation.'
+        //     //     };
+        //     //     formSubmitable = true
+        //     // }
+    //     }
+    //     buildMessage(message);
+    // }));
     // Current year for copyright
     const currentTime = new Date();
     elById("year").innerHTML = currentTime.getFullYear();
