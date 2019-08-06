@@ -1,3 +1,9 @@
-# Created by .ignore support plugin (hsz.mobi)
-/event-emmiter.js
-/node_modules
+node_modules
+dist
+.env
+.DS_Store
+/server/api/controllers/examples/
+/public/
+/server/api/services/examples.db.service.js
+/server/api/services/examples.service.js
+/test/examples.controller.js
