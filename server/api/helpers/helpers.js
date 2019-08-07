@@ -1,4 +1,4 @@
-import { genSaltSync, hashSync } from 'bcryptjs';
+import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 
 const path = require('path');
 const fs = require('fs');
@@ -22,9 +22,14 @@ const noSpaceString = value => typeof value === 'string' && !~value.indexOf(' ')
 
 const isIntegerNumber = value => Math.floor(value) === value;
 
+const verifyPassword = (passwordAttempted, hashedPassword) => {
+  return compareSync(passwordAttempted, hashedPassword);
+};
+
 export {
   writeJSONFile,
   hashPassword,
   noSpaceString,
   isIntegerNumber,
+  verifyPassword
 };

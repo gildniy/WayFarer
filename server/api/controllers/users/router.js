@@ -1,6 +1,7 @@
 import * as express from 'express';
-import { validateRegisterInputs } from '../../middlewares/validators';
+import { validateLoginInputs, validateRegisterInputs } from '../../middlewares/validators';
 import controller from './controller';
 
 export default express.Router()
-  .post('/signup', validateRegisterInputs, controller.signupUser);
+  .post('/signup', validateRegisterInputs, controller.signupUser)
+  .post('/signin', validateLoginInputs, controller.signinUser);

@@ -34,6 +34,13 @@ class Controller {
       .catch(error => res.status(error.code)
         .send(error.response));
   }
+
+  signinUser(req, res) {
+    UsersService.login(req.body)
+      .then(result => buildResult(res, result))
+      .catch(error => res.status(error.code)
+        .send(error.response));
+  }
 }
 
 export default new Controller();

@@ -1,6 +1,6 @@
 import L from '../../common/logger';
 import { Constants } from '../helpers/constants';
-import { hashPassword, writeJSONFile } from '../helpers/helpers';
+import { hashPassword, verifyPassword, writeJSONFile } from '../helpers/helpers';
 
 const filename = '../data/users.json';
 // eslint-disable-next-line import/no-dynamic-require
@@ -61,6 +61,42 @@ class UsersService {
         status: 'error',
         error: 'User with this email already exists!',
       },
+    });
+  }
+
+  login({ email, password }) {
+    L.info(`login user with email: ${email}`);
+
+    const userExists = users.filter(u => {
+      const passwordMatch = verifyPassword(password, u.password);
+      return u.email === email && passwordMatch;
+    })[0];
+
+    if (userExists) {
+
+      L.info(`Yeah the user exists!`);
+
+      return Promise.resolve({
+        code: Constants.response.found, // 302
+        response: {
+          status: 'success',
+          data: {
+            first_name: userExists.first_name,
+            last_name: userExists.last_name,
+            email: userExists.email
+          }
+        }
+      });
+    }
+
+    L.info(`No, the user doesn't exist!`);
+
+    return Promise.reject({
+      code: Constants.response.notFound, // 404
+      response: {
+        status: 'error',
+        error: 'User not found'
+      }
     });
   }
 }
