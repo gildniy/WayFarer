@@ -26,7 +26,54 @@ definitions:
       name:
         type: string
         example: no_stress
+  UserRegisterBody:
+    type: object
+    title: register
+    required:
+      - email
+      - password
+      - first_name
+      - last_name
+    properties:
+      email:
+        type: string
+        format: email
+        example: user1@site.com
+      password:
+        type: string
+        format: password
+        example: password
+      first_name:
+        type: string
+        example: fuser1
+      last_name:
+        type: string
+        example: luser1
+  ErrorAPIResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      error:
+        type: string
 
+  AuthAPIResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          token:
+            type: string
+          first_name:
+            type: string
+          last_name:
+            type: string
+          email:
+            type: string
+            format: email
 paths:
   /examples:
     get:
@@ -74,3 +121,33 @@ paths:
       responses:
         200:
           description: Return the API specification
+
+  /auth/signup:
+    post:
+      tags:
+        - Authentication
+      description: Register a new user
+      summary: User can sign up
+      operationId: signupUser
+      produces:
+        - application/json
+      parameters:
+        - name: register_body
+          in: body
+          description: User create object
+          required: true
+          schema:
+            $ref: "#/definitions/UserRegisterBody"
+      responses:
+        '201':
+          description: User got created
+          schema:
+            $ref: "#/definitions/AuthAPIResponse"
+        '500':
+          description: An internal server error occurs
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '409':
+          description: Indentical user exists
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"

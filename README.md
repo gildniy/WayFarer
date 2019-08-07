@@ -1,6 +1,6 @@
 # wayfarer
 
-WayFarer is a public bus transportation booking service.(Project submitted for Andela Developer Challenge)
+wayfarer
 
 ## Get Started
 
