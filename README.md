@@ -1,113 +1,21 @@
-# wayfarer
-
-wayfarer
-
-## Get Started
-
-Get started developing...
-
-```shell
-# install deps
-npm install
-
-# run in development mode
-npm run dev
-
-# run tests
-npm run test
-```
-
-## Install Dependencies
-
-Install all package dependencies (one time operation)
-
-```shell
-npm install
-```
-
-## Run It
-#### Run in *development* mode:
-Runs the application is development mode. Should not be used in production
-
-```shell
-npm run dev
-```
-
-or debug it
-
-```shell
-npm run dev:debug
-```
-
-#### Run in *production* mode:
-
-Compiles the application and starts it in production production mode.
-
-```shell
-npm run compile
-npm start
-```
-
-## Test It
-
-Run the Mocha unit tests
-
-```shell
-npm test
-```
-
-or debug them
-
-```shell
-npm run test:debug
-```
-
-## Try It
-* Open you're browser to [http://localhost:3000](http://localhost:3000)
-* Invoke the `/examples` endpoint 
-  ```shell
-  curl http://localhost:3000/api/v1/examples
-  ```
-
-
-## Debug It
-
-#### Debug the server:
-
-```
-npm run dev:debug
-```
-
-#### Debug Tests
-
-```
-npm run test:debug
-```
-
-#### Debug with VSCode
-
-Add these [contents](https://github.com/cdimascio/generator-express-no-stress/blob/next/assets/.vscode/launch.json) to your `.vscode/launch.json` file
-## Lint It
-
-View airbnb linter output
-
-```
-npm run lint
-```
-
-Fix all airbnb linter errors
-
-```
-npm run lint
-```
-
-## Deploy It
-
-Deploy to CloudFoundry
-
-```shell
-cf push wayfarer
-```
-
-
-   
+# WayFarer :bus: [![Build Status](https://travis-ci.org/gildniy/WayFarer.svg?branch=master)](https://travis-ci.org/gildniy/WayFarer)
+**WayFarer** is a public bus transportation booking service.
+>***Project Timeline:***
+ ● Total Duration: 7 weeks
+ ● Start Date: July 3rd, 2019
+ ● Final Due Date: August 16th, 2019
+## Required Features
+1. User can sign up.
+2. User can sign in.
+3. Admin can create a trip.
+4. Admin can cancel a trip.
+5. Both Admin and Users can see all trips.
+6. Both Admin and Users can see a specific trip.
+7. Users can book a seat on a trip.
+8. View all bookings. An Admin can see all bookings, while user can see all of his/her
+bookings.
+9. Users can delete their booking.
+## Optional Features
+1. Users can get a list of filtered trips based on origin.
+2. Users can get a list of filtered trips based on destination.
+3. Users can specify their seat numbers when making a booking.
