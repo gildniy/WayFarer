@@ -1,7 +1,7 @@
 # WayFarer :bus:
 
 [![Build Status](https://travis-ci.org/gildniy/WayFarer.svg?branch=develop)](https://travis-ci.org/gildniy/WayFarer)
-[![Coverage Status](https://coveralls.io/repos/github/gildniy/WayFarer/badge.svg?branch=develop)](https://coveralls.io/github/gildniy/WayFarer?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/github/gildniy/WayFarer/badge.svg)](https://coveralls.io/github/gildniy/WayFarer)
 
 **WayFarer** is a public bus transportation booking service.
 >***Project Timeline:***
