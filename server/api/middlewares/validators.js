@@ -96,25 +96,30 @@ const validateCreateTripInputs = (req, res, next) => {
   }
 };
 
-const validatePermission = allowed => (req, res, next) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-  const token = authHeader.split(' ')[1];
-  const decoded = jwt.decode(token);
-  const userId = decoded.user_id;
-  const isAdmin = decoded.is_admin;
-  const bookings = require('../data/bookings.json');
-  const requestedBooking = bookings.filter(b => b.id === req.params.bookingId)[0];
 
-  if (isAdmin && allowed === 'admin' || !isAdmin && allowed === 'user') {
-    next();
-  } else if (!isAdmin && allowed === 'owner' && !!requestedBooking && requestedBooking.user_id === userId) {
-    next();
-  } else {
-    res.status(403)
-      .send({
-        status: 'error',
-        error: 'Unauthorized action',
-      });
+const validatePermission = (allowed) => {
+
+  return (req, res, next) => {
+
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.decode(token);
+    const userId = decoded.user_id;
+    const isAdmin = decoded.is_admin;
+    const bookings = require('../data/bookings.json');
+    const requestedBooking = bookings.filter(b => b.id === req.params.bookingId * 1)[0];
+
+    if (isAdmin && allowed === 'admin' || !isAdmin && allowed === 'user') {
+      next();
+    } else if (!isAdmin && allowed === 'owner' && !!requestedBooking && requestedBooking.user_id === userId) {
+      next();
+    } else {
+      res.status(403)
+        .send({
+          status: 'error',
+          error: 'Unauthorized action'
+        });
+    }
   }
 };
 

@@ -188,6 +188,15 @@ definitions:
         type: string
       error:
         type: string
+
+  BookingDeleteAPIResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      error:
+        type: string
+
 securityDefinitions:
   Bearer:
     description: |
@@ -430,6 +439,70 @@ paths:
             $ref: "#/definitions/ErrorAPIResponse"
         '409':
           description: Indentical trip bookiing exists
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+    get:
+      tags:
+        - Bookings
+      security:
+        - Bearer: []
+      description: Fetch all bookings (for Admin) or owned bookings (for User)
+      summary: View all bookings. Admin can see all bookings while User can see all of his/her bookings
+      operationId: showBookings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns all (for Admin) or owned by current user (for User) trip bookings
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/BookingAPIResponse"
+        '404':
+          description: No trip booking exists
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+
+  /bookings/{bookingId}:
+    delete:
+      tags:
+        - Bookings
+      security:
+        - Bearer: []
+      description: Removes a seat booking from user trip booking list
+      summary: Users can delete their bookings
+      operationId: deleteBooking
+      produces:
+        - application/json
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          description: The id of the trip booking to be deleted
+          schema:
+            type: integer
+          format: int32
+          example: 1
+          minimum: 1
+      responses:
+        '204':
+          description: Trip booking with specific id got deleted
+          schema:
+            $ref: "#/definitions/BookingDeleteAPIResponse"
+        '500':
+          description: An internal server error occurs
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '404':
+          description: No trip booking with the specified id exists
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
         '403':
