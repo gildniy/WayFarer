@@ -8,8 +8,9 @@
     "compile": "babel server --out-dir dist --delete-dir-on-start --source-maps inline --copy-files",
     "dev": "nodemon server --exec babel-node --config .nodemonrc.json | pino-pretty",
     "dev:debug": "nodemon server --exec babel-node --config .nodemonrc.json --inspect | pino-pretty",
-    "test": "nyc --require @babel/register mocha test/**/*spec.js --exit",
+    "test": "nyc --reporter=html --reporter=text mocha --require @babel/register test/**/*spec.js --exit",
     "test:debug": "mocha --require @babel/register --inspect-brk test/**/*spec.js --exit",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint -c .eslintrc.json {server,test}/**",
     "lint:fix": "eslint --fix -c .eslintrc.json {server,test}/**"
   },
