@@ -1,23 +1,45 @@
 {
-  "name": "WayFarer",
+  "name": "wayfarer",
   "version": "1.0.0",
-  "description": "**WayFarer** is a public bus transportation booking service.\r >***Project Timeline:***\r  ● Total Duration: 7 weeks\r  ● Start Date: July 3rd, 2019\r  ● Final Due Date: August 16th, 2019\r ## Required Features\r 1. User can sign up.\r 2. User can sign in.\r 3. Admin can create a trip.\r 4. Admin can cancel a trip.\r 5. Both Admin and Users can see all trips.\r 6. Both Admin and Users can see a specific trip.\r 7. Users can book a seat on a trip.\r 8. View all bookings. An Admin can see all bookings, while user can see all of his/her\r bookings.\r 9. Users can delete their booking.\r ## Optional Features\r 1. Users can get a list of filtered trips based on origin.\r 2. Users can get a list of filtered trips based on destination.\r 3. Users can specify their seat numbers when making a booking.",
+  "description": "WayFarer is a public bus transportation booking service.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "start": "node dist/index.js",
+    "compile": "babel server --out-dir dist --delete-dir-on-start --source-maps inline --copy-files",
+    "dev": "nodemon server --exec babel-node --config .nodemonrc.json | pino-pretty",
+    "dev:debug": "nodemon server --exec babel-node --config .nodemonrc.json --inspect | pino-pretty",
+    "test": "mocha --require @babel/register test/**/*spec.js --exit",
+    "test:debug": "mocha --require @babel/register --inspect-brk test/**/*spec.js --exit",
+    "lint": "eslint -c .eslintrc.json {server,test}/**",
+    "lint:fix": "eslint --fix -c .eslintrc.json {server,test}/**"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gildniy/WayFarer.git"
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "path": "^0.12.7",
+    "pino": "^5.13.1",
+    "swagger-express-middleware": "^2.0.2"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/gildniy/WayFarer/issues"
-  },
-  "homepage": "https://github.com/gildniy/WayFarer#readme",
   "devDependencies": {
-    "mocha": "^6.2.0"
-  }
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-eslint": "^10.0.2",
+    "chai": "^4.2.0",
+    "eslint": "^6.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "mocha": "^6.2.0",
+    "node-mocks-http": "^1.7.6",
+    "nodemon": "^1.19.1",
+    "pino-pretty": "^3.2.0",
+    "supertest": "^4.0.2"
+  },
+  "author": "Gildas Niyigena <gildniy05@gmail.com> (https://github.com/gildniy)"
 }
