@@ -67,7 +67,6 @@ class TripsService {
   edit(tripId) {
     L.info(`edit trip with Id ${ tripId }`);
 
-
     const tripToCancel = trips.filter(t => t.id === tripId)[0];
 
     if (tripToCancel) {
@@ -153,6 +152,37 @@ class TripsService {
       response: {
         status: 'error',
         error: 'No trip found!'
+      }
+    });
+  }
+
+  byId(tripId) {
+    L.info(`fetch trip with id ${tripId}`);
+
+    const trip = trips.filter(t => t.id === tripId)[0];
+
+    if (trip) {
+      return Promise.resolve({
+        code: Constants.response.ok, // 200
+        response: {
+          status: 'success',
+          data: {
+            trip_id: trip.id,
+            seating_capacity: trip.seating_capacity,
+            origin: trip.origin,
+            destination: trip.destination,
+            trip_date: trip.trip_date,
+            fare: trip.fare
+          }
+        }
+      });
+    }
+
+    return Promise.reject({
+      code: Constants.response.notFound, // 404
+      response: {
+        status: 'error',
+        error: `No trip found with id: ${tripId}`
       }
     });
   }

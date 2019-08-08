@@ -368,3 +368,37 @@ paths:
           description: Doesn't have enought permission to resources
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
+  /trips/{tripId}:
+    get:
+      tags:
+        - Trips
+      security:
+        - Bearer: []
+      description: Retrieves a trips
+      summary: Both Admin and Users can see a specific trip
+      operationId: showTrip
+      produces:
+        - application/json
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          description: The id of the trip to be retrived
+          schema:
+            type: integer
+          format: int32
+          example: 1
+          minimum: 1
+      responses:
+        '200':
+          description: Returns a specified trip
+          schema:
+            $ref: "#/definitions/TripAPIResponse"
+        '404':
+          description: Fails to find a trip with the specified id
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"

@@ -26,6 +26,16 @@ class Controller {
       .catch(e => res.status(e.code)
         .send(e.response));
   }
+
+  showTrip(req, res) {
+    const tripId = req.params.tripId * 1;
+    TripsService.byId(tripId)
+      .then(r => res.status(r.code)
+        .send(r.response))
+      .catch(r => res.status(e.code)
+        .send(e.response)
+      );
+  }
 }
 
 export default new Controller();

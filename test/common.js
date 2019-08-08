@@ -10,6 +10,11 @@ export const adminPayload = {
   is_admin: true,
   user_id: 1,
 };
+export const userPayload = {
+  email: 'user2@site.com',
+  is_admin: false,
+  user_id: 2,
+};
 export const options = Constants.jwtOptions;
 export const secret = process.env.JWT_SECRET;
 export const adminLoginUser = {
