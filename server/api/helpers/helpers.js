@@ -10,6 +10,8 @@ const getNewId = array => {
   return 1;
 };
 
+const newDate = () => new Date();
+
 const writeJSONFile = (filename, data) => {
   try {
     fs.writeFileSync(path.resolve(__dirname, filename), JSON.stringify(data));
@@ -57,6 +59,7 @@ const isFloatNumber = value => {
 
 export {
   getNewId,
+  newDate,
   writeJSONFile,
   hashPassword,
   noSpaceString,

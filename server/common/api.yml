@@ -84,22 +84,6 @@ definitions:
         type: number
         example: 1
 
-  BookingBody:
-    type: object
-    title: booking
-    required:
-      - trip_id
-      - user_id
-    properties:
-      trip_id:
-        type: integer
-        format: int32
-        example: 1
-      user_id:
-        type: integer
-        format: int32
-        example: 1
-
   ErrorAPIResponse:
     type: object
     properties:
@@ -123,6 +107,38 @@ definitions:
           last_name:
             type: string
           email:
+            type: string
+            format: email
+  #
+  #  BookingDeleteAPIResponse:
+  #    type: object
+  #    properties:
+  #      status:
+  #        type: string
+  #      error:
+  #        type: string
+
+  TripAPIResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          booking_id:
+            type: integer
+            format: int32
+          bus_license_number:
+            type: string
+          trip_date:
+            type: string
+            format: date
+          first_name:
+            type: string
+          last_name:
+            type: string
+          user_email:
             type: string
             format: email
 
@@ -150,38 +166,21 @@ definitions:
             type: string
             format: email
 
-  BookingDeleteAPIResponse:
+  BookingBody:
     type: object
+    title: booking
+    required:
+      - trip_id
+      - user_id
     properties:
-      status:
-        type: string
-      error:
-        type: string
-
-  TripAPIResponse:
-    type: object
-    properties:
-      status:
-        type: string
-      data:
-        type: object
-        properties:
-          booking_id:
-            type: integer
-            format: int32
-          bus_license_number:
-            type: string
-          trip_date:
-            type: string
-            format: date
-          first_name:
-            type: string
-          last_name:
-            type: string
-          user_email:
-            type: string
-            format: email
-
+      trip_id:
+        type: integer
+        format: int32
+        example: 1
+      user_id:
+        type: integer
+        format: int32
+        example: 1
   TripUpdateAPIResponse:
     type: object
     properties:
@@ -396,6 +395,41 @@ paths:
             $ref: "#/definitions/TripAPIResponse"
         '404':
           description: Fails to find a trip with the specified id
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+  /bookings:
+    post:
+      tags:
+        - Bookings
+      security:
+        - Bearer: []
+      description: Books a seat on trip
+      summary: Users can book a seat on a trip
+      operationId: bookTrip
+      produces:
+        - application/json
+      parameters:
+        - name: bookingCreateObject
+          in: body
+          description: Booking create object
+          required: true
+          schema:
+            $ref: "#/definitions/BookingBody"
+      responses:
+        '201':
+          description: Trip booking was created
+          schema:
+            $ref: "#/definitions/BookingAPIResponse"
+        '500':
+          description: An internal server error occurs
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '409':
+          description: Indentical trip bookiing exists
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
         '403':
