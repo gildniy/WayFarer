@@ -18,6 +18,14 @@ class Controller {
       .catch(e => res.status(e.code)
         .send(e.response));
   }
+
+  showTrips(req, res) {
+    TripsService.all()
+      .then(r => res.status(r.code)
+        .send(r.response))
+      .catch(e => res.status(e.code)
+        .send(e.response));
+  }
 }
 
 export default new Controller();

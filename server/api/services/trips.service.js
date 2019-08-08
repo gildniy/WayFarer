@@ -117,6 +117,45 @@ class TripsService {
       }
     });
   }
+
+  all() {
+    L.info(trips, 'fetch all trips');
+
+    if (trips.length) {
+
+      const trips$ = [];
+
+      trips.forEach(t => {
+
+        const trip$ = {
+          trip_id: t.id,
+          seating_capacity: t.seating_capacity,
+          origin: t.origin,
+          destination: t.destination,
+          trip_date: t.trip_date,
+          fare: t.fare
+        };
+
+        trips$.push(trip$);
+      });
+
+      return Promise.resolve({
+        code: Constants.response.ok, // 200
+        response: {
+          status: 'success',
+          data: trips$
+        }
+      });
+    }
+
+    return Promise.reject({
+      code: Constants.response.notFound, // 404
+      response: {
+        status: 'error',
+        error: 'No trip found!'
+      }
+    });
+  }
 }
 
 export default new TripsService();

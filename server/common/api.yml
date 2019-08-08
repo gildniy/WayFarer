@@ -305,7 +305,31 @@ paths:
           description: Doesn't have enought permission to resources
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
-
+    get:
+      tags:
+        - Trips
+      security:
+        - Bearer: []
+      description: Fetch all trips
+      summary: Both Admin and Users can see all trips
+      operationId: showTrips
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns all trips
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TripAPIResponse"
+        '404':
+          description: Fails to find any trip
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
   /trips/{tripId}/cancel:
     patch:
       tags:

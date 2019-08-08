@@ -1,5 +1,5 @@
 import Server from '../../server';
-import { adminPayload, jwt, options, request, secret, writeJSONFile } from '../common';
+import { adminPayload, jwt, options, request, secret, writeJSONFile, should } from '../common';
 
 const filename = '../data/trips.json';
 const trips = require('../../server/api/data/trips.json');
@@ -54,5 +54,24 @@ describe('POST /auth/trips', () => {
       const trips$ = trips.filter(t => t.origin !== 'AAAA' && t.destination !== 'BBBB');
       writeJSONFile(filename, trips$);
     });
+  });
+
+  context('User or Admin authenticated', () => {
+    it('should get all trips', done => {
+        request(Server)
+          .get(`${process.env.API_BASE}/trips`)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'Bearer ' + adminToken)
+          .end((err, res) => {
+            should.not.exist(err);
+            res.redirects.length.should.eql(0);
+            res.status.should.eql(200);
+            res.body.should.include.keys('status', 'data');
+            res.body.data.should.be.an('array');
+            res.body.status.should.eql('success');
+            done();
+          });
+      }
+    );
   });
 });
