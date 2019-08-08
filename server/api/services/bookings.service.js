@@ -121,6 +121,45 @@ class BookingsService {
       }
     });
   }
+
+  delete(bookingId) {
+    L.info(`delete bookings with id: ${bookingId}`);
+
+    const bookingToDelete = bookings.filter(b => b.id === bookingId)[0];
+
+    if (bookingToDelete) {
+
+      const bookings$ = bookings.filter(b => b.id !== bookingId);
+
+      if (JSON.stringify(bookings) !== JSON.stringify(bookings$)) {
+
+        writeJSONFile(filenameBookings, bookings$);
+
+        return Promise.resolve({
+          code: Constants.response.deletedOrModified, // 200
+          response: {
+            status: 'success',
+            data: 'Booking deleted successfully!'
+          }
+        });
+      }
+
+      return Promise.reject({
+        code: Constants.response.serverError, // 500
+        response: {
+          status: 'error',
+          data: 'Internal server error!'
+        }
+      });
+    }
+    return Promise.reject({
+      code: Constants.response.notFound, // 404
+      response: {
+        status: 'error',
+        data: `No booking was found with id: ${bookingId}`
+      }
+    });
+  }
 }
 
 export default new BookingsService();

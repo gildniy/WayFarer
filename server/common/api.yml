@@ -188,6 +188,15 @@ definitions:
         type: string
       error:
         type: string
+
+  BookingDeleteAPIResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      error:
+        type: string
+
 securityDefinitions:
   Bearer:
     description: |
@@ -455,6 +464,45 @@ paths:
               $ref: "#/definitions/BookingAPIResponse"
         '404':
           description: No trip booking exists
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+
+  /bookings/{bookingId}:
+    delete:
+      tags:
+        - Bookings
+      security:
+        - Bearer: []
+      description: Removes a seat booking from user trip booking list
+      summary: Users can delete their bookings
+      operationId: deleteBooking
+      produces:
+        - application/json
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          description: The id of the trip booking to be deleted
+          schema:
+            type: integer
+          format: int32
+          example: 1
+          minimum: 1
+      responses:
+        '204':
+          description: Trip booking with specific id got deleted
+          schema:
+            $ref: "#/definitions/BookingDeleteAPIResponse"
+        '500':
+          description: An internal server error occurs
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '404':
+          description: No trip booking with the specified id exists
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
         '403':

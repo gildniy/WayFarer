@@ -1,8 +1,5 @@
 import Server from '../../server';
-import { jwt, options, request, secret, should, userPayload, adminPayload, writeJSONFile } from '../common';
-
-const filename = '../data/bookings.json';
-let bookings = require('../../server/api/data/bookings.json');
+import { adminPayload, jwt, options, request, secret, should, userPayload } from '../common';
 
 describe('Bookings', () => {
 
@@ -16,7 +13,7 @@ describe('Bookings', () => {
       request(Server)
         .post(`${process.env.API_BASE}/bookings`)
         .send({
-          'trip_id': 3,
+          'trip_id': 2,
           'user_id': 2
         })
         .set('Authorization', 'Bearer ' + userToken)
@@ -30,11 +27,6 @@ describe('Bookings', () => {
           res.body.status.should.eql('success');
           done();
         });
-    });
-    after(() => {
-      // Remove the newly created booking
-      bookings.pop();
-      writeJSONFile(filename, bookings);
     });
   });
 
@@ -68,6 +60,25 @@ describe('Bookings', () => {
           res.body.status.should.eql('success');
           done()
         })
+    });
+  });
+
+  context('User authenticated and is the owner of booking', () => {
+    it('should delete a booking by id', done => {
+      request(Server)
+        .delete(`${process.env.API_BASE}/bookings/4`)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + userToken)
+        .end((err, res) => {
+          should.not.exist(err);
+          res.redirects.length.should.eql(0);
+          res.status.should.eql(200);
+          res.body.should.include.keys('status', 'data');
+          res.body.data.should.be.an('string');
+          res.body.status.should.be.a('string');
+          res.body.status.should.eql('success');
+          done();
+        });
     });
   });
 });
