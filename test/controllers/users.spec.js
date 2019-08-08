@@ -5,7 +5,6 @@ const filename = '../data/users.json';
 const users = require('../../server/api/data/users.json');
 
 describe('POST /auth/signup', () => {
-
   context('User already exists', () => {
     it('should fail to register the user with 409 status code', done => {
       request(Server)
@@ -49,18 +48,25 @@ describe('POST /auth/signup', () => {
           done();
         });
     });
+
+    after(() => {
+      // Clean the test user atfer he was created
+      if (users.filter(u => u.email === 'user1000@site.com')[0]) {
+        const newUsers = users.filter(u => u.email !== 'user1000@site.com');
+        writeJSONFile(filename, newUsers);
+      }
+    });
   });
 });
 
 describe('POST /auth/signin', () => {
-
   context('User not found', () => {
     it('should fail to log a user with 404 status code', done => {
       request(Server)
         .post(`${process.env.API_BASE}/auth/signin`)
         .send({
           email: 'bad@test.com',
-          password: 'wrong'
+          password: 'wrong',
         })
         .end((err, res) => {
           should.not.exist(err);
@@ -91,12 +97,4 @@ describe('POST /auth/signin', () => {
         });
     });
   });
-});
-
-after(() => {
-  // Clean the test user atfer he was created
-  if (users.filter(u => u.email === 'user1000@site.com')[0]) {
-    const newUsers = users.filter(u => u.email !== 'user1000@site.com');
-    writeJSONFile(filename, newUsers);
-  }
 });

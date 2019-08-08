@@ -73,8 +73,7 @@ class UsersService {
     })[0];
 
     if (userExists) {
-
-      L.info(`Yeah the user exists!`);
+      L.info('Yeah the user exists!');
 
       return Promise.resolve({
         code: Constants.response.found, // 302
@@ -83,20 +82,20 @@ class UsersService {
           data: {
             first_name: userExists.first_name,
             last_name: userExists.last_name,
-            email: userExists.email
-          }
-        }
+            email: userExists.email,
+          },
+        },
       });
     }
 
-    L.info(`No, the user doesn't exist!`);
+    L.info('No, the user doesn\'t exist!');
 
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {
         status: 'error',
-        error: 'User not found'
-      }
+        error: 'User not found',
+      },
     });
   }
 }
