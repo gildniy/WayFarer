@@ -3,8 +3,11 @@ import controller from './controller';
 import {
   validateAuthToken,
   validateCreateTripInputs,
+  validateInteger,
   validatePermission,
 } from '../../middlewares/validators';
 
 export default express.Router()
-  .post('/', [validateAuthToken, validatePermission('admin'), validateCreateTripInputs], controller.createTrip);
+  .post('/', [validateAuthToken, validatePermission('admin'), validateCreateTripInputs], controller.createTrip)
+  .patch('/:tripId/cancel', [validateAuthToken, validatePermission('admin'), validateInteger], controller.cancelTrip)
+

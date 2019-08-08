@@ -305,3 +305,42 @@ paths:
           description: Doesn't have enought permission to resources
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
+
+  /trips/{tripId}/cancel:
+    patch:
+      tags:
+        - Trips
+      security:
+        - Bearer: []
+      description: Cancel a specied trip
+      summary: Admin can cancel a trip
+      operationId: cancelTrip
+      produces:
+        - application/json
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          description: The id of the trip to be cancelled
+          schema:
+            type: integer
+          format: int32
+          example: 1
+          minimum: 1
+      responses:
+        '204':
+          description: Trip with specific id got cancelled
+          schema:
+            $ref: "#/definitions/TripUpdateAPIResponse"
+        '500':
+          description: An internal server error occurs
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '404':
+          description: No trip with the specified id exists
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"

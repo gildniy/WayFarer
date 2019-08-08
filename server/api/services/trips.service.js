@@ -63,6 +63,60 @@ class TripsService {
       },
     });
   }
+
+  edit(tripId) {
+    L.info(`edit trip with Id ${ tripId }`);
+
+
+    const tripToCancel = trips.filter(t => t.id === tripId)[0];
+
+    if (tripToCancel) {
+
+      const tripStatusBeforeCancel = tripToCancel.status;
+      tripToCancel.status = 0;
+      const tripStatusAfterCancel = tripToCancel.status;
+
+      if (tripStatusAfterCancel === 0) {
+
+        if (tripStatusBeforeCancel !== tripStatusAfterCancel) {
+          writeJSONFile(filename, trips);
+
+          return Promise.resolve({
+            code: Constants.response.ok, // (204) 200 instead
+            response: {
+              status: 'success',
+              data: 'Trip cancelled successfully'
+            }
+          });
+        } else {
+          return Promise.resolve({
+            code: Constants.response.notFound, // 404
+            response: {
+              status: 'error',
+              data: 'Trip already canceled'
+            }
+          });
+        }
+      } else {
+
+        return Promise.reject({
+          code: Constants.response.serverError, // 500
+          response: {
+            status: 'error',
+            error: `Internal server error`
+          }
+        });
+      }
+    }
+
+    return Promise.reject({
+      code: Constants.response.notFound, // 404
+      response: {
+        status: 'error',
+        error: `No trip found with id: ${ tripId }`
+      }
+    });
+  }
 }
 
 export default new TripsService();
