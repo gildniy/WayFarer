@@ -100,20 +100,35 @@ const validatePermission = allowed => (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   const token = authHeader.split(' ')[1];
   const decoded = jwt.decode(token);
-  // const userId = decoded.user_id;
+  const userId = decoded.user_id;
   const isAdmin = decoded.is_admin;
-  // const bookings = require('../data/bookings.json');
-  // const requestedBooking = bookings.filter(b => b.id === req.params.bookingId)[0];
+  const bookings = require('../data/bookings.json');
+  const requestedBooking = bookings.filter(b => b.id === req.params.bookingId)[0];
 
   if (isAdmin && allowed === 'admin' || !isAdmin && allowed === 'user') {
     next();
-  } else if (!isAdmin && allowed === 'owner'/* && !!requestedBooking && requestedBooking.user_id === userId*/) {
+  } else if (!isAdmin && allowed === 'owner' && !!requestedBooking && requestedBooking.user_id === userId) {
     next();
   } else {
     res.status(403)
       .send({
         status: 'error',
         error: 'Unauthorized action',
+      });
+  }
+};
+
+const validateCreateBookingInputs = (req, res, next) => {
+
+  const { trip_id, user_id } = req.body;
+
+  if (typeof trip_id === 'number' && typeof user_id === 'number') {
+    next();
+  } else {
+    return res.status(400)
+      .send({
+        status: 'error',
+        error: 'Fields are not good'
       });
   }
 };
@@ -125,4 +140,5 @@ export {
   validateCreateTripInputs,
   validateInteger,
   validatePermission,
+  validateCreateBookingInputs
 };

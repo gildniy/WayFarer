@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import { validateLoginInputs, validateRegisterInputs } from '../../middlewares/validators';
 import controller from './controller';
 

@@ -17,7 +17,6 @@ describe('POST /auth/trips', () => {
 
   const adminToken = jwt.sign(adminPayload, secret, options);
   const userToken = jwt.sign(userPayload, secret, options);
-  it('============================================', ()=>{});
 
   context('Admin is authenticated', () => {
     it('should add a new trip', () => request(Server)
