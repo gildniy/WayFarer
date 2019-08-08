@@ -436,3 +436,28 @@ paths:
           description: Doesn't have enought permission to resources
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
+    get:
+      tags:
+        - Bookings
+      security:
+        - Bearer: []
+      description: Fetch all bookings (for Admin) or owned bookings (for User)
+      summary: View all bookings. Admin can see all bookings while User can see all of his/her bookings
+      operationId: showBookings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns all (for Admin) or owned by current user (for User) trip bookings
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/BookingAPIResponse"
+        '404':
+          description: No trip booking exists
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
