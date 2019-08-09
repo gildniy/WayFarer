@@ -5,7 +5,7 @@
 
 ## Challenge links
 - **Challenge #1:** https://gildniy.github.io/WayFarer/UI
-- **Challenge #2:** https://adc-9-wayfarer.herokuapp.com/ (or https://adc-wayfarer.herokuapp.com/)
+- **Challenge #2:** https://adc-9-wayfarer.herokuapp.com/ (or just https://adc-wayfarer.herokuapp.com/)
 
 **WayFarer** is a public bus transportation booking service.
 >***Project Timeline:***
