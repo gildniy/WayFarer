@@ -34,7 +34,7 @@ class TripsService {
           code: Constants.response.ok, // 200
           response: {
             status: Constants.response.ok, // 200
-            message: 'success',
+            message: 'Successfully created',
             data: {
               trip_id: trip.id,
               seating_capacity: trip.seating_capacity,
@@ -144,7 +144,7 @@ class TripsService {
         code: Constants.response.ok, // 200
         response: {
           status: Constants.response.ok, // 200
-          message: 'success',
+          message: 'Retrieved successfully',
           data: trips$
         }
       });
@@ -169,7 +169,7 @@ class TripsService {
         code: Constants.response.ok, // 200
         response: {
           status: Constants.response.ok, // 200
-          message: 'success',
+          message: 'Retrieved successfully',
           data: {
             trip_id: trip.id,
             seating_capacity: trip.seating_capacity,
