@@ -20,8 +20,8 @@ const validateAuthToken = (req, res, next) => {
   } else {
     return res.status(Constants.response.unauthorized)
       .send({
+        status: Constants.response.unauthorized,
         error: 'Authentication error. Token required.',
-        status: 'error',
       });
   }
 };
@@ -32,7 +32,7 @@ const validateInteger = (req, res, next) => {
 
   if (isIntegerNumber(id * 1)) next();
   else {
-    return res.status(400).send({ status: 'error', error: 'ID must be of type integer' });
+    return res.status(400).send({ status: 400, error: 'ID must be of type integer' });
   }
 };
 
@@ -46,7 +46,7 @@ const validateLoginInputs = (req, res, next) => {
   ) {
     next();
   } else {
-    return res.status(400).send({ status: 'error', error: 'Fields are not good' });
+    return res.status(400).send({ status: 400, error: 'Fields are not good' });
   }
 };
 
@@ -65,7 +65,7 @@ const validateRegisterInputs = (req, res, next) => {
   ) {
     next();
   } else {
-    return res.status(400).send({ status: 'error', error: 'Fields are not good' });
+    return res.status(400).send({ status: 400, error: 'Fields are not good' });
   }
 };
 
@@ -90,7 +90,7 @@ const validateCreateTripInputs = (req, res, next) => {
   } else {
     return res.status(400)
       .send({
-        status: 'error',
+        status: 400,
         error: 'Fields are not good',
       });
   }
@@ -116,7 +116,7 @@ const validatePermission = (allowed) => {
     } else {
       res.status(403)
         .send({
-          status: 'error',
+          status: 403,
           error: 'Unauthorized action'
         });
     }
@@ -132,7 +132,7 @@ const validateCreateBookingInputs = (req, res, next) => {
   } else {
     return res.status(400)
       .send({
-        status: 'error',
+        status: 400,
         error: 'Fields are not good'
       });
   }

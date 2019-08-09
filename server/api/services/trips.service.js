@@ -33,7 +33,8 @@ class TripsService {
         return Promise.resolve({
           code: Constants.response.ok, // 200
           response: {
-            status: 'success',
+            status: Constants.response.ok, // 200
+            message: 'success',
             data: {
               trip_id: trip.id,
               seating_capacity: trip.seating_capacity,
@@ -49,7 +50,7 @@ class TripsService {
       return Promise.reject({
         code: Constants.response.serverError, // 500
         response: {
-          status: 'error',
+          status: Constants.response.serverError, // 500
           error: 'Internal server error!',
         },
       });
@@ -58,7 +59,7 @@ class TripsService {
     return Promise.reject({
       code: Constants.response.exists, // 409
       response: {
-        status: 'error',
+        status: Constants.response.exists, // 409
         error: 'Trip already exist!',
       },
     });
@@ -83,7 +84,8 @@ class TripsService {
           return Promise.resolve({
             code: Constants.response.ok, // (204) 200 instead
             response: {
-              status: 'success',
+              status: Constants.response.ok, // (204) 200 instead
+              message: 'success',
               data: 'Trip cancelled successfully'
             }
           });
@@ -91,8 +93,8 @@ class TripsService {
           return Promise.resolve({
             code: Constants.response.notFound, // 404
             response: {
-              status: 'error',
-              data: 'Trip already canceled'
+              status: Constants.response.notFound, // 404
+              error: 'Trip already canceled'
             }
           });
         }
@@ -101,7 +103,7 @@ class TripsService {
         return Promise.reject({
           code: Constants.response.serverError, // 500
           response: {
-            status: 'error',
+            status: Constants.response.serverError, // 500
             error: `Internal server error`
           }
         });
@@ -111,7 +113,7 @@ class TripsService {
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {
-        status: 'error',
+        status: Constants.response.notFound, // 404
         error: `No trip found with id: ${ tripId }`
       }
     });
@@ -141,7 +143,8 @@ class TripsService {
       return Promise.resolve({
         code: Constants.response.ok, // 200
         response: {
-          status: 'success',
+          status: Constants.response.ok, // 200
+          message: 'success',
           data: trips$
         }
       });
@@ -150,7 +153,7 @@ class TripsService {
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {
-        status: 'error',
+        status: Constants.response.notFound, // 404
         error: 'No trip found!'
       }
     });
@@ -165,7 +168,8 @@ class TripsService {
       return Promise.resolve({
         code: Constants.response.ok, // 200
         response: {
-          status: 'success',
+          status: Constants.response.ok, // 200
+          message: 'success',
           data: {
             trip_id: trip.id,
             seating_capacity: trip.seating_capacity,
@@ -181,7 +185,7 @@ class TripsService {
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {
-        status: 'error',
+        status: Constants.response.notFound, // 404
         error: `No trip found with id: ${tripId}`
       }
     });

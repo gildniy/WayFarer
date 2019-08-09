@@ -24,9 +24,7 @@
     "jsonwebtoken": "^8.5.1",
     "path": "^0.12.7",
     "pino": "^5.13.1",
-    "swagger-express-middleware": "^2.0.2"
-  },
-  "devDependencies": {
+    "swagger-express-middleware": "^2.0.2",
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
     "@babel/node": "^7.5.5",
@@ -45,5 +43,6 @@
     "pino-pretty": "^3.2.0",
     "supertest": "^4.0.2"
   },
+  "devDependencies": {},
   "author": "Gildas Niyigena <gildniy05@gmail.com> (https://github.com/gildniy)"
 }

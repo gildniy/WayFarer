@@ -55,7 +55,8 @@ class BookingsService {
         return Promise.resolve({
           code: Constants.response.created, // 201
           response: {
-            status: 'success',
+            status: Constants.response.created, // 201
+            message: 'success',
             data: booking$
           }
         });
@@ -63,7 +64,7 @@ class BookingsService {
       return Promise.reject({
         code: Constants.response.serverError, // 500
         response: {
-          status: 'error',
+          status: Constants.response.serverError, // 500
           error: 'Internal server error!'
         }
       });
@@ -71,7 +72,7 @@ class BookingsService {
     return Promise.reject({
       code: Constants.response.exists, // 409
       response: {
-        status: 'error',
+        status: Constants.response.exists, // 409
         error: 'Booking already exists!'
       }
     });
@@ -108,7 +109,8 @@ class BookingsService {
       return Promise.resolve({
         code: Constants.response.ok, // 200
         response: {
-          status: 'success',
+          status: Constants.response.ok, // 200
+          message: 'success',
           data: bookings$
         }
       });
@@ -116,8 +118,8 @@ class BookingsService {
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {
-        status: 'error',
-        data: 'No booking found!'
+        status: Constants.response.notFound, // 404
+        error: 'No booking found!'
       }
     });
   }
@@ -138,7 +140,8 @@ class BookingsService {
         return Promise.resolve({
           code: Constants.response.deletedOrModified, // 200
           response: {
-            status: 'success',
+            status: Constants.response.deletedOrModified, // 200
+            message: 'success',
             data: 'Booking deleted successfully!'
           }
         });
@@ -147,16 +150,16 @@ class BookingsService {
       return Promise.reject({
         code: Constants.response.serverError, // 500
         response: {
-          status: 'error',
-          data: 'Internal server error!'
+          status: Constants.response.serverError, // 500
+          error: 'Internal server error!'
         }
       });
     }
     return Promise.reject({
-      code: Constants.response.notFound, // 404
+      code: Constants.response.notFound, // 404,
       response: {
-        status: 'error',
-        data: `No booking was found with id: ${bookingId}`
+        status: Constants.response.notFound, // 404,
+        error: `No booking was found with id: ${bookingId}`
       }
     });
   }

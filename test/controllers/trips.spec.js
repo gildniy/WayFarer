@@ -37,8 +37,8 @@ describe('POST /auth/trips', () => {
         res.status.should.eql(200);
         res.body.should.include.keys('status', 'data');
         res.body.data.should.be.an('object');
-        res.body.status.should.be.a('string');
-        res.body.status.should.eql('success');
+        res.body.status.should.be.a('number');
+        res.body.status.should.eql(200);
       }));
     it('should cancel a trip by id', () =>
       request(Server)
@@ -52,7 +52,8 @@ describe('POST /auth/trips', () => {
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('string');
           res.body.data.should.eql('Trip cancelled successfully');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(200);
         })
     );
 
@@ -77,7 +78,8 @@ describe('POST /auth/trips', () => {
             res.status.should.eql(200);
             res.body.should.include.keys('status', 'data');
             res.body.data.should.be.an('array');
-            res.body.status.should.eql('success');
+            res.body.status.should.be.a('number');
+            res.body.status.should.eql(200);
             done();
           });
       }
@@ -94,7 +96,8 @@ describe('POST /auth/trips', () => {
           res.status.should.eql(200);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('object');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(200);
           // done()
         })
     );

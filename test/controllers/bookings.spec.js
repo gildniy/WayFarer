@@ -23,8 +23,8 @@ describe('Bookings', () => {
           res.status.should.eql(201);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('object');
-          res.body.status.should.be.a('string');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(201);
           done();
         });
     });
@@ -42,7 +42,8 @@ describe('Bookings', () => {
           res.status.should.eql(200);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('array');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(200);
           done();
         })
     });
@@ -57,7 +58,8 @@ describe('Bookings', () => {
           res.status.should.eql(200);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('array');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(200);
           done()
         })
     });
@@ -75,8 +77,8 @@ describe('Bookings', () => {
           res.status.should.eql(200);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('string');
-          res.body.status.should.be.a('string');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(200);
           done();
         });
     });

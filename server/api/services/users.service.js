@@ -34,7 +34,8 @@ class UsersService {
         return Promise.resolve({
           code: Constants.response.created, // 201
           response: {
-            status: 'success',
+            status: Constants.response.created, // 201
+            message: 'success',
             data: {
               first_name: user.first_name,
               last_name: user.last_name,
@@ -48,7 +49,7 @@ class UsersService {
       return Promise.reject({
         code: Constants.response.serverError, // 500
         response: {
-          status: 'error',
+          status: Constants.response.serverError, // 500
           error: 'Internal server error!',
         },
       });
@@ -58,7 +59,7 @@ class UsersService {
     return Promise.reject({
       code: Constants.response.exists, // 409
       response: {
-        status: 'error',
+        status: Constants.response.exists, // 409
         error: 'User with this email already exists!',
       },
     });
@@ -78,7 +79,8 @@ class UsersService {
       return Promise.resolve({
         code: Constants.response.found, // 302
         response: {
-          status: 'success',
+          status: Constants.response.found, // 302
+          message: 'success',
           data: {
             first_name: userExists.first_name,
             last_name: userExists.last_name,
@@ -93,7 +95,7 @@ class UsersService {
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {
-        status: 'error',
+        status: Constants.response.notFound, // 404
         error: 'User not found',
       },
     });

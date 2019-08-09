@@ -20,7 +20,8 @@ describe('POST /auth/signup', () => {
           res.redirects.length.should.eql(0);
           res.status.should.eql(409);
           res.body.should.include.keys('status', 'error');
-          res.body.status.should.eql('error');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(409);
           res.body.error.should.be.a('string');
           done();
         });
@@ -43,7 +44,8 @@ describe('POST /auth/signup', () => {
           res.status.should.eql(201);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('object');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(201);
           should.exist(res.body.data.token);
           done();
         });
@@ -73,7 +75,8 @@ describe('POST /auth/signin', () => {
           res.redirects.length.should.eql(0);
           res.status.should.eql(404);
           res.body.should.include.keys('status', 'error');
-          res.body.status.should.eql('error');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(404);
           res.body.error.should.be.a('string');
           done();
         });
@@ -91,7 +94,8 @@ describe('POST /auth/signin', () => {
           res.status.should.eql(302);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('object');
-          res.body.status.should.eql('success');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(302);
           should.exist(res.body.data.token);
           done();
         });
