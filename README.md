@@ -4,8 +4,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/gildniy/WayFarer/badge.svg)](https://coveralls.io/github/gildniy/WayFarer)
 
 ## Challenge links
-- Challenge #1: https://gildniy.github.io/WayFarer/UI
-- Challenge #2: https://adc-9-wayfarer.herokuapp.com/
+- **Challenge #1:** https://gildniy.github.io/WayFarer/UI
+- **Challenge #2:** https://adc-9-wayfarer.herokuapp.com/
 
 **WayFarer** is a public bus transportation booking service.
 >***Project Timeline:***
