@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars, no-shadow
 const errorHandler = (err, req, res, next) => {
-  res.status(err.status || 500)
-    .json({
-      status: 'error',
+  res.status(500)
+    .send({
+      status: 500,
       error: err.message
     });
 };
