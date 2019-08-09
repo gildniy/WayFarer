@@ -12,8 +12,7 @@
     "test:debug": "mocha --require @babel/register --inspect-brk test/**/*spec.js --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint -c .eslintrc.json {server,test}/**",
-    "lint:fix": "eslint --fix -c .eslintrc.json {server,test}/**",
-    "build": "tsc"
+    "lint:fix": "eslint --fix -c .eslintrc.json {server,test}/**"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
