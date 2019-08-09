@@ -56,7 +56,7 @@ class BookingsService {
           code: Constants.response.created, // 201
           response: {
             status: Constants.response.created, // 201
-            message: 'success',
+            message: 'Successfully created',
             data: booking$
           }
         });
@@ -110,7 +110,7 @@ class BookingsService {
         code: Constants.response.ok, // 200
         response: {
           status: Constants.response.ok, // 200
-          message: 'success',
+          message: 'Retrieved successfully',
           data: bookings$
         }
       });
