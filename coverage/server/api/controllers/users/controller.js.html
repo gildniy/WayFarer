@@ -20,31 +20,31 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">21.74% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>23/23</span>
+        <span class='fraction'>5/23</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>4/4</span>
+        <span class='fraction'>0/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>9/9</span>
+        <span class='fraction'>0/9</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">23.81% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>21/21</span>
+        <span class='fraction'>5/21</span>
       </div>
     </div>
     <p class="quiet">
       Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
     </p>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line low'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,40 +99,40 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -143,42 +143,42 @@ import * as jwt from 'jsonwebtoken';
 import UsersService from '../../services/users.service';
 import { Constants } from '../../helpers/constants';
 &nbsp;
-const buildResult = (res, result) =&gt; {
+const buildResult = <span class="fstat-no" title="function not covered" >(r</span>es, result) =&gt; {
   // eslint-disable-next-line global-require,import/no-dynamic-require
-  const users = require('../../data/users');
-  const { email } = result.response.data;
-  const { is_admin } = users.filter(user =&gt; user.email === email)[0];
-  const user_id = users.filter(user =&gt; user.email === email)[0].id;
-  const payload = {
+  const users = <span class="cstat-no" title="statement not covered" >require('</span>../../data/users');
+  const { email } = <span class="cstat-no" title="statement not covered" >result.response.data;</span>
+  const { is_admin } = <span class="cstat-no" title="statement not covered" >users.</span>filter(<span class="fstat-no" title="function not covered" >user </span>=&gt; <span class="cstat-no" title="statement not covered" >user.email === email)[0</span>];
+  const user_id = <span class="cstat-no" title="statement not covered" >users.filter(<span class="fstat-no" title="function not covered" >user </span>=&gt; <span class="cstat-no" title="statement not covered" >user.email === email)[0</span>].id;</span>
+  const payload = <span class="cstat-no" title="statement not covered" >{</span>
     email,
     is_admin,
     user_id,
   };
-  const options = Constants.jwtOptions;
-  const secret = process.env.JWT_SECRET;
-  const token = jwt.sign(payload, secret, options);
+  const options = <span class="cstat-no" title="statement not covered" >Constants.jwtOptions;</span>
+  const secret = <span class="cstat-no" title="statement not covered" >process.env.JWT_SECRET;</span>
+  const token = <span class="cstat-no" title="statement not covered" >jwt.</span>sign(payload, secret, options);
 &nbsp;
   // eslint-disable-next-line no-param-reassign
-  result.response.data.token = !!result &amp;&amp; !!result.response &amp;&amp; !!result.response.data &amp;&amp; token;
+<span class="cstat-no" title="statement not covered" >  result.</span>response.data.token = !!result &amp;&amp; !!result.response &amp;&amp; !!result.response.data &amp;&amp; token;
 &nbsp;
-  res.status(result.code)
+<span class="cstat-no" title="statement not covered" >  res.</span>status(result.code)
     .send(result.response);
 };
 &nbsp;
 class Controller {
-  signupUser(req, res) {
-    UsersService.create(req.body)
-      .then(result =&gt; {
-        buildResult(res, result);
+<span class="fstat-no" title="function not covered" >  signupUser(</span>req, res) {
+<span class="cstat-no" title="statement not covered" >    UsersService.c</span>reate(req.body)
+      .then(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >        buildResult(</span>res, result);
       })
-      .catch(error =&gt; res.status(error.code)
+      .catch(<span class="fstat-no" title="function not covered" >error </span>=&gt; <span class="cstat-no" title="statement not covered" >res.</span>status(error.code)
         .send(error.response));
   }
 &nbsp;
-  signinUser(req, res) {
-    UsersService.login(req.body)
-      .then(result =&gt; buildResult(res, result))
-      .catch(error =&gt; res.status(error.code)
+<span class="fstat-no" title="function not covered" >  signinUser(</span>req, res) {
+<span class="cstat-no" title="statement not covered" >    UsersService.l</span>ogin(req.body)
+      .then(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >buildResult(r</span>es, result))
+      .catch(<span class="fstat-no" title="function not covered" >error </span>=&gt; <span class="cstat-no" title="statement not covered" >res.</span>status(error.code)
         .send(error.response));
   }
 }
@@ -190,7 +190,7 @@ export default new Controller();
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Aug 09 2019 10:13:21 GMT+0200 (South Africa Standard Time)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Aug 12 2019 15:12:16 GMT+0200 (South Africa Standard Time)
 </div>
 </div>
 <script src="..\..\..\..\prettify.js"></script>

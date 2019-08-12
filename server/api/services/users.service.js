@@ -1,4 +1,4 @@
-import L from '../../common/logger';
+// import L from '../../common/logger';
 import { Constants } from '../helpers/constants';
 import { hashPassword, verifyPassword, writeJSONFile } from '../helpers/helpers';
 
@@ -8,7 +8,7 @@ const users = require(filename);
 
 class UsersService {
   create(registerObj) {
-    L.info(`create user with email: ${registerObj.email}`);
+    // L.info(`create user with email: ${registerObj.email}`);
 
     const user$ = {
       ...{ id: 0 },
@@ -45,14 +45,14 @@ class UsersService {
         });
       }
 
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: Constants.response.serverError, // 500
-        response: {
-          status: Constants.response.serverError, // 500
-          error: 'Internal server error!',
-        },
-      });
+      // // eslint-disable-next-line prefer-promise-reject-errors
+      // return Promise.reject({
+      //   code: Constants.response.serverError, // 500
+      //   response: {
+      //     status: Constants.response.serverError, // 500
+      //     error: 'Internal server error!',
+      //   },
+      // });
     }
 
     // eslint-disable-next-line prefer-promise-reject-errors
@@ -66,7 +66,7 @@ class UsersService {
   }
 
   login({ email, password }) {
-    L.info(`login user with email: ${email}`);
+    // L.info(`login user with email: ${email}`);
 
     const userExists = users.filter(u => {
       const passwordMatch = verifyPassword(password, u.password);
@@ -74,7 +74,7 @@ class UsersService {
     })[0];
 
     if (userExists) {
-      L.info('Yeah the user exists!');
+      // L.info('Yeah the user exists!');
 
       return Promise.resolve({
         code: Constants.response.found, // 302
@@ -90,8 +90,8 @@ class UsersService {
       });
     }
 
-    L.info('No, the user doesn\'t exist!');
-
+    // L.info('No, the user doesn\'t exist!');
+    // eslint-disable-next-line prefer-promise-reject-errors
     return Promise.reject({
       code: Constants.response.notFound, // 404
       response: {

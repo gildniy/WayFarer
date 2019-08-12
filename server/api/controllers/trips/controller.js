@@ -1,5 +1,18 @@
 import TripsService from '../../services/trips.service';
 
+const tripList = (req) => {
+  const parsedQs = req.query;
+  const queryOrigin = parsedQs.origin;
+  const queryDestination = parsedQs.destination;
+
+  return typeof queryOrigin === 'string' ?
+    TripsService.byOrigin(queryOrigin) : (
+      typeof queryDestination === 'string' ?
+        TripsService.byOrigin(queryOrigin) :
+        TripsService.all()
+    );
+};
+
 class Controller {
   createTrip(req, res) {
     const tripObj = req.body;
@@ -20,7 +33,7 @@ class Controller {
   }
 
   showTrips(req, res) {
-    TripsService.all()
+    tripList(req)
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)
@@ -32,9 +45,8 @@ class Controller {
     TripsService.byId(tripId)
       .then(r => res.status(r.code)
         .send(r.response))
-      .catch(r => res.status(e.code)
-        .send(e.response)
-      );
+      .catch(e => res.status(e.code)
+        .send(e.response));
   }
 }
 

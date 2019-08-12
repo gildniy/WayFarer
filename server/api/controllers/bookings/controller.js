@@ -1,10 +1,23 @@
-import BookingsService from '../../services/bookings.service';
 import * as jwt from 'jsonwebtoken';
+import BookingsService from '../../services/bookings.service';
+
+const decodedToken = req => {
+  const authHeaders = req.headers.authorization || req.headers.Authorization;
+  const token = authHeaders.split(' ')[1];
+  return jwt.decode(token);
+};
 
 class Controller {
   bookTrip(req, res) {
-    const bookingObj = req.body;
-    BookingsService.create(bookingObj)
+    // eslint-disable-next-line camelcase
+    const { trip_id } = req.body;
+    // eslint-disable-next-line camelcase
+    const { user_id } = decodedToken(req);
+    BookingsService.create({
+      trip_id,
+      user_id,
+      seat_no
+    })
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)
@@ -12,10 +25,7 @@ class Controller {
   }
 
   showBookings(req, res) {
-    const authHeaders = req.headers['authorization'] || req.headers['Authorization'];
-    const token = authHeaders.split(' ')[1];
-    const decoded = jwt.decode(token);
-    const email = decoded.email;
+    const { email } = decodedToken(req);
     BookingsService.all(email)
       .then(r => res.status(r.code)
         .send(r.response))

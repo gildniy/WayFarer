@@ -17,7 +17,7 @@ const writeJSONFile = (filename, data) => {
     fs.writeFileSync(path.resolve(__dirname, filename), JSON.stringify(data));
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error(err);
+    // console.error(err);
   }
 };
 
@@ -26,35 +26,25 @@ const hashPassword = pw => {
   return hashSync(pw, salt);
 };
 
-// eslint-disable-next-line no-bitwise
-const noSpaceString = value => typeof value === 'string' && !~value.indexOf(' ');
-
-const isIntegerNumber = value => Math.floor(value) === value;
-
-const verifyPassword = (passwordAttempted, hashedPassword) => compareSync(passwordAttempted, hashedPassword);
-
-const scientificToDecimal = n => {
-  const n$ = n.toString();
-
-  if (~n$.indexOf('e') || ~n$.indexOf('E')) {
-    const [lead, decimal, pow] = n$.split(/[eE]|\./);
-
-    return +pow <= 0
-      ? `0.${'0'.repeat(Math.abs(pow) - 1)}${lead}${decimal}`
-      : lead + (
-
-      +pow >= decimal.length
-        ? (decimal + '0'.repeat(+pow - decimal.length))
-        : (`${decimal.slice(0, +pow)}.${decimal.slice(+pow)}`)
-    );
-  }
-
-  return n;
+const isNoSpaceString = (value, min = 0, max = 40) => {
+  const re = new RegExp('/^[a-zA-Z0-9\-_]{' + min + ',' + max + '}$/');
+  return re.test(value);
 };
 
-const isFloatNumber = value => {
-  const float = /^([0-9]*[.])?[0-9]+$/;
-  return float.test(scientificToDecimal(value));
+const isPositiveIntegerNumber = value => Math.floor(value) === value && (value > 0);
+
+// eslint-disable-next-line max-len
+const verifyPassword = (passwordAttempted, hashedPassword) => compareSync(passwordAttempted, hashedPassword);
+
+const isEmailString = (email) => {
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email)
+    .toLowerCase());
+};
+
+const isPw4Minlen1Alp1Num = (pw) => {
+  const re = /[a-z]\d|\d[a-z]/i;
+  return re.test(pw) && pw.length > 3;
 };
 
 export {
@@ -62,8 +52,9 @@ export {
   newDate,
   writeJSONFile,
   hashPassword,
-  noSpaceString,
-  isIntegerNumber,
+  isNoSpaceString,
+  isPositiveIntegerNumber,
   verifyPassword,
-  isFloatNumber,
+  isEmailString,
+  isPw4Minlen1Alp1Num
 };

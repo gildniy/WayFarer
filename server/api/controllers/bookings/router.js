@@ -4,7 +4,7 @@ import {
   validateAuthToken,
   validateCreateBookingInputs,
   validateInteger,
-  validatePermission
+  validatePermission,
 } from '../../middlewares/validators';
 
 export default express.Router()

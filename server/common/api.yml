@@ -170,10 +170,10 @@ definitions:
     type: object
     title: booking
     required:
-      - trip_id
+      - tripId
       - user_id
     properties:
-      trip_id:
+      tripId:
         type: integer
         format: int32
         example: 1
@@ -239,10 +239,10 @@ paths:
           description: User got created
           schema:
             $ref: "#/definitions/AuthAPIResponse"
-        '500':
-          description: An internal server error occurs
-          schema:
-            $ref: "#/definitions/ErrorAPIResponse"
+        #        '500':
+        #          description: An internal server error occurs
+        #          schema:
+        #            $ref: "#/definitions/ErrorAPIResponse"
         '409':
           description: Indentical user exists
           schema:
@@ -301,10 +301,10 @@ paths:
           description: Trip got created
           schema:
             $ref: "#/definitions/TripAPIResponse"
-        '500':
-          description: An internal server error occurs
-          schema:
-            $ref: "#/definitions/ErrorAPIResponse"
+        #        '500':
+        #          description: An internal server error occurs
+        #          schema:
+        #            $ref: "#/definitions/ErrorAPIResponse"
         '409':
           description: Indentical trip exists
           schema:
@@ -364,8 +364,12 @@ paths:
           description: Trip with specific id got cancelled
           schema:
             $ref: "#/definitions/TripUpdateAPIResponse"
-        '500':
-          description: An internal server error occurs
+        #        '500':
+        #          description: An internal server error occurs
+        #          schema:
+        #            $ref: "#/definitions/ErrorAPIResponse"
+        '405':
+          description: Trip with specific id is already cancelled
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
         '404':
@@ -410,6 +414,58 @@ paths:
           description: Doesn't have enought permission to resources
           schema:
             $ref: "#/definitions/ErrorAPIResponse"
+  /trips?origin={desiredOrigin}:
+    get:
+      tags:
+        - Trips
+      security:
+        - Bearer: []
+      description: Fetch trips by origin
+      summary: Filter trips using origin
+      operationId: showTripsByOrigin
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns all trips by origin
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TripAPIResponse"
+        '404':
+          description: Fails to find any trip
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+  /trips?destination={desiredDestination}:
+    get:
+      tags:
+        - Trips
+      security:
+        - Bearer: []
+      description: Fetch trips by destination
+      summary: Filter trips using destination
+      operationId: showTripsByDestination
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns all trips by destination
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TripAPIResponse"
+        '404':
+          description: Fails to find any trip
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
+        '403':
+          description: Doesn't have enought permission to resources
+          schema:
+            $ref: "#/definitions/ErrorAPIResponse"
   /bookings:
     post:
       tags:
@@ -433,10 +489,10 @@ paths:
           description: Trip booking was created
           schema:
             $ref: "#/definitions/BookingAPIResponse"
-        '500':
-          description: An internal server error occurs
-          schema:
-            $ref: "#/definitions/ErrorAPIResponse"
+        #        '500':
+        #          description: An internal server error occurs
+        #          schema:
+        #            $ref: "#/definitions/ErrorAPIResponse"
         '409':
           description: Indentical trip bookiing exists
           schema:
@@ -497,10 +553,10 @@ paths:
           description: Trip booking with specific id got deleted
           schema:
             $ref: "#/definitions/BookingDeleteAPIResponse"
-        '500':
-          description: An internal server error occurs
-          schema:
-            $ref: "#/definitions/ErrorAPIResponse"
+        #        '500':
+        #          description: An internal server error occurs
+        #          schema:
+        #            $ref: "#/definitions/ErrorAPIResponse"
         '404':
           description: No trip booking with the specified id exists
           schema:
