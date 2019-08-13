@@ -142,42 +142,48 @@ class TripsService {
   }
 
   all() {
-    L.info(trips, 'fetch all trips');
 
-    if (trips.length) {
+    return new Promise((resolve, reject) => {
 
-      const trips$ = [];
+      pool.query(`SELECT * FROM trips WHERE status = $1`, [1], (error, results) => {
 
-      trips.forEach(t => {
+        L.info(`TEST COMES HERE!`, results.rows);
 
-        const trip$ = {
-          trip_id: t.id,
-          seating_capacity: t.seating_capacity,
-          origin: t.origin,
-          destination: t.destination,
-          trip_date: t.trip_date,
-          fare: t.fare
-        };
+        const availableTrips = results.rows;
 
-        trips$.push(trip$);
-      });
+        if (availableTrips.length) {
 
-      return Promise.resolve({
-        code: Constants.response.ok, // 200
-        response: {
-          status: Constants.response.ok, // 200
-          message: 'Retrieved successfully',
-          data: trips$
+          const trips$ = [];
+
+          for (const t of availableTrips) {
+            const trip$ = {
+              trip_id: t.id,
+              seating_capacity: t.seating_capacity,
+              origin: t.origin,
+              destination: t.destination,
+              trip_date: t.trip_date,
+              fare: t.fare
+            };
+            trips$.push(trip$);
+          }
+          resolve({
+            code: Constants.response.ok, // 200
+            response: {
+              status: Constants.response.ok, // 200
+              message: 'Retrieved successfully',
+              data: trips$
+            }
+          });
+        } else {
+          reject({
+            code: Constants.response.notFound, // 404
+            response: {
+              status: Constants.response.notFound, // 404
+              error: 'No trip found!'
+            }
+          });
         }
       });
-    }
-
-    return Promise.reject({
-      code: Constants.response.notFound, // 404
-      response: {
-        status: Constants.response.notFound, // 404
-        error: 'No trip found!'
-      }
     });
   }
 
