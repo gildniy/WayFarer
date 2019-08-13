@@ -90,56 +90,54 @@ class TripsService {
   }
 
   edit(tripId) {
-    L.info(`edit trip with Id ${ tripId }`);
 
-    const tripToCancel = trips.filter(t => t.id === tripId)[0];
+    return new Promise((resolve, reject) => {
 
-    if (tripToCancel) {
+      pool.query(`SELECT * FROM trips WHERE id = $1`, [tripId], (error, results) => {
+        const tripToCancel = results.rows && results.rows[0];
 
-      const tripStatusBeforeCancel = tripToCancel.status;
-      tripToCancel.status = 0;
-      const tripStatusAfterCancel = tripToCancel.status;
-
-      if (tripStatusAfterCancel === 0) {
-
-        if (tripStatusBeforeCancel !== tripStatusAfterCancel) {
-          writeJSONFile(filename, trips);
-
-          return Promise.resolve({
-            code: Constants.response.ok, // (204) 200 instead
-            response: {
-              status: Constants.response.ok, // (204) 200 instead
-              message: 'success',
-              data: 'Trip cancelled successfully'
-            }
-          });
+        if (tripToCancel) {
+          if (tripToCancel.status) {
+            const text = `UPDATE trips SET status = ($1) WHERE id = ($2)`;
+            qr.query(text, [0, tripId])
+              .then(r => {
+                resolve({
+                  code: Constants.response.ok, // (204) 200 instead
+                  response: {
+                    status: Constants.response.ok, // (204) 200 instead
+                    message: 'success',
+                    data: 'Trip cancelled successfully'
+                  }
+                });
+              })
+              .catch(e => {
+                reject({
+                  code: Constants.response.serverError, // 500
+                  response: {
+                    status: Constants.response.serverError, // 500
+                    error: `Internal server error`
+                  }
+                });
+              });
+          } else {
+            reject({
+              code: Constants.response.notFound, // 404
+              response: {
+                status: Constants.response.notFound, // 404
+                error: 'Trip already canceled'
+              }
+            });
+          }
         } else {
-          return Promise.resolve({
+          reject({
             code: Constants.response.notFound, // 404
             response: {
               status: Constants.response.notFound, // 404
-              error: 'Trip already canceled'
+              error: `No trip found with id: ${tripId}`
             }
           });
         }
-      } else {
-
-        return Promise.reject({
-          code: Constants.response.serverError, // 500
-          response: {
-            status: Constants.response.serverError, // 500
-            error: `Internal server error`
-          }
-        });
-      }
-    }
-
-    return Promise.reject({
-      code: Constants.response.notFound, // 404
-      response: {
-        status: Constants.response.notFound, // 404
-        error: `No trip found with id: ${ tripId }`
-      }
+      });
     });
   }
 
