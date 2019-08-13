@@ -61,7 +61,8 @@ const createTripTable = () => {
           bus_license_number VARCHAR(128) NOT NULL,
           origin VARCHAR(128) NOT NULL,
           destination VARCHAR(128) NOT NULL,
-          trip_date TIMESTAMP
+          trip_date TIMESTAMP,
+          status BOOL DEFAULT 't'
         )`;
   poolQuery(queryText);
 };

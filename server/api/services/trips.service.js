@@ -1,67 +1,91 @@
-import { getNewId, writeJSONFile } from '../helpers/helpers';
+import { writeJSONFile } from '../helpers/helpers';
 import { Constants } from '../helpers/constants';
 import L from '../../common/logger';
 
-const filename = '../data/trips.json';
-// eslint-disable-next-line import/no-dynamic-require
-const trips = require(filename);
+const qr = require('../db-query');
+const Pool = require('pg').Pool;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 class TripsService {
   create(tripObj) {
-    L.info(`create trip with trip_date: ${tripObj.trip_date}`);
 
-    const trip = {
-      ...{
-        id: getNewId(trips),
-        status: 1,
-      },
-      ...tripObj,
-    };
-    const { id, ...noIdTrip } = trip;
-    const noIdTrips = trips.map(t => {
-      const { id, ..._t } = t;
-      return _t;
-    });
+    return new Promise((resolve, reject) => {
 
-    if (!JSON.stringify(noIdTrips)
-      .includes(JSON.stringify(noIdTrip))) {
-      trips.push(trip);
+      const trip = {
+        ...tripObj,
+        ...{ status: 1 },
+      };
 
-      if (trips.includes(trip)) {
-        writeJSONFile(filename, trips);
+      pool.query(`SELECT * 
+          FROM trips 
+          WHERE seating_capacity = $1 
+          AND bus_license_number = $2 
+          AND origin = $3 
+          AND destination = $4 
+          AND trip_date = $5`,
+        [
+          trip.seating_capacity,
+          trip.bus_license_number,
+          trip.origin,
+          trip.destination,
+          trip.trip_date,
+        ], (error, results) => {
 
-        return Promise.resolve({
-          code: Constants.response.ok, // 200
-          response: {
-            status: Constants.response.ok, // 200
-            message: 'Successfully created',
-            data: {
-              trip_id: trip.id,
-              seating_capacity: trip.seating_capacity,
-              origin: trip.origin,
-              destination: trip.destination,
-              trip_date: trip.trip_date,
-              fare: trip.fare,
-            },
-          },
+          const existingTrip = results.rows && results.rows[0];
+
+          if (!existingTrip) {
+
+            const text = `INSERT
+                INTO trips(seating_capacity, bus_license_number, origin, destination, trip_date, status)
+                VALUES($1, $2, $3, $4, $5, $6)
+                returning *`;
+
+            const values = [
+              trip.seating_capacity,
+              trip.bus_license_number,
+              trip.origin,
+              trip.destination,
+              trip.trip_date,
+              trip.status,
+            ];
+
+            qr.query(text, values)
+              .then(r => {
+                resolve({
+                  code: Constants.response.ok, // 200
+                  response: {
+                    status: Constants.response.ok, // 200
+                    message: 'Successfully created',
+                    data: {
+                      trip_id: trip.id,
+                      seating_capacity: trip.seating_capacity,
+                      origin: trip.origin,
+                      destination: trip.destination,
+                      trip_date: trip.trip_date,
+                      fare: trip.fare,
+                    },
+                  },
+                });
+              })
+              .catch(e => {
+                reject({
+                  code: Constants.response.serverError, // 500
+                  response: {
+                    status: Constants.response.serverError, // 500
+                    error: 'Internal server error!',
+                  },
+                });
+              });
+          } else {
+            reject({
+              code: Constants.response.exists, // 409
+              response: {
+                status: Constants.response.exists, // 409
+                error: 'Trip already exist!',
+              },
+            });
+          }
         });
-      }
-
-      return Promise.reject({
-        code: Constants.response.serverError, // 500
-        response: {
-          status: Constants.response.serverError, // 500
-          error: 'Internal server error!',
-        },
-      });
-    }
-
-    return Promise.reject({
-      code: Constants.response.exists, // 409
-      response: {
-        status: Constants.response.exists, // 409
-        error: 'Trip already exist!',
-      },
     });
   }
 
