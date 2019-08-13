@@ -62,15 +62,31 @@ const createTripTable = () => {
 
 const dropTripTable = () => dropTable('trips');
 
+const createBookingTable = () => {
+  const queryText = `
+        bookings(
+          id UUID PRIMARY KEY,
+          trip_id UUID NOT NULL,
+          user_id UUID NOT NULL,
+          seat_number SMALLINT NOT NULL,
+          FOREIGN KEY (trip_id) REFERENCES trips (id) ON DELETE CASCADE,
+          FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )`;
+  poolQuery(queryText);
+};
+
+const dropBookingTable = () => dropTable('bookings');
 
 const createAllTables = () => {
   createUserTable();
   createTripTable();
+  createBookingTable();
 };
 
 const deleteAllTables = () => {
   dropUserTable();
   dropTripTable();
+  dropBookingTable();
 };
 
 pool.on('remove', () => {
@@ -81,10 +97,12 @@ pool.on('remove', () => {
 module.exports = {
   createUserTable,
   createTripTable,
+  createBookingTable,
   createAllTables,
   //
   dropUserTable,
   dropTripTable,
+  dropBookingTable,
   deleteAllTables,
 
   pool,
