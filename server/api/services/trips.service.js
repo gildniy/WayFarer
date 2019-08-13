@@ -121,9 +121,9 @@ class TripsService {
               });
           } else {
             reject({
-              code: Constants.response.notFound, // 404
+              code: Constants.response.forbidden, // 403
               response: {
-                status: Constants.response.notFound, // 404
+                status: Constants.response.forbidden, // 403
                 error: 'Trip already canceled'
               }
             });
@@ -190,33 +190,51 @@ class TripsService {
   byId(tripId) {
     L.info(`fetch trip with id ${tripId}`);
 
-    const trip = trips.filter(t => t.id === tripId)[0];
+    return new Promise((resolve, reject) => {
 
-    if (trip) {
-      return Promise.resolve({
-        code: Constants.response.ok, // 200
-        response: {
-          status: Constants.response.ok, // 200
-          message: 'Retrieved successfully',
-          data: {
-            trip_id: trip.id,
-            seating_capacity: trip.seating_capacity,
-            origin: trip.origin,
-            destination: trip.destination,
-            trip_date: trip.trip_date,
-            fare: trip.fare
+        pool.query(`SELECT * FROM trips WHERE id = $1`, [tripId], (error, results) => {
+
+            const trip = results.rows && results.rows[0];
+
+            if (trip) {
+              if (trip.status) {
+                resolve({
+                  code: Constants.response.ok, // 200
+                  response: {
+                    status: Constants.response.ok, // 200
+                    message: 'Retrieved successfully',
+                    data: {
+                      trip_id: trip.id,
+                      seating_capacity: trip.seating_capacity,
+                      origin: trip.origin,
+                      destination: trip.destination,
+                      trip_date: trip.trip_date,
+                      fare: trip.fare
+                    }
+                  }
+                });
+              } else {
+                reject({
+                  code: Constants.response.forbidden, // 403
+                  response: {
+                    status: Constants.response.forbidden, // 403
+                    error: 'Trip was canceled'
+                  }
+                });
+              }
+            } else {
+              reject({
+                code: Constants.response.notFound, // 404
+                response: {
+                  status: Constants.response.notFound, // 404
+                  error: `No trip found with id: ${tripId}`
+                }
+              });
+            }
           }
-        }
-      });
-    }
-
-    return Promise.reject({
-      code: Constants.response.notFound, // 404
-      response: {
-        status: Constants.response.notFound, // 404
-        error: `No trip found with id: ${tripId}`
+        );
       }
-    });
+    );
   }
 }
 

@@ -32,7 +32,7 @@ class Controller {
     TripsService.byId(tripId)
       .then(r => res.status(r.code)
         .send(r.response))
-      .catch(r => res.status(e.code)
+      .catch(e => res.status(e.code)
         .send(e.response)
       );
   }
