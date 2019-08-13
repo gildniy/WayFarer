@@ -1,81 +1,91 @@
-import L from '../../common/logger';
 import { Constants } from '../helpers/constants';
-import { hashPassword, verifyPassword, writeJSONFile } from '../helpers/helpers';
+import { hashPassword, verifyPassword/*, writeJSONFile*/ } from '../helpers/helpers';
+import * as jwt from 'jsonwebtoken';
+import L from '../../common/logger';
 
 const filename = '../data/users.json';
-// eslint-disable-next-line import/no-dynamic-require
 const users = require(filename);
+const db = require('./../db');
+// const pool = require('./db');
+const Pool = require('pg').Pool;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+const generateToken = (user) => {
+  const payload = {
+    email: user.email,
+    is_admin: user.is_admin,
+    user_id: user.id,
+  };
+  const options = Constants.jwtOptions;
+  const secret = process.env.JWT_SECRET;
+
+  return jwt.sign(payload, secret, options);
+};
 
 class UsersService {
   create(registerObj) {
-    L.info(`create user with email: ${registerObj.email}`);
-
-    const user$ = {
-      ...{ id: 0 },
-      ...registerObj,
-      ...{ is_admin: false },
-    };
 
     const hashedPassword = hashPassword(registerObj.password);
+
     const user = {
-      ...user$,
-      password: hashedPassword,
-    };
-    const usersEmails = users.map(u => u.email);
-
-    if (!usersEmails.includes(user.email)) {
-      users.push(user);
-      // eslint-disable-next-line no-param-reassign,no-return-assign
-      users.forEach((el, i) => el.id = i + 1);
-
-      if (users.includes(user)) {
-        writeJSONFile(filename, users);
-
-        return Promise.resolve({
-          code: Constants.response.created, // 201
-          response: {
-            status: Constants.response.created, // 201
-            message: 'Successfully created',
-            data: {
-              first_name: user.first_name,
-              last_name: user.last_name,
-              email: user.email,
-            },
-          },
-        });
-      }
-
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: Constants.response.serverError, // 500
-        response: {
-          status: Constants.response.serverError, // 500
-          error: 'Internal server error!',
-        },
-      });
-    }
-
-    // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject({
-      code: Constants.response.exists, // 409
-      response: {
-        status: Constants.response.exists, // 409
-        error: 'User with this email already exists!',
+      ...registerObj,
+      ...{
+        password: hashedPassword,
+        is_admin: false
       },
+    };
+
+    return new Promise((resolve, reject) => {
+
+      pool.query('SELECT * FROM users WHERE email = $1', [user.email], (error, results) => {
+
+        if (!results.rows.length) {
+
+          const text = `INSERT INTO
+            users(first_name, last_name, email, password, is_admin)
+            VALUES($1, $2, $3, $4, $5)
+            returning *`;
+
+          const values = [user.first_name, user.last_name, user.email, user.password, user.is_admin];
+
+          db.query(text, values);
+
+          const token = generateToken(user);
+
+          resolve({
+            code: Constants.response.created, // 201
+            response: {
+              status: Constants.response.created, // 201
+              message: 'Successfully created',
+              data: {
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                token
+              },
+            },
+          });
+        } else {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({
+            code: Constants.response.exists, // 409
+            response: {
+              status: Constants.response.exists, // 409
+              error: 'User with this email already exists!',
+            },
+          });
+        }
+      });
     });
   }
 
   login({ email, password }) {
-    L.info(`login user with email: ${email}`);
-
     const userExists = users.filter(u => {
       const passwordMatch = verifyPassword(password, u.password);
       return u.email === email && passwordMatch;
     })[0];
 
     if (userExists) {
-      L.info('Yeah the user exists!');
-
       return Promise.resolve({
         code: Constants.response.found, // 302
         response: {
@@ -85,12 +95,11 @@ class UsersService {
             first_name: userExists.first_name,
             last_name: userExists.last_name,
             email: userExists.email,
+            token
           },
         },
       });
     }
-
-    L.info('No, the user doesn\'t exist!');
 
     return Promise.reject({
       code: Constants.response.notFound, // 404

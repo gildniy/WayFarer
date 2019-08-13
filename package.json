@@ -45,7 +45,8 @@
     "pino": "^5.13.1",
     "pino-pretty": "^3.2.0",
     "supertest": "^4.0.2",
-    "swagger-express-middleware": "^2.0.2"
+    "swagger-express-middleware": "^2.0.2",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {},
   "author": "Gildas Niyigena <gildniy05@gmail.com> (https://github.com/gildniy)"
