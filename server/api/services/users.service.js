@@ -1,12 +1,7 @@
 import { Constants } from '../helpers/constants';
-import { hashPassword, verifyPassword/*, writeJSONFile*/ } from '../helpers/helpers';
+import { hashPassword, verifyPassword } from '../helpers/helpers';
 import * as jwt from 'jsonwebtoken';
-import L from '../../common/logger';
-
-const filename = '../data/users.json';
-const users = require(filename);
 const db = require('./../db');
-// const pool = require('./db');
 const Pool = require('pg').Pool;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -80,33 +75,41 @@ class UsersService {
   }
 
   login({ email, password }) {
-    const userExists = users.filter(u => {
-      const passwordMatch = verifyPassword(password, u.password);
-      return u.email === email && passwordMatch;
-    })[0];
 
-    if (userExists) {
-      return Promise.resolve({
-        code: Constants.response.found, // 302
-        response: {
-          status: Constants.response.found, // 302
-          message: 'success',
-          data: {
-            first_name: userExists.first_name,
-            last_name: userExists.last_name,
-            email: userExists.email,
-            token
-          },
-        },
+    return new Promise((resolve, reject) => {
+
+      pool.query('SELECT * FROM users WHERE email = $1', [email], (error, results) => {
+
+        const user = results.rows && results.rows[0];
+        const passwordMatch = user && verifyPassword(password, user.password);
+
+        if (passwordMatch) {
+
+          const token = generateToken(user);
+
+          resolve({
+            code: Constants.response.found, // 302
+            response: {
+              status: Constants.response.found, // 302
+              message: 'success',
+              data: {
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                token
+              },
+            },
+          });
+        } else {
+          reject({
+            code: Constants.response.notFound, // 404
+            response: {
+              status: Constants.response.notFound, // 404
+              error: 'User not found',
+            },
+          });
+        }
       });
-    }
-
-    return Promise.reject({
-      code: Constants.response.notFound, // 404
-      response: {
-        status: Constants.response.notFound, // 404
-        error: 'User not found',
-      },
     });
   }
 }
