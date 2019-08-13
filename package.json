@@ -12,7 +12,9 @@
     "test:debug": "mocha --require @babel/register --inspect-brk test/**/*spec.js --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint -c .eslintrc.json {server,test}/**",
-    "lint:fix": "eslint --fix -c .eslintrc.json {server,test}/**"
+    "lint:fix": "eslint --fix -c .eslintrc.json {server,test}/**",
+    "create": "node ./server/api/services/db createAllTables",
+    "delete": "node ./server/api/services/db deleteAllTables"
   },
   "dependencies": {
     "@babel/cli": "^7.5.5",
