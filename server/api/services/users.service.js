@@ -1,7 +1,8 @@
 import { Constants } from '../helpers/constants';
 import { hashPassword, verifyPassword } from '../helpers/helpers';
 import * as jwt from 'jsonwebtoken';
-const db = require('./../db');
+
+const qr = require('../db-query');
 const Pool = require('pg').Pool;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -43,22 +44,33 @@ class UsersService {
 
           const values = [user.first_name, user.last_name, user.email, user.password, user.is_admin];
 
-          db.query(text, values);
+          qr.query(text, values)
+            .then(r => {
 
-          const token = generateToken(user);
+              const token = generateToken(user);
 
-          resolve({
-            code: Constants.response.created, // 201
-            response: {
-              status: Constants.response.created, // 201
-              message: 'Successfully created',
-              data: {
-                first_name: user.first_name,
-                last_name: user.last_name,
-                email: user.email,
-                token
-              },
-            },
+              resolve({
+                code: Constants.response.created, // 201
+                response: {
+                  status: Constants.response.created, // 201
+                  message: 'Successfully created',
+                  data: {
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    email: user.email,
+                    token
+                  },
+                },
+              });
+            })
+            .catch(e => {
+              reject({
+                code: Constants.response.serverError, // 500
+                response: {
+                  status: Constants.response.serverError, // 500
+                  error: 'Internal server error!',
+                },
+              });
           });
         } else {
           // eslint-disable-next-line prefer-promise-reject-errors
@@ -88,9 +100,9 @@ class UsersService {
           const token = generateToken(user);
 
           resolve({
-            code: Constants.response.found, // 302
+            code: Constants.response.ok, // 200
             response: {
-              status: Constants.response.found, // 302
+              status: Constants.response.ok, // 200
               message: 'success',
               data: {
                 first_name: user.first_name,
