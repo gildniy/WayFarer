@@ -1,5 +1,5 @@
 import L from '../../common/logger';
-import { getNewId, newDate, writeJSONFile } from '../helpers/helpers';
+import { writeJSONFile } from '../helpers/helpers';
 import { Constants } from '../helpers/constants';
 
 const filenameTrips = '../data/trips.json';
@@ -10,76 +10,135 @@ const bookings = require(filenameBookings);
 const users = require(filenameUsers);
 const trips = require(filenameTrips);
 
+const qr = require('../db-query');
+const Pool = require('pg').Pool;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
 class BookingsService {
 
-  create({ trip_id, user_id }) {
-    L.info(`create booking with [trip_id, user_id]: [${trip_id}, ${user_id} ]`);
+  create({ trip_id, user_id, seat_number }) {
 
-    const newId = getNewId(bookings);
-    const booking = {
-      ...{
-        id: newId,
-        created_on: newDate(),
-        trip_id,
-        user_id
-      }
-    };
+    // L.info(`create booking with [trip_id, user_id]: [${trip_id}, ${user_id} ]`);
 
-    const { id, ...noIdBooking } = booking;
-    const noIdBookings = bookings.map(b => {
-      const { id, ..._b } = b;
-      return _b;
-    });
+    return new Promise((resolve, reject) => {
+      pool.query(`SELECT * FROM trips WHERE id = $1`, [trip_id], (err, res) => {
 
-    if (!JSON.stringify(noIdBookings)
-      .includes(JSON.stringify(noIdBooking))) {
+        const currentTrip = res.rows && res.rows[0];
 
-      bookings.push(booking);
-      bookings.forEach((el, i) => el.id = i + 1);
+        if (currentTrip) {
 
-      if (~bookings.indexOf(booking)) {
-        writeJSONFile(filenameBookings, bookings);
+          const isCurrentTripActive = currentTrip.status;
 
-        const bookingUser = users.filter(u => u.id === user_id)[0];
-        const bookingTrip = trips.filter(t => t.id === trip_id)[0];
+          if (isCurrentTripActive) {
 
-        const booking$ = {
-          booking_id: booking.id,
-          bus_license_number: bookingTrip.bus_license_number,
-          trip_date: bookingTrip.trip_date,
-          first_name: bookingUser.first_name,
-          last_name: bookingUser.last_name,
-          user_email: bookingUser.email
-        };
+            pool.query(`SELECT * FROM bookings WHERE trip_id = $1`, [trip_id], (err$, res$) => {
 
-        return Promise.resolve({
-          code: Constants.response.created, // 201
-          response: {
-            status: Constants.response.created, // 201
-            message: 'Successfully created',
-            data: booking$
+              const currentTripBookings = res$.rows;
+              const bookedSeatsOnCurrentTrip = currentTripBookings && currentTripBookings.length;
+              const currentTripSeatingCapacity = currentTrip.seating_capacity;
+              const isAnySeatAvailable = currentTripSeatingCapacity > bookedSeatsOnCurrentTrip;
+
+              if (isAnySeatAvailable) {
+
+                const bookingAlreadyExists = !!currentTripBookings.find(b => b.trip_id === trip_id && b.user_id === user_id && b.seat_number === seat_number);
+
+                if (!bookingAlreadyExists) {
+
+                  const isDesiredSeatAvailable = !currentTripBookings.find(b => b.trip_id === trip_id && b.seat_number === seat_number);
+
+                  // L.info(`THIS IS MY TEST!`, isDesiredSeatAvailable);
+
+                  if (isDesiredSeatAvailable) {
+
+                    const text = `INSERT INTO bookings(trip_id, user_id, seat_number) VALUES($1, $2, $3)`;
+                    const values = [
+                      trip_id,
+                      user_id,
+                      seat_number
+                    ];
+
+                    qr.query(text, values)
+                      .then(r => {
+                        pool.query(`SELECT * FROM users WHERE id = $1`, [user_id], (_err, _res) => {
+                          const currentUser = _res.rows[0];
+                          const booking$ = {
+                            booking_id: r.id,
+                            bus_license_number: currentTrip.bus_license_number,
+                            trip_date: currentTrip.trip_date,
+                            first_name: currentUser.first_name,
+                            last_name: currentUser.last_name,
+                            user_email: currentUser.email,
+                          };
+                          resolve({
+                            code: Constants.response.created, // 201
+                            response: {
+                              status: Constants.response.created, // 201
+                              message: 'Booking successfully created',
+                              data: booking$,
+                            },
+                          });
+                        });
+                      })
+                      .catch(e => {
+                        reject({
+                          code: Constants.response.serverError, // 500
+                          response: {
+                            status: Constants.response.serverError, // 500
+                            error: 'Internal server error!',
+                          },
+                        });
+                      });
+                  } else {
+                    reject({
+                      code: Constants.response.badRequest, // 400
+                      response: {
+                        status: Constants.response.badRequest, // 400
+                        error: 'Seat number booked by someone else!',
+                      },
+                    });
+                  }
+                } else {
+                  reject({
+                    code: Constants.response.exists, // 409
+                    response: {
+                      status: Constants.response.exists, // 409
+                      error: 'You\'ve already made this booking before!',
+                    },
+                  });
+                }
+              } else {
+                reject({
+                  code: Constants.response.badRequest, // 400
+                  response: {
+                    status: Constants.response.badRequest, // 400
+                    error: 'No seat available for current trip!',
+                  },
+                });
+              }
+            });
+          } else {
+            reject({
+              code: Constants.response.badRequest, // 400
+              response: {
+                status: Constants.response.badRequest, // 400
+                error: 'This trip was cancelled by the admin!',
+              },
+            });
           }
-        });
-      }
-      return Promise.reject({
-        code: Constants.response.serverError, // 500
-        response: {
-          status: Constants.response.serverError, // 500
-          error: 'Internal server error!'
+        } else {
+          reject({
+            code: Constants.response.notFound, // 400
+            response: {
+              status: Constants.response.notFound, // 400
+              error: 'Trip not found!',
+            },
+          });
         }
       });
-    }
-    return Promise.reject({
-      code: Constants.response.exists, // 409
-      response: {
-        status: Constants.response.exists, // 409
-        error: 'Booking already exists!'
-      }
     });
   }
 
   all(email) {
-    L.info(bookings, 'fetch all bookings');
 
     const loggedUser = users.filter(u => u.email === email)[0];
 
@@ -125,7 +184,7 @@ class BookingsService {
   }
 
   delete(bookingId) {
-    L.info(`delete bookings with id: ${bookingId}`);
+    // L.info(`delete bookings with id: ${bookingId}`);
 
     const bookingToDelete = bookings.filter(b => b.id === bookingId)[0];
 

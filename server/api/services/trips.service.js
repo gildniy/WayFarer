@@ -121,9 +121,9 @@ class TripsService {
               });
           } else {
             reject({
-              code: Constants.response.forbidden, // 403
+              code: Constants.response.badRequest, // 400
               response: {
-                status: Constants.response.forbidden, // 403
+                status: Constants.response.badRequest, // 400
                 error: 'Trip already canceled'
               }
             });
@@ -215,9 +215,9 @@ class TripsService {
                 });
               } else {
                 reject({
-                  code: Constants.response.forbidden, // 403
+                  code: Constants.response.badRequest, // 400
                   response: {
-                    status: Constants.response.forbidden, // 403
+                    status: Constants.response.badRequest, // 400
                     error: 'Trip was canceled'
                   }
                 });
