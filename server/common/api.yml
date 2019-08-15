@@ -171,13 +171,13 @@ definitions:
     title: booking
     required:
       - trip_id
-      - user_id
+      - seat_number
     properties:
       trip_id:
         type: integer
         format: int32
         example: 1
-      user_id:
+      seat_number:
         type: integer
         format: int32
         example: 1

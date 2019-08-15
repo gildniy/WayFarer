@@ -1,6 +1,7 @@
 import { Constants } from '../helpers/constants';
 import { hashPassword, verifyPassword } from '../helpers/helpers';
 import * as jwt from 'jsonwebtoken';
+import L from '../../common/logger';
 
 const qr = require('../db-query');
 const Pool = require('pg').Pool;
@@ -46,9 +47,7 @@ class UsersService {
 
           qr.query(text, values)
             .then(r => {
-
-              const token = generateToken(user);
-
+              const token = generateToken({...user, ...{ id: r[0].id }});
               resolve({
                 code: Constants.response.created, // 201
                 response: {

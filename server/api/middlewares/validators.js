@@ -125,9 +125,9 @@ const validatePermission = (allowed) => {
 
 const validateCreateBookingInputs = (req, res, next) => {
 
-  const { trip_id, user_id } = req.body;
+  const { trip_id, seat_number } = req.body;
 
-  if (typeof trip_id === 'number' && typeof user_id === 'number') {
+  if (typeof trip_id === 'number' && typeof seat_number === 'number') {
     next();
   } else {
     return res.status(400)

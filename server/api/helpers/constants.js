@@ -8,8 +8,8 @@ export const Constants = {
     unauthorized: 401,
     serverError: 500,
     exists: 409,
-    forbidden: 403,
     notFound: 404,
+    badRequest: 400
   },
   jwtOptions: {
     expiresIn: '2d',
