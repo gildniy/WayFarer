@@ -92,32 +92,42 @@ class UsersService {
       pool.query('SELECT * FROM users WHERE email = $1', [email], (error, results) => {
 
         const user = results.rows && results.rows[0];
-        const passwordMatch = user && verifyPassword(password, user.password);
+        if (user) {
+          const passwordMatch = user && verifyPassword(password, user.password);
 
-        if (passwordMatch) {
+          if (passwordMatch) {
 
-          const token = generateToken(user);
+            const token = generateToken(user);
 
-          resolve({
-            code: Constants.response.ok, // 200
-            response: {
-              status: Constants.response.ok, // 200
-              message: 'success',
-              data: {
-                first_name: user.first_name,
-                last_name: user.last_name,
-                email: user.email,
-                token
+            resolve({
+              code: Constants.response.ok, // 200
+              response: {
+                status: Constants.response.ok, // 200
+                message: 'success',
+                data: {
+                  first_name: user.first_name,
+                  last_name: user.last_name,
+                  email: user.email,
+                  token
+                },
               },
-            },
-          });
+            });
+          } else {
+            reject({
+              code: Constants.response.unauthorized, // 401
+              response: {
+                status: Constants.response.unauthorized, // 401
+                error: 'Wrong password',
+              }
+            });
+          }
         } else {
           reject({
             code: Constants.response.notFound, // 404
             response: {
               status: Constants.response.notFound, // 404
               error: 'User not found',
-            },
+            }
           });
         }
       });
