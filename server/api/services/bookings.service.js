@@ -223,42 +223,80 @@ class BookingsService {
     });
   }
 
-  delete(bookingId) {
-    // L.info(`delete bookings with id: ${bookingId}`);
+  delete({ id, user_id, is_admin }) {
 
-    const bookingToDelete = bookings.filter(b => b.id === bookingId)[0];
+    return new Promise((resolve, reject) => {
 
-    if (bookingToDelete) {
+      if (!is_admin) {
 
-      const bookings$ = bookings.filter(b => b.id !== bookingId);
+        const text = `SELECT * FROM bookings WHERE id = ($1)`;
 
-      if (JSON.stringify(bookings) !== JSON.stringify(bookings$)) {
+        qr.query(text, [id])
+          .then(r => {
 
-        writeJSONFile(filenameBookings, bookings$);
+            const bookingToDelete = r[0];
 
-        return Promise.resolve({
-          code: Constants.response.deletedOrModified, // 200
+            if (bookingToDelete) {
+
+              L.info(`TEST COMES HERE!`, bookingToDelete);
+
+              if (bookingToDelete.user_id === user_id) {
+                pool.query(`DELETE FROM bookings WHERE id = $1`, [id], (err, res) => {
+                  if (!err) {
+                    resolve({
+                      code: Constants.response.deletedOrModified, // 200
+                      response: {
+                        status: Constants.response.deletedOrModified, // 200
+                        message: 'success',
+                        data: 'Booking deleted successfully!'
+                      }
+                    });
+                  } else {
+                    reject({
+                      code: Constants.response.serverError, // 500
+                      response: {
+                        status: Constants.response.serverError, // 500
+                        error: 'Internal server error!'
+                      }
+                    });
+                  }
+                });
+              } else {
+                reject({
+                  code: Constants.response.forbidden, // 403
+                  response: {
+                    status: Constants.response.forbidden, // 403
+                    error: `You cannot delete others booking!`
+                  }
+                });
+              }
+            } else {
+              reject({
+                code: Constants.response.notFound, // 404,
+                response: {
+                  status: Constants.response.notFound, // 404,
+                  error: `No booking was found with id: ${id}`
+                }
+              });
+            }
+          })
+          .catch(e => {
+            reject({
+              code: Constants.response.serverError, // 500
+              response: {
+                status: Constants.response.serverError, // 500
+                error: 'Internal server error!'
+              }
+            });
+          });
+      } else {
+        reject({
+          code: Constants.response.forbidden, // 403
           response: {
-            status: Constants.response.deletedOrModified, // 200
-            message: 'success',
-            data: 'Booking deleted successfully!'
+            status: Constants.response.forbidden, // 403
+            error: `Admin cannot delete a booking!`
           }
         });
-      }
-
-      return Promise.reject({
-        code: Constants.response.serverError, // 500
-        response: {
-          status: Constants.response.serverError, // 500
-          error: 'Internal server error!'
-        }
-      });
-    }
-    return Promise.reject({
-      code: Constants.response.notFound, // 404,
-      response: {
-        status: Constants.response.notFound, // 404,
-        error: `No booking was found with id: ${bookingId}`
       }
     });
   }
