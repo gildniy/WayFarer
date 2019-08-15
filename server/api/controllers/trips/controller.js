@@ -1,9 +1,14 @@
 import TripsService from '../../services/trips.service';
+import { decodedToken } from '../../helpers/helpers';
 
 class Controller {
   createTrip(req, res) {
     const tripObj = req.body;
-    TripsService.create(tripObj)
+    const { is_admin } = decodedToken(req);
+    TripsService.create({
+      tripObj,
+      is_admin
+    })
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)
@@ -12,7 +17,11 @@ class Controller {
 
   cancelTrip(req, res) {
     const id = req.params.tripId * 1;
-    TripsService.edit(id)
+    const { is_admin } = decodedToken(req);
+    TripsService.edit({
+      id,
+      is_admin
+    })
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)

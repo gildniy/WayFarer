@@ -1,20 +1,14 @@
 import BookingsService from '../../services/bookings.service';
-import * as jwt from 'jsonwebtoken';
-import L from '../../../common/logger';
-
-const decodedToken = req => {
-  const authHeaders = req.headers.authorization || req.headers.Authorization;
-  const token = authHeaders.split(' ')[1];
-  return jwt.decode(token);
-};
+import { decodedToken } from '../../helpers/helpers';
 
 class Controller {
   bookTrip(req, res) {
     const { trip_id, seat_number } = req.body;
-    const { user_id } = decodedToken(req);
+    const { user_id, is_admin } = decodedToken(req);
     BookingsService.create({
       trip_id,
       user_id,
+      is_admin,
       seat_number
     })
       .then(r => res.status(r.code)
@@ -24,8 +18,11 @@ class Controller {
   }
 
   showBookings(req, res) {
-    const { email } = decodedToken(req);
-    BookingsService.all(email)
+    const { user_id, is_admin } = decodedToken(req);
+    BookingsService.all({
+      user_id,
+      is_admin
+    })
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)

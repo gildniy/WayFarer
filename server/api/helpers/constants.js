@@ -9,6 +9,7 @@ export const Constants = {
     serverError: 500,
     exists: 409,
     notFound: 404,
+    forbidden: 403,
     badRequest: 400
   },
   jwtOptions: {

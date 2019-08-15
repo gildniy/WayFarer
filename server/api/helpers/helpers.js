@@ -1,4 +1,5 @@
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
 
 const path = require('path');
 const fs = require('fs');
@@ -57,6 +58,12 @@ const isFloatNumber = value => {
   return float.test(scientificToDecimal(value));
 };
 
+const decodedToken = req => {
+  const authHeaders = req.headers['authorization'] || req.headers['Authorization'];
+  const token = authHeaders.split(' ')[1];
+  return jwt.decode(token);
+};
+
 export {
   getNewId,
   newDate,
@@ -66,4 +73,5 @@ export {
   isIntegerNumber,
   verifyPassword,
   isFloatNumber,
+  decodedToken
 };
