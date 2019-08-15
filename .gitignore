@@ -6,3 +6,5 @@ dist
 /.nyc_output/
 package-lock.json
 /.env
+/.nyc_output/
+/coverage/
