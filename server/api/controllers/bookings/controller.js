@@ -31,7 +31,12 @@ class Controller {
 
   deleteBooking(req, res) {
     const id = req.params.bookingId * 1;
-    BookingsService.delete(id)
+    const { user_id, is_admin } = decodedToken(req);
+    BookingsService.delete({
+      id,
+      user_id,
+      is_admin
+    })
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)
