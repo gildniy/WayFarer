@@ -120,41 +120,32 @@ const validateCreateTripInputs = (req, res, next) => {
   const schema = Joi.object()
     .keys({
 
-      seating_capacity: Joi.any(),
-        // .greater(4)
-        // .less(41)
-        // .integer()
-        // .positive(),
+      seating_capacity: Joi.number()
+        .integer()
+        .positive(),
 
-      bus_license_number: Joi.any(),
-        // .min(7)
-        // .max(7)
-        // .regex(/^([A-Z0-9]+\s)*[A-Z0-9]+/)
-        // .required(),
+      bus_license_number: Joi.string()
+        .min(7)
+        .max(7)
+        .regex(/^([A-Z0-9]+\s)*[A-Z0-9]+/)
+        .required(),
 
-      origin: Joi.any(),
-        // .min(3)
-        // .max(30)
-        // .required(),
+      origin: Joi.string()
+        .min(3)
+        .max(30)
+        .required(),
 
-      destination: Joi.any(),
-        // .min(3)
-        // .max(30)
-        // .required(),
+      destination: Joi.string()
+        .min(3)
+        .max(30)
+        .required(),
 
-      trip_date: Joi.any(),
-        // .iso()
-        // .required(),
+      trip_date: Joi.string()
+        .required(),
 
-      fare: Joi.any(),
-        // .greater(100)
-        // .less(10000)
-        // .integer()
-        // .positive()
-        // .required(),
-
-      status: Joi.any(),
-        // .required()
+      fare: Joi.number()
+        .integer()
+        .required(),
     });
 
   Joi.validate(data, schema, (err, value) => {

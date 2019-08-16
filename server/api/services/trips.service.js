@@ -41,7 +41,7 @@ class TripsService {
 
               const text = `INSERT
                 INTO trips(seating_capacity, bus_license_number, origin, destination, trip_date, fare, status)
-                VALUES($1, $2, $3, $4, $5, $6, $6)
+                VALUES($1, $2, $3, $4, $5, $6, $7)
                 returning *`;
 
               const values = [
@@ -53,6 +53,8 @@ class TripsService {
                 trip.fare,
                 trip.status,
               ];
+
+              L.info('HERE WE ARE!');
 
               qr.query(text, values)
                 .then(r => {
