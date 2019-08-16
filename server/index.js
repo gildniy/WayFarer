@@ -23,3 +23,5 @@ routes(app);
 const port = process.env.PORT;
 
 app.listen(port, () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${port}}`));
+
+module.exports = app;

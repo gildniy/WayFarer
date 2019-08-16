@@ -1,19 +1,16 @@
-import Server from '../../server';
-import { adminLoginUser, request, should, writeJSONFile } from '../common';
-
-const filename = '../data/users.json';
-const users = require('../../server/api/data/users.json');
+import Server from '../../../server';
+import { adminLoginUser, request, should } from '../../common';
 
 describe('POST /auth/signup', () => {
   context('User already exists', () => {
-    it('should fail to register the user with 409 status code', done => {
+    it('should fail to register the user with 409 status code', (done) => {
       request(Server)
         .post(`${process.env.API_BASE}/auth/signup`)
         .send({
           email: 'user1@site.com',
-          password: 'password',
-          first_name: 'fuser1',
-          last_name: 'luser1',
+          password: 'password1@',
+          first_name: 'Gedeon',
+          last_name: 'Kalisa',
         })
         .end((err, res) => {
           should.not.exist(err);
@@ -33,10 +30,10 @@ describe('POST /auth/signup', () => {
       request(Server)
         .post(`${process.env.API_BASE}/auth/signup`)
         .send({
-          email: 'user1000@site.com',
-          password: 'password',
-          first_name: 'fuser1000',
-          last_name: 'luser1000',
+          email: 'user100440@site.com',
+          password: 'password104400@',
+          first_name: 'Dominick',
+          last_name: 'Munana',
         })
         .end((err, res) => {
           should.not.exist(err);
@@ -50,14 +47,6 @@ describe('POST /auth/signup', () => {
           done();
         });
     });
-
-    after(() => {
-      // Clean the test user atfer he was created
-      if (users.filter(u => u.email === 'user1000@site.com')[0]) {
-        const newUsers = users.filter(u => u.email !== 'user1000@site.com');
-        writeJSONFile(filename, newUsers);
-      }
-    });
   });
 });
 
@@ -68,7 +57,7 @@ describe('POST /auth/signin', () => {
         .post(`${process.env.API_BASE}/auth/signin`)
         .send({
           email: 'bad@test.com',
-          password: 'wrong',
+          password: 'wrong8998',
         })
         .end((err, res) => {
           should.not.exist(err);
@@ -83,19 +72,40 @@ describe('POST /auth/signin', () => {
     });
   });
 
+  context('Wrong password or email', () => {
+    it('should fail to log a user with 422 status code', done => {
+      request(Server)
+        .post(`${process.env.API_BASE}/auth/signin`)
+        .send({
+          email: 'user1@site.com',
+          password: 'wrong8998',
+        })
+        .end((err, res) => {
+          should.not.exist(err);
+          res.redirects.length.should.eql(0);
+          res.status.should.eql(422);
+          res.body.should.include.keys('status', 'error');
+          res.body.status.should.be.a('number');
+          res.body.status.should.eql(422);
+          res.body.error.should.be.a('string');
+          done();
+        });
+    });
+  });
+
   context('User found', () => {
-    it('should log in a user with 302 status code', done => {
+    it('should log in a user with 200 status code', done => {
       request(Server)
         .post(`${process.env.API_BASE}/auth/signin`)
         .send(adminLoginUser)
         .end((err, res) => {
           should.not.exist(err);
           res.redirects.length.should.eql(0);
-          res.status.should.eql(302);
+          res.status.should.eql(200);
           res.body.should.include.keys('status', 'data');
           res.body.data.should.be.an('object');
           res.body.status.should.be.a('number');
-          res.body.status.should.eql(302);
+          res.body.status.should.eql(200);
           should.exist(res.body.data.token);
           done();
         });

@@ -1,6 +1,21 @@
 import * as jwt from 'jsonwebtoken';
-import { isFloatNumber, isIntegerNumber, noSpaceString } from '../helpers/helpers';
 import { Constants } from '../helpers/constants';
+
+const Joi = require('@hapi/joi');
+
+const validName = Joi.string()
+  .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
+  .min(3)
+  .max(30)
+  .required();
+
+const validEmail = Joi.string()
+  .email()
+  .required();
+
+const validPassword = Joi.string()
+  .regex(/^[a-zA-Z0-9:.,?!@]{3,30}[#$^]?$/) // letter, number, sign min 3 max 30
+  .required();
 
 const validateAuthToken = (req, res, next) => {
 
@@ -15,7 +30,7 @@ const validateAuthToken = (req, res, next) => {
       req.decoded = jwt.verify(token, secret, options);
       next();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   } else {
     return res.status(Constants.response.unauthorized)
@@ -26,89 +41,162 @@ const validateAuthToken = (req, res, next) => {
   }
 };
 
-// eslint-disable-next-line consistent-return
 const validateInteger = (req, res, next) => {
-  const id = req.params.tripId || req.params.bookingId;
+  const id = req.params['tripId'] || req.params['bookingId'];
+  const data = { id };
+  const schema = Joi.object()
+    .keys({
 
-  if (isIntegerNumber(id * 1)) next();
-  else {
-    return res.status(400).send({ status: 400, error: 'ID must be of type integer' });
-  }
+      id: Joi.number()
+        .greater(0)
+        .less(1000000000000)
+        .integer()
+        .positive()
+    });
+
+  Joi.validate(data, schema, (err, value) => {
+    if (err) {
+      return res.status(Constants.response.unprocessableEntry)
+        .send({
+          status: Constants.response.unprocessableEntry,
+          error: 'Invalid id' + data.id,
+        });
+    } else {
+      next();
+    }
+  });
 };
 
-// eslint-disable-next-line consistent-return
 const validateLoginInputs = (req, res, next) => {
-  const { email, password } = req.body;
 
-  if (
-    noSpaceString(email)
-    && noSpaceString(password)
-  ) {
-    next();
-  } else {
-    return res.status(400).send({ status: 400, error: 'Fields are not good' });
-  }
+  const data = req.body;
+
+  const schema = Joi.object()
+    .keys({
+      email: validEmail,
+      password: validPassword
+    });
+
+  Joi.validate(data, schema, (err, value) => {
+    if (err) {
+      return res.status(Constants.response.unprocessableEntry)
+        .send({
+          status: Constants.response.unprocessableEntry,
+          error: 'Invalid email or password',
+        });
+    } else {
+      next();
+    }
+  });
 };
 
-// eslint-disable-next-line consistent-return
 const validateRegisterInputs = (req, res, next) => {
-  const {
-    // eslint-disable-next-line camelcase
-    email, first_name, last_name, password,
-  } = req.body;
 
-  if (
-    noSpaceString(first_name)
-    && noSpaceString(last_name)
-    && noSpaceString(email)
-    && noSpaceString(password)
-  ) {
-    next();
-  } else {
-    return res.status(400).send({ status: 400, error: 'Fields are not good' });
-  }
+  const data = req.body;
+
+  const schema = Joi.object()
+    .keys({
+      email: validEmail,
+      first_name: validName,
+      last_name: validName,
+      password: validPassword
+    });
+
+  Joi.validate(data, schema, (err, value) => {
+    if (err) {
+      return res.status(Constants.response.unprocessableEntry)
+        .send({
+          status: Constants.response.unprocessableEntry,
+          error: 'Invalid request data',
+        });
+    } else {
+      next();
+    }
+  });
 };
-
+// eslint-disable-next-line consistent-return
 const validateCreateTripInputs = (req, res, next) => {
-  const {
-    seating_capacity,
-    bus_license_number,
-    origin, destination,
-    trip_date,
-    fare,
-  } = req.body;
+  const data = req.body;
+  const schema = Joi.object()
+    .keys({
 
-  if (
-    isIntegerNumber(seating_capacity)
-    && typeof bus_license_number === 'string'
-    && typeof origin === 'string'
-    && typeof destination === 'string'
-    && typeof trip_date.getMonth === 'function'
-    && isFloatNumber(fare)
-  ) {
-    next();
-  } else {
-    return res.status(400)
-      .send({
-        status: 400,
-        error: 'Fields are not good',
-      });
-  }
+      seating_capacity: Joi.any(),
+        // .greater(4)
+        // .less(41)
+        // .integer()
+        // .positive(),
+
+      bus_license_number: Joi.any(),
+        // .min(7)
+        // .max(7)
+        // .regex(/^([A-Z0-9]+\s)*[A-Z0-9]+/)
+        // .required(),
+
+      origin: Joi.any(),
+        // .min(3)
+        // .max(30)
+        // .required(),
+
+      destination: Joi.any(),
+        // .min(3)
+        // .max(30)
+        // .required(),
+
+      trip_date: Joi.any(),
+        // .iso()
+        // .required(),
+
+      fare: Joi.any(),
+        // .greater(100)
+        // .less(10000)
+        // .integer()
+        // .positive()
+        // .required(),
+
+      status: Joi.any(),
+        // .required()
+    });
+
+  Joi.validate(data, schema, (err, value) => {
+    if (err) {
+      return res.status(Constants.response.unprocessableEntry)
+        .send({
+          status: Constants.response.unprocessableEntry,
+          error: 'Invalid request data',
+        });
+    } else {
+      next();
+    }
+  });
 };
 
 const validateCreateBookingInputs = (req, res, next) => {
+  const data = req.body;
+  const schema = Joi.object()
+    .keys({
+      trip_id: Joi.number()
+        .greater(0)
+        .less(40)
+        .integer()
+        .positive(),
 
-  const { trip_id, seat_number } = req.body;
-
-  if (typeof trip_id === 'number' && typeof seat_number === 'number') {
-    next();
-  } else {
-    return res.status(400)
-      .send({
-        status: 400,
-        error: 'Fields are not good'
-      });
-  }
+      seat_number: Joi.number()
+        .greater(0)
+        .less(40)
+        .integer()
+        .positive()
+    });
+  Joi.validate(data, schema, (err, value) => {
+    if (err) {
+      return res.status(Constants.response.unprocessableEntry)
+        .send({
+          status: Constants.response.unprocessableEntry,
+          error: 'Invalid request data',
+        });
+    } else {
+      next();
+    }
+  });
 };
 
 export {

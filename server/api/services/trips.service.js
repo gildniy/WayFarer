@@ -1,4 +1,3 @@
-import { writeJSONFile } from '../helpers/helpers';
 import { Constants } from '../helpers/constants';
 import L from '../../common/logger';
 
@@ -10,6 +9,8 @@ class TripsService {
   create({ tripObj, is_admin }) {
 
     return new Promise((resolve, reject) => {
+
+      // L.info('THIS IS IT', tripObj);
 
       if(is_admin){
         const trip = {
@@ -23,13 +24,15 @@ class TripsService {
           AND bus_license_number = $2 
           AND origin = $3 
           AND destination = $4 
-          AND trip_date = $5`,
+          AND trip_date = $5 
+          AND fare = $6`,
           [
             trip.seating_capacity,
             trip.bus_license_number,
             trip.origin,
             trip.destination,
             trip.trip_date,
+            trip.fare,
           ], (error, results) => {
 
             const existingTrip = results.rows && results.rows[0];
@@ -37,8 +40,8 @@ class TripsService {
             if (!existingTrip) {
 
               const text = `INSERT
-                INTO trips(seating_capacity, bus_license_number, origin, destination, trip_date, status)
-                VALUES($1, $2, $3, $4, $5, $6)
+                INTO trips(seating_capacity, bus_license_number, origin, destination, trip_date, fare, status)
+                VALUES($1, $2, $3, $4, $5, $6, $6)
                 returning *`;
 
               const values = [
@@ -47,6 +50,7 @@ class TripsService {
                 trip.origin,
                 trip.destination,
                 trip.trip_date,
+                trip.fare,
                 trip.status,
               ];
 
@@ -136,7 +140,7 @@ class TripsService {
                 code: Constants.response.badRequest, // 400
                 response: {
                   status: Constants.response.badRequest, // 400
-                  error: 'Trip already canceled'
+                  error: 'Trip already cancelled'
                 }
               });
             }
@@ -145,7 +149,7 @@ class TripsService {
               code: Constants.response.notFound, // 404
               response: {
                 status: Constants.response.notFound, // 404
-                error: `No trip found with id: ${tripId}`
+                error: `No trip found with the supplied id`
               }
             });
           }

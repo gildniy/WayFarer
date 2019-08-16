@@ -1,25 +1,23 @@
 import Server from '../server';
 import { Constants } from '../server/api/helpers/constants';
-// eslint-disable-next-line global-require
 export const request = require('supertest');
-
 export const jwt  = require('jsonwebtoken');
 
 export const adminPayload = {
-  email: 'user1@site.com',
+  email: 'user1@test.com',
   is_admin: true,
   user_id: 1,
 };
 export const userPayload = {
-  email: 'user2@site.com',
+  email: 'user2@test.com',
   is_admin: false,
   user_id: 2,
 };
 export const options = Constants.jwtOptions;
 export const secret = process.env.JWT_SECRET;
 export const adminLoginUser = {
-  email: 'user1@site.com',
-  password: 'password',
+  email: 'user1@test.com',
+  password: 'password1@',
 };
 // eslint-disable-next-line global-require
 export const chai = require('chai');

@@ -114,9 +114,9 @@ class UsersService {
             });
           } else {
             reject({
-              code: Constants.response.unauthorized, // 401
+              code: Constants.response.unprocessableEntry, // 422
               response: {
-                status: Constants.response.unauthorized, // 401
+                status: Constants.response.unprocessableEntry, // 422
                 error: 'Wrong password',
               }
             });
