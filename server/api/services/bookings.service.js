@@ -1,10 +1,5 @@
 import L from '../../common/logger';
-import { writeJSONFile } from '../helpers/helpers';
 import { Constants } from '../helpers/constants';
-
-const filenameBookings = '../data/bookings.json';
-
-const bookings = require(filenameBookings);
 
 const qr = require('../db-query');
 const Pool = require('pg').Pool;

@@ -16,10 +16,10 @@ class Controller {
   }
 
   cancelTrip(req, res) {
-    const id = req.params.tripId * 1;
+    const tripId = req.params['tripId'] * 1;
     const { is_admin } = decodedToken(req);
     TripsService.edit({
-      id,
+      tripId,
       is_admin
     })
       .then(r => res.status(r.code)
