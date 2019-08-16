@@ -20,31 +20,31 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">50.98% </span>
+        <span class="strong">33.33% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>26/51</span>
+        <span class='fraction'>17/51</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">54.55% </span>
+        <span class="strong">27.27% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>12/22</span>
+        <span class='fraction'>6/22</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">43.75% </span>
+        <span class="strong">37.5% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>7/16</span>
+        <span class='fraction'>6/16</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">50.98% </span>
+        <span class="strong">33.33% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>26/51</span>
+        <span class='fraction'>17/51</span>
       </div>
     </div>
     <p class="quiet">
       Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
     </p>
   </div>
-  <div class='status-line medium'></div>
+  <div class='status-line low'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -352,16 +352,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -369,7 +367,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,7 +388,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -427,8 +427,8 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -451,7 +451,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -460,7 +460,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -617,16 +617,16 @@ class TripsService {
             trip.fare,
           ], (error, results) =&gt; {
 &nbsp;
-            const existingTrip = results.rows &amp;&amp; results.rows[0];
+            const existingTrip = results.rows &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >results.</span>rows[0];
 &nbsp;
-            <span class="missing-if-branch" title="else path not taken" >E</span>if (!existingTrip) {
+<span class="cstat-no" title="statement not covered" >            if (!existingTrip) {</span>
 &nbsp;
-              const text = `INSERT
+              const text = `<span class="cstat-no" title="statement not covered" >INSERT</span>
                 INTO trips(seating_capacity, bus_license_number, origin, destination, trip_date, fare, status)
                 VALUES($1, $2, $3, $4, $5, $6, $6)
                 returning *`;
 &nbsp;
-              const values = [
+              const values = <span class="cstat-no" title="statement not covered" >[</span>
                 trip.seating_capacity,
                 trip.bus_license_number,
                 trip.origin,
@@ -636,7 +636,7 @@ class TripsService {
                 trip.status,
               ];
 &nbsp;
-              qr.query(text, values)
+<span class="cstat-no" title="statement not covered" >              qr.</span>query(text, values)
                 .then(<span class="fstat-no" title="function not covered" >r </span>=&gt; {
 <span class="cstat-no" title="statement not covered" >                  resolve(</span>{
                     code: Constants.response.ok, // 200
@@ -654,8 +654,8 @@ class TripsService {
                     },
                   });
                 })
-                .catch(e =&gt; {
-                  reject({
+                .catch(<span class="fstat-no" title="function not covered" >e </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                  reject(</span>{
                     code: Constants.response.serverError, // 500
                     response: {
                       status: Constants.response.serverError, // 500
@@ -692,10 +692,10 @@ class TripsService {
       if(is_admin){
 &nbsp;
         pool.query(`SELECT * FROM trips WHERE id = $1`, [tripId], (error, results) =&gt; {
-          const tripToCancel = results.rows &amp;&amp; results.rows[0];
+          const tripToCancel = results.rows &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >results.</span>rows[0];
 &nbsp;
-          if (tripToCancel) {
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (tripToCancel.status) {
+<span class="cstat-no" title="statement not covered" >          if (tripToCancel) {</span>
+<span class="cstat-no" title="statement not covered" >            if (tripToCancel.status) {</span>
               const text = `<span class="cstat-no" title="statement not covered" >UPDATE trips SET status = ($1) WHERE id = ($2)`;</span>
 <span class="cstat-no" title="statement not covered" >              qr.</span>query(text, [0, tripId])
                 .then(<span class="fstat-no" title="function not covered" >r </span>=&gt; {
@@ -718,7 +718,7 @@ class TripsService {
                   });
                 });
             } else {
-              reject({
+<span class="cstat-no" title="statement not covered" >              reject(</span>{
                 code: Constants.response.badRequest, // 400
                 response: {
                   status: Constants.response.badRequest, // 400
@@ -727,7 +727,7 @@ class TripsService {
               });
             }
           } else {
-            reject({
+<span class="cstat-no" title="statement not covered" >            reject(</span>{
               code: Constants.response.notFound, // 404
               response: {
                 status: Constants.response.notFound, // 404
@@ -853,7 +853,7 @@ export default new TripsService();
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Aug 16 2019 04:51:35 GMT+0200 (South Africa Standard Time)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Aug 16 2019 06:06:45 GMT+0200 (South Africa Standard Time)
 </div>
 </div>
 <script src="..\..\..\prettify.js"></script>

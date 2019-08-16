@@ -70,7 +70,7 @@ class UsersService {
                   error: 'Internal server error!',
                 },
               });
-          });
+            });
         } else {
           // eslint-disable-next-line prefer-promise-reject-errors
           reject({
