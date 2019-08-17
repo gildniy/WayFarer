@@ -129,7 +129,7 @@ class BookingsService {
 
                   bookings$.push(booking$);
                 });
-                resolve(responseObj('error', Constants.response.ok, 'Retrieved successfully', bookings$));
+                resolve(responseObj('success', Constants.response.ok, 'Retrieved successfully', bookings$));
               }
             });
           });
