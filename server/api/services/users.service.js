@@ -1,5 +1,5 @@
 import { Constants } from '../helpers/constants';
-import { hashPassword, verifyPassword } from '../helpers/helpers';
+import { hashPassword, responseObj, verifyPassword } from '../helpers/helpers';
 import * as jwt from 'jsonwebtoken';
 import L from '../../common/logger';
 
@@ -48,38 +48,17 @@ class UsersService {
           qr.query(text, values)
             .then(r => {
               const token = generateToken({...user, ...{ id: r[0].id }});
-              resolve({
-                code: Constants.response.created, // 201
-                response: {
-                  status: Constants.response.created, // 201
-                  message: 'Successfully created',
-                  data: {
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    email: user.email,
-                    token
-                  },
-                },
-              });
+              const data = {
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                token
+              };
+              resolve(responseObj('success', Constants.response.created, 'Successfully created', data));
             })
-            .catch(e => {
-              reject({
-                code: Constants.response.serverError, // 500
-                response: {
-                  status: Constants.response.serverError, // 500
-                  error: 'Internal server error!',
-                },
-              });
-            });
+            .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
         } else {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({
-            code: Constants.response.exists, // 409
-            response: {
-              status: Constants.response.exists, // 409
-              error: 'User with this email already exists!',
-            },
-          });
+          reject(responseObj('error', Constants.response.exists, 'User with this email already exists!'));
         }
       });
     });
@@ -98,37 +77,18 @@ class UsersService {
           if (passwordMatch) {
 
             const token = generateToken(user);
-
-            resolve({
-              code: Constants.response.ok, // 200
-              response: {
-                status: Constants.response.ok, // 200
-                message: 'success',
-                data: {
-                  first_name: user.first_name,
-                  last_name: user.last_name,
-                  email: user.email,
-                  token
-                },
-              },
-            });
+            const data = {
+              first_name: user.first_name,
+              last_name: user.last_name,
+              email: user.email,
+              token
+            };
+            resolve(responseObj('success', Constants.response.ok, 'User logged in successfully', data));
           } else {
-            reject({
-              code: Constants.response.unprocessableEntry, // 422
-              response: {
-                status: Constants.response.unprocessableEntry, // 422
-                error: 'Wrong password',
-              }
-            });
+            reject(responseObj('error', Constants.response.unprocessableEntry, 'Wrong password'));
           }
         } else {
-          reject({
-            code: Constants.response.notFound, // 404
-            response: {
-              status: Constants.response.notFound, // 404
-              error: 'User not found',
-            }
-          });
+          reject(responseObj('error', Constants.response.notFound, 'User not found'));
         }
       });
     });
