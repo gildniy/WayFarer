@@ -1,83 +1,125 @@
-import { getNewId, newDate, writeJSONFile } from '../helpers/helpers';
+import L from '../../common/logger';
 import { Constants } from '../helpers/constants';
+import { responseObj } from '../helpers/helpers';
 
-// eslint-disable-next-line import/no-dynamic-require
-const filenameTrips = '../data/trips.json';
-// eslint-disable-next-line import/no-dynamic-require
-const filenameUsers = '../data/users.json';
-// eslint-disable-next-line import/no-dynamic-require
-const filenameBookings = '../data/bookings.json';
-
-// eslint-disable-next-line import/no-dynamic-require
-const bookings = require(filenameBookings);
-// eslint-disable-next-line import/no-dynamic-require
-const users = require(filenameUsers);
-// eslint-disable-next-line import/no-dynamic-require
-const trips = require(filenameTrips);
+const qr = require('../db-query');
+const Pool = require('pg').Pool;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 class BookingsService {
-  // eslint-disable-next-line camelcase
-  create({ trip_id, user_id, seat_no }) {
 
-    const currentTrip = trips.filter(t => t.id === trip_id)[0];
+  create({ trip_id, user_id, is_admin, seat_number }) {
 
-    if (currentTrip) {
+    return new Promise((resolve, reject) => {
 
-      const isTripActive = currentTrip.status === 1;
+      if (!is_admin) {
 
-      if (isTripActive) {
+        pool.query(`SELECT * FROM trips WHERE id = $1`, [trip_id], (err, res) => {
 
-        const currentTripSeatingCapacity = currentTrip.seating_capacity;
-        const bookedSeatsOnCurrentTrip = bookings.filter(b => b.trip_id === trip_id).length;
-        const isAnySeatAvailable = currentTripSeatingCapacity > bookedSeatsOnCurrentTrip;
+          const currentTrip = res.rows && res.rows[0];
 
-        if (isAnySeatAvailable) {
+          if (currentTrip) {
 
-          const bookingAlreadyExists = bookings.filter(b => b.trip_id === trip_id && b.seat_no === seat_no && b.user_id === user_id)[0];
+            const isCurrentTripActive = currentTrip.status;
 
-          if (!bookingAlreadyExists) {
+            if (isCurrentTripActive) {
 
-            const isDesiredSeatAvailable = !bookings.filter(b => b.trip_id === trip_id && b.seat_no === seat_no).length;
+              pool.query(`SELECT * FROM bookings WHERE trip_id = $1`, [trip_id], (err$, res$) => {
 
-            if (isDesiredSeatAvailable) {
+                const currentTripBookings = res$.rows;
+                const bookedSeatsOnCurrentTrip = currentTripBookings && currentTripBookings.length;
+                const currentTripSeatingCapacity = currentTrip.seating_capacity;
+                const isAnySeatAvailable = currentTripSeatingCapacity > bookedSeatsOnCurrentTrip;
 
-              // eslint-disable-next-line camelcase
-              // L.info(`create booking with [trip_id, user_id]: [${trip_id}, ${user_id} ]`);
-              const newId = getNewId(bookings);
-              const booking = {
-                ...{
-                  id: newId,
-                  created_on: newDate(),
-                  trip_id,
-                  user_id,
-                  seat_no
-                },
-              };
+                if (isAnySeatAvailable) {
 
-              const { id, ...noIdBooking } = booking;
-              const noIdBookings = bookings.map(b => {
-                // eslint-disable-next-line no-shadow
-                const { id, ..._b } = b;
-                return _b;
+                  const bookingAlreadyExists = !!currentTripBookings.find(b => b.trip_id === trip_id && b.user_id === user_id && b.seat_number === seat_number);
+
+                  if (!bookingAlreadyExists) {
+
+                    const isDesiredSeatAvailable = !currentTripBookings.find(b => b.trip_id === trip_id && b.seat_number === seat_number);
+
+                    if (isDesiredSeatAvailable) {
+
+                      const text = `INSERT INTO bookings(trip_id, user_id, seat_number) VALUES($1, $2, $3)`;
+                      const values = [
+                        trip_id,
+                        user_id,
+                        seat_number
+                      ];
+
+                      qr.query(text, values)
+                        .then(r => {
+                          pool.query(`SELECT * FROM users WHERE id = $1`, [user_id], (_err, _res) => {
+                            const currentUser = _res.rows[0];
+                            const booking$ = {
+                              booking_id: r.id,
+                              bus_license_number: currentTrip.bus_license_number,
+                              trip_date: currentTrip.trip_date,
+                              first_name: currentUser.first_name,
+                              last_name: currentUser.last_name,
+                              user_email: currentUser.email,
+                            };
+                            resolve(responseObj('success', Constants.response.created, 'Booking successfully created', booking$));
+                          });
+                        })
+                        .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
+                    } else {
+                      reject(responseObj('error', Constants.response.badRequest, 'Seat number booked by someone else!'));
+                    }
+                  } else {
+                    reject(responseObj('error', Constants.response.exists, 'You\'ve already made this booking before!'));
+                  }
+                } else {
+                  reject(responseObj('error', Constants.response.badRequest, 'No seat available for current trip!'));
+                }
               });
+            } else {
+              reject(responseObj('error', Constants.response.badRequest, 'This trip was cancelled by the admin!'));
+            }
+          } else {
+            reject(responseObj('error', Constants.response.badRequest, 'Trip not found!'));
+          }
+        });
+      } else {
+        reject(responseObj('error', Constants.response.forbidden, 'Admin cannot book a seat!'));
+      }
+    });
+  }
 
-              if (!JSON.stringify(noIdBookings)
-                .includes(JSON.stringify(noIdBooking))) {
-                bookings.push(booking);
-                // eslint-disable-next-line no-return-assign, no-param-reassign
-                bookings.forEach((el, i) => el.id = i + 1);
+  all({ user_id, is_admin }) {
 
-                // eslint-disable-next-line no-bitwise
-                if (~bookings.indexOf(booking)) {
-                  writeJSONFile(filenameBookings, bookings);
+    return new Promise((resolve, reject) => {
 
-                  // eslint-disable-next-line camelcase
-                  const bookingUser = users.filter(u => u.id === user_id)[0];
-                  // eslint-disable-next-line camelcase
-                  const bookingTrip = trips.filter(t => t.id === trip_id)[0];
+      let text;
+      let query$;
 
+      if (is_admin) {
+        text = `SELECT * FROM bookings`;
+        query$ = qr.query(text);
+      } else {
+        text = `SELECT * FROM bookings WHERE user_id = ($1)`;
+        query$ = qr.query(text, [user_id]);
+      }
+
+      query$.then(bookingList => {
+
+        if (bookingList.length) {
+
+          pool.query(`SELECT * FROM trips`, (errTrips, resTrips) => {
+            pool.query(`SELECT * FROM users`, (errUsers, resUsers) => {
+              if (errTrips || errUsers) {
+                reject(responseObj('success', Constants.response.serverError, 'Internal server error!'));
+              } else {
+
+                const bookings$ = [];
+
+                bookingList.forEach(b => {
+
+                  const bookingTrip = resTrips.rows.filter(t => t.id === b.trip_id)[0];
+                  const bookingUser = resUsers.rows.filter(u => u.id === b.user_id)[0];
                   const booking$ = {
-                    booking_id: booking.id,
+                    booking_id: b.id,
                     bus_license_number: bookingTrip.bus_license_number,
                     trip_date: bookingTrip.trip_date,
                     first_name: bookingUser.first_name,
@@ -85,137 +127,54 @@ class BookingsService {
                     user_email: bookingUser.email,
                   };
 
-                  return Promise.resolve({
-                    code: Constants.response.created, // 201
-                    response: {
-                      status: Constants.response.created, // 201
-                      message: 'Booking successfully created',
-                      data: booking$,
-                    },
-                  });
-                }
+                  bookings$.push(booking$);
+                });
+                resolve(responseObj('error', Constants.response.ok, 'Retrieved successfully', bookings$));
               }
-            }
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject({
-              code: Constants.response.badRequest, // 400
-              response: {
-                status: Constants.response.badRequest, // 400
-                error: 'Seat number not available on current trip!',
-              },
             });
-          }
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return Promise.reject({
-            code: Constants.response.exists, // 409
-            response: {
-              status: Constants.response.exists, // 409
-              error: 'Booking already exists!',
-            },
           });
+        } else {
+          reject(responseObj('error', Constants.response.notFound, 'No booking found!'));
         }
-        // eslint-disable-next-line prefer-promise-reject-errors
-        return Promise.reject({
-          code: Constants.response.badRequest, // 400
-          response: {
-            status: Constants.response.badRequest, // 400
-            error: 'Current trip is full!',
-          },
-        });
-      }
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: Constants.response.badRequest, // 400
-        response: {
-          status: Constants.response.badRequest, // 400
-          error: 'You can not book a cancelled trip!',
-        },
-      });
-    }
-    // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject({
-      code: Constants.response.notFound, // 400
-      response: {
-        status: Constants.response.notFound, // 400
-        error: 'Trip not found!',
-      },
+      })
+        .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
     });
   }
 
-  all(email) {
-    // L.info(bookings, 'fetch all bookings');
+  delete({ id, user_id, is_admin }) {
 
-    const loggedUser = users.filter(u => u.email === email)[0];
+    return new Promise((resolve, reject) => {
 
-    const bookings$ = [];
+      if (!is_admin) {
 
-    // eslint-disable-next-line max-len
-    const bookingList = loggedUser.is_admin ? bookings : bookings.filter(b => b.user_id === loggedUser.id);
+        const text = `SELECT * FROM bookings WHERE id = ($1)`;
 
-    if (bookingList.length) {
-      bookingList.forEach(b => {
-        const bookingUser = users.filter(u => u.id === b.user_id)[0];
-        const bookingTrip = trips.filter(t => t.id === b.trip_id)[0];
+        qr.query(text, [id])
+          .then(r => {
 
-        const booking$ = {
-          booking_id: b.id,
-          bus_license_number: bookingTrip.bus_license_number,
-          trip_date: bookingTrip.trip_date,
-          first_name: bookingUser.first_name,
-          last_name: bookingUser.last_name,
-          user_email: bookingUser.email,
-        };
+            const bookingToDelete = r[0];
 
-        bookings$.push(booking$);
-      });
+            if (bookingToDelete) {
 
-      return Promise.resolve({
-        code: Constants.response.ok, // 200
-        response: {
-          status: Constants.response.ok, // 200
-          message: 'Retrieved successfully',
-          data: bookings$,
-        },
-      });
-    }
-    // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject({
-      code: Constants.response.notFound, // 404
-      response: {
-        status: Constants.response.notFound, // 404
-        error: 'No booking found!',
-      },
-    });
-  }
-
-  delete(bookingId) {
-    // L.info(`delete bookings with id: ${bookingId}`);
-
-    const bookingToDelete = bookings.filter(b => b.id === bookingId)[0];
-
-    if (bookingToDelete) {
-      const bookings$ = bookings.filter(b => b.id !== bookingId);
-
-      if (JSON.stringify(bookings) !== JSON.stringify(bookings$)) {
-        writeJSONFile(filenameBookings, bookings$);
-
-        return Promise.resolve({
-          code: Constants.response.deletedOrModified, // 200
-          response: {
-            status: Constants.response.deletedOrModified, // 200
-            message: 'success',
-            data: 'Booking deleted successfully!',
-          },
-        });
+              if (bookingToDelete.user_id === user_id) {
+                pool.query(`DELETE FROM bookings WHERE id = $1`, [id], (err, res) => {
+                  if (!err) {
+                    resolve(responseObj('success', Constants.response.deletedOrModified, 'success', 'Booking deleted successfully!'));
+                  } else {
+                    reject(responseObj('error', Constants.response.serverError, 'Internal server error!'));
+                  }
+                });
+              } else {
+                reject(responseObj('error', Constants.response.forbidden, 'You cannot delete others booking!'));
+              }
+            } else {
+              reject(responseObj('error', Constants.response.notFound, `No booking was found with id: ${id}`));
+            }
+          })
+          .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
+      } else {
+        reject(responseObj('error', Constants.response.forbidden, 'Admin cannot delete a booking!'));
       }
-    }
-    // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject({
-      code: Constants.response.notFound, // 404,
-      response: {
-        status: Constants.response.notFound, // 404,
-        error: `No booking was found with id: ${bookingId}`,
-      },
     });
   }
 }
