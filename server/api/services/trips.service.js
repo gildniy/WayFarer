@@ -105,36 +105,76 @@ class TripsService {
     });
   }
 
-  all() {
+  all(req) {
+
+    L.info(`REQ QUERY!`, req.query);
 
     return new Promise((resolve, reject) => {
 
       pool.query(`SELECT * FROM trips WHERE status = $1`, [1], (error, results) => {
 
-        // L.info(`TEST COMES HERE!`, results.rows);
+        L.info(`TEST COMES HERE!`, results.rows);
 
-        const availableTrips = results.rows;
+        const allActiveTrips = results && results.rows;
 
-        if (availableTrips.length) {
+        if (allActiveTrips && allActiveTrips.length) {
 
-          const trips$ = [];
+          const response = [];
 
-          for (const t of availableTrips) {
-            const trip$ = {
-              trip_id: t.id,
-              seating_capacity: t.seating_capacity,
-              origin: t.origin,
-              destination: t.destination,
-              trip_date: t.trip_date,
-              fare: t.fare
-            };
-            trips$.push(trip$);
+          if (Object.keys(req.query).length !== 0) {
+            const origin = req.query.origin;
+            const destination = req.query.destination;
+
+            // Display filtered trips
+            Object.keys(req.query).length === 1 &&
+            typeof origin !== 'undefined' &&
+            response.push(...allActiveTrips.filter(trip => trip.origin === origin));
+
+            Object.keys(req.query).length === 1 &&
+            typeof destination !== 'undefined' &&
+            response.push(...allActiveTrips.filter(trip => trip.destination === destination));
+
+            // If we have more than 1 query options or the option differ from "origin" or "destination"
+            if (
+              Object.keys(req.query).length === 1 &&
+              typeof origin === 'undefined' &&
+              typeof destination === 'undefined' ||
+              Object.keys(req.query).length > 1
+            ) {
+              resolve(
+                responseObj(
+                  'error',
+                  Constants.response.unprocessableEntry,
+                  'Allowed to either filter by origin or by destination'
+                )
+              );
+              return;
+            }
+          } else { // Display all trips if no filter is applied
+            response.push(...allActiveTrips);
           }
-          resolve(responseObj('success', Constants.response.ok, 'Retrieved successfully', trips$));
-        } else {
-          reject(responseObj('error', Constants.response.notFound, 'No trip found!'));
+
+          if (response.length) {
+
+            const trips$ = [];
+
+            for (const t of response) {
+              const trip$ = {
+                trip_id: t.id,
+                seating_capacity: t.seating_capacity,
+                origin: t.origin,
+                destination: t.destination,
+                trip_date: t.trip_date,
+                fare: t.fare
+              };
+              trips$.push(trip$);
+            }
+            resolve(responseObj('success', Constants.response.ok, 'Retrieved successfully', trips$));
+          } else {
+            reject(responseObj('error', Constants.response.notFound, 'No trip found!'));
+          }
         }
-      });
+      }, [1]);
     });
   }
 

@@ -29,7 +29,7 @@ class Controller {
   }
 
   showTrips(req, res) {
-    TripsService.all()
+    TripsService.all(req)
       .then(r => res.status(r.code)
         .send(r.response))
       .catch(e => res.status(e.code)

@@ -28,14 +28,21 @@ const validateAuthToken = (req, res, next) => {
     const secret = process.env.JWT_SECRET;
 
     try {
-      req.decoded = jwt.verify(token, secret, options);
-      next();
+      jwt.verify(token, secret, options, function (err, decoded) {
+        if (err) {
+          return res.status(Constants.response.unauthorized)
+            .send(responseObj('error', Constants.response.unauthorized, 'Authentication error, ' + err.message));
+        } else {
+          req.decoded = decoded;
+          next();
+        }
+      });
     } catch (err) {
       console.error(err);
     }
   } else {
     return res.status(Constants.response.unauthorized)
-      .send(responseObj('error', Constants.response.unauthorized, 'Authentication error. Token required.'));
+      .send(responseObj('error', Constants.response.unauthorized, 'Authentication error, token required.'));
   }
 };
 
