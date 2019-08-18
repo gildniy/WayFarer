@@ -1,5 +1,6 @@
 import { Constants } from '../helpers/constants';
 import L from '../../common/logger';
+import { responseObj } from '../helpers/helpers';
 
 const qr = require('../db-query');
 const Pool = require('pg').Pool;
@@ -54,53 +55,24 @@ class TripsService {
                 trip.status,
               ];
 
-              L.info('HERE WE ARE!');
+              const data = {
+                trip_id: trip.id,
+                seating_capacity: trip.seating_capacity,
+                origin: trip.origin,
+                destination: trip.destination,
+                trip_date: trip.trip_date,
+                fare: trip.fare,
+              };
 
               qr.query(text, values)
-                .then(r => {
-                  resolve({
-                    code: Constants.response.ok, // 200
-                    response: {
-                      status: Constants.response.ok, // 200
-                      message: 'Successfully created',
-                      data: {
-                        trip_id: trip.id,
-                        seating_capacity: trip.seating_capacity,
-                        origin: trip.origin,
-                        destination: trip.destination,
-                        trip_date: trip.trip_date,
-                        fare: trip.fare,
-                      },
-                    },
-                  });
-                })
-                .catch(e => {
-                  reject({
-                    code: Constants.response.serverError, // 500
-                    response: {
-                      status: Constants.response.serverError, // 500
-                      error: 'Internal server error!',
-                    },
-                  });
-                });
+                .then(r => resolve(responseObj('success', Constants.response.ok, 'Successfully created', data)))
+                .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
             } else {
-              reject({
-                code: Constants.response.exists, // 409
-                response: {
-                  status: Constants.response.exists, // 409
-                  error: 'Trip already exist!',
-                },
-              });
+              reject(responseObj('error', Constants.response.exists, 'Trip already exist!'));
             }
           });
-      }else {
-        reject({
-          code: Constants.response.forbidden, // 403
-          response: {
-            status: Constants.response.forbidden, // 403
-            error: 'Only admins can create a trip!',
-          },
-        });
+      } else {
+        reject(responseObj('error', Constants.response.forbidden, 'Only admins can create a trip!'));
       }
     });
   }
@@ -118,100 +90,91 @@ class TripsService {
             if (tripToCancel.status) {
               const text = `UPDATE trips SET status = ($1) WHERE id = ($2)`;
               qr.query(text, [0, tripId])
-                .then(r => {
-                  resolve({
-                    code: Constants.response.ok, // (204) 200 instead
-                    response: {
-                      status: Constants.response.ok, // (204) 200 instead
-                      message: 'success',
-                      data: 'Trip cancelled successfully'
-                    }
-                  });
-                })
-                .catch(e => {
-                  reject({
-                    code: Constants.response.serverError, // 500
-                    response: {
-                      status: Constants.response.serverError, // 500
-                      error: `Internal server error`
-                    }
-                  });
-                });
+                .then(r => resolve(responseObj('success', Constants.response.ok, 'success', 'Trip cancelled successfully')))
+                .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error')));
             } else {
-              reject({
-                code: Constants.response.badRequest, // 400
-                response: {
-                  status: Constants.response.badRequest, // 400
-                  error: 'Trip already cancelled'
-                }
-              });
+              reject(responseObj('error', Constants.response.badRequest, 'Trip already cancelled'));
             }
           } else {
-            reject({
-              code: Constants.response.notFound, // 404
-              response: {
-                status: Constants.response.notFound, // 404
-                error: `No trip found with the supplied id`
-              }
-            });
+            reject(responseObj('error', Constants.response.forbidden, 'No trip found with the supplied id'));
           }
         });
       }else {
-        reject({
-        code: Constants.response.forbidden, // 403
-        response: {
-          status: Constants.response.forbidden, // 403
-          error: `Only admins can cancel a trip!`
-        }
-      });
-
+        reject(responseObj('error', Constants.response.forbidden, 'Only admins can cancel a trip!'));
       }
     });
   }
 
-  all() {
+  all(req) {
+
+    L.info(`REQ QUERY!`, req.query);
 
     return new Promise((resolve, reject) => {
 
       pool.query(`SELECT * FROM trips WHERE status = $1`, [1], (error, results) => {
 
-        // L.info(`TEST COMES HERE!`, results.rows);
+        L.info(`TEST COMES HERE!`, results.rows);
 
-        const availableTrips = results.rows;
+        const allActiveTrips = results && results.rows;
 
-        if (availableTrips.length) {
+        if (allActiveTrips && allActiveTrips.length) {
 
-          const trips$ = [];
+          const response = [];
 
-          for (const t of availableTrips) {
-            const trip$ = {
-              trip_id: t.id,
-              seating_capacity: t.seating_capacity,
-              origin: t.origin,
-              destination: t.destination,
-              trip_date: t.trip_date,
-              fare: t.fare
-            };
-            trips$.push(trip$);
+          if (Object.keys(req.query).length !== 0) {
+            const origin = req.query.origin;
+            const destination = req.query.destination;
+
+            // Display filtered trips
+            Object.keys(req.query).length === 1 &&
+            typeof origin !== 'undefined' &&
+            response.push(...allActiveTrips.filter(trip => trip.origin === origin));
+
+            Object.keys(req.query).length === 1 &&
+            typeof destination !== 'undefined' &&
+            response.push(...allActiveTrips.filter(trip => trip.destination === destination));
+
+            // If we have more than 1 query options or the option differ from "origin" or "destination"
+            if (
+              Object.keys(req.query).length === 1 &&
+              typeof origin === 'undefined' &&
+              typeof destination === 'undefined' ||
+              Object.keys(req.query).length > 1
+            ) {
+              resolve(
+                responseObj(
+                  'error',
+                  Constants.response.unprocessableEntry,
+                  'Allowed to either filter by origin or by destination'
+                )
+              );
+              return;
+            }
+          } else { // Display all trips if no filter is applied
+            response.push(...allActiveTrips);
           }
-          resolve({
-            code: Constants.response.ok, // 200
-            response: {
-              status: Constants.response.ok, // 200
-              message: 'Retrieved successfully',
-              data: trips$
+
+          if (response.length) {
+
+            const trips$ = [];
+
+            for (const t of response) {
+              const trip$ = {
+                trip_id: t.id,
+                seating_capacity: t.seating_capacity,
+                origin: t.origin,
+                destination: t.destination,
+                trip_date: t.trip_date,
+                fare: t.fare
+              };
+              trips$.push(trip$);
             }
-          });
-        } else {
-          reject({
-            code: Constants.response.notFound, // 404
-            response: {
-              status: Constants.response.notFound, // 404
-              error: 'No trip found!'
-            }
-          });
+            resolve(responseObj('success', Constants.response.ok, 'Retrieved successfully', trips$));
+          } else {
+            reject(responseObj('error', Constants.response.notFound, 'No trip found!'));
+          }
         }
-      });
+      }, [1]);
     });
   }
 
@@ -223,41 +186,23 @@ class TripsService {
         pool.query(`SELECT * FROM trips WHERE id = $1`, [tripId], (error, results) => {
 
             const trip = results.rows && results.rows[0];
+            const data = {
+              trip_id: trip.id,
+              seating_capacity: trip.seating_capacity,
+              origin: trip.origin,
+              destination: trip.destination,
+              trip_date: trip.trip_date,
+              fare: trip.fare
+            };
 
             if (trip) {
               if (trip.status) {
-                resolve({
-                  code: Constants.response.ok, // 200
-                  response: {
-                    status: Constants.response.ok, // 200
-                    message: 'Retrieved successfully',
-                    data: {
-                      trip_id: trip.id,
-                      seating_capacity: trip.seating_capacity,
-                      origin: trip.origin,
-                      destination: trip.destination,
-                      trip_date: trip.trip_date,
-                      fare: trip.fare
-                    }
-                  }
-                });
+                resolve(responseObj('success', Constants.response.ok, 'Retrieved successfully', data));
               } else {
-                reject({
-                  code: Constants.response.badRequest, // 400
-                  response: {
-                    status: Constants.response.badRequest, // 400
-                    error: 'Trip was canceled'
-                  }
-                });
+                reject(responseObj('error', Constants.response.badRequest, 'Trip was canceled'));
               }
             } else {
-              reject({
-                code: Constants.response.notFound, // 404
-                response: {
-                  status: Constants.response.notFound, // 404
-                  error: `No trip found with id: ${tripId}`
-                }
-              });
+              reject(responseObj('error', Constants.response.notFound, `No trip found with id: ${tripId}`))
             }
           }
         );

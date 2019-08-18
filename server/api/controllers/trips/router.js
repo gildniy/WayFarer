@@ -8,6 +8,6 @@ import {
 
 export default express.Router()
   .post('/', [validateAuthToken, validateCreateTripInputs], controller.createTrip)
-  .patch('/:tripId/cancel', [validateAuthToken/*, validateInteger*/], controller.cancelTrip)
+  .patch('/:tripId/cancel', [validateAuthToken, validateInteger], controller.cancelTrip)
   .get('/', [validateAuthToken], controller.showTrips)
   .get('/:tripId', [validateAuthToken, validateInteger], controller.showTrip)

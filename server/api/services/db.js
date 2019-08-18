@@ -44,12 +44,6 @@ const tablesCreateString = `
     );
 `;
 
-// const devDataString = `
-//
-//     INSERT INTO users VALUES (1,'Gregory','Bautista','user1@test.com','password1@','t');
-//
-// `;
-
 const testDataString = `
 
     INSERT INTO users VALUES (1,'Gregory','Bautista','user1@test.com','$2a$12$.hgLFQmcGKUVVDc5uZfcVOb3fyx34QY1X43AYm8edgqtxHsXY9wxm','t');
@@ -58,10 +52,10 @@ const testDataString = `
     INSERT INTO users VALUES (4,'Khalil','Bernard','user4@test.com','$2a$12$ddz/oNx6uPOUBuTQ5Co.NOHzTNgL43XIlLtWwk1GxrrQ/DzTD6u2S','f');
     INSERT INTO users VALUES (5,'Natalya','Montes','user5@test.com','$2a$12$z9LL1cUbU1PQyJJsCxN4qOn3mfNaC7s/uJGW7HtUNytlumlRnbECW','f');
     
-    INSERT INTO trips VALUES (1,40,'RAA567R','GAKENKE','KIGALI','2019-08-15T20:44:41.519Z',1000,'f');
+    INSERT INTO trips VALUES (1,40,'RAA567R','GAKENKE','KIGALI','2019-08-19T20:44:41.519Z',1000,'f');
     INSERT INTO trips VALUES (2,20,'RAA563R','NYAMAGABE','KIGALI','2019-08-15T20:44:41.519Z',1000,'t');
-    INSERT INTO trips VALUES (3,10,'RAA527E','RULINDO','BYUMBA','2019-04-15T20:44:41.519Z',1000,'t');
-    INSERT INTO trips VALUES (4,40,'RAS564G','MUSONGA','KIGALI','2019-08-15T20:44:41.519Z',1000,'t');
+    INSERT INTO trips VALUES (3,10,'RAA527E','RULINDO','BYUMBA','2019-09-15T20:44:41.519Z',1000,'t');
+    INSERT INTO trips VALUES (4,40,'RAS564G','MUSONGA','KIGALI','2019-09-15T20:44:41.519Z',1000,'t');
     INSERT INTO trips VALUES (5,5,'RAA567F','GAHEMBE','GISENYI','2019-12-15T20:44:41.519Z',1000,'f');
     
     INSERT INTO bookings VALUES (1,1,2,1);

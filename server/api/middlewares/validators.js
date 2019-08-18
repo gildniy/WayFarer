@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { Constants } from '../helpers/constants';
+import { responseObj } from '../helpers/helpers';
 
 const Joi = require('@hapi/joi');
 
@@ -27,17 +28,21 @@ const validateAuthToken = (req, res, next) => {
     const secret = process.env.JWT_SECRET;
 
     try {
-      req.decoded = jwt.verify(token, secret, options);
-      next();
+      jwt.verify(token, secret, options, function (err, decoded) {
+        if (err) {
+          return res.status(Constants.response.unauthorized)
+            .send(responseObj('error', Constants.response.unauthorized, 'Authentication error, ' + err.message));
+        } else {
+          req.decoded = decoded;
+          next();
+        }
+      });
     } catch (err) {
       console.error(err);
     }
   } else {
     return res.status(Constants.response.unauthorized)
-      .send({
-        status: Constants.response.unauthorized,
-        error: 'Authentication error. Token required.',
-      });
+      .send(responseObj('error', Constants.response.unauthorized, 'Authentication error, token required.'));
   }
 };
 
@@ -57,10 +62,7 @@ const validateInteger = (req, res, next) => {
   Joi.validate(data, schema, (err, value) => {
     if (err) {
       return res.status(Constants.response.unprocessableEntry)
-        .send({
-          status: Constants.response.unprocessableEntry,
-          error: 'Invalid id' + data.id,
-        });
+        .send(responseObj('error', Constants.response.unprocessableEntry, 'Invalid id' + data.id));
     } else {
       next();
     }
@@ -80,10 +82,7 @@ const validateLoginInputs = (req, res, next) => {
   Joi.validate(data, schema, (err, value) => {
     if (err) {
       return res.status(Constants.response.unprocessableEntry)
-        .send({
-          status: Constants.response.unprocessableEntry,
-          error: 'Invalid email or password',
-        });
+        .send(responseObj('error', Constants.response.unprocessableEntry, 'Invalid email or password'));
     } else {
       next();
     }
@@ -105,10 +104,7 @@ const validateRegisterInputs = (req, res, next) => {
   Joi.validate(data, schema, (err, value) => {
     if (err) {
       return res.status(Constants.response.unprocessableEntry)
-        .send({
-          status: Constants.response.unprocessableEntry,
-          error: 'Invalid request data',
-        });
+        .send(responseObj('error', Constants.response.unprocessableEntry, 'Invalid request data'));
     } else {
       next();
     }
@@ -151,10 +147,7 @@ const validateCreateTripInputs = (req, res, next) => {
   Joi.validate(data, schema, (err, value) => {
     if (err) {
       return res.status(Constants.response.unprocessableEntry)
-        .send({
-          status: Constants.response.unprocessableEntry,
-          error: 'Invalid request data',
-        });
+        .send(responseObj('error', Constants.response.unprocessableEntry, 'Invalid request data'));
     } else {
       next();
     }
@@ -180,10 +173,7 @@ const validateCreateBookingInputs = (req, res, next) => {
   Joi.validate(data, schema, (err, value) => {
     if (err) {
       return res.status(Constants.response.unprocessableEntry)
-        .send({
-          status: Constants.response.unprocessableEntry,
-          error: 'Invalid request data',
-        });
+        .send(responseObj('error', Constants.response.unprocessableEntry, 'Invalid request data'));
     } else {
       next();
     }

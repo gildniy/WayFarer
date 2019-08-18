@@ -27,9 +27,27 @@ const decodedToken = req => {
   return jwt.decode(token);
 };
 
+const responseObj = (type, code, message, data = null) => {
+  return {
+    code: code,
+    response: {
+      ...{ status: code },
+      ...(
+        type === 'success' ? {
+          message: message,
+          data: data
+        } : {
+          error: message
+        }
+      )
+    }
+  };
+};
+
 export {
   writeJSONFile,
   hashPassword,
   verifyPassword,
-  decodedToken
+  decodedToken,
+  responseObj
 };

@@ -1,9 +1,7 @@
-// eslint-disable-next-line no-unused-vars, no-shadow
-const errorHandler = (err, req, res, next) => {
-  res.status(500)
-    .send({
-      status: 500,
-      error: err.message
-    });
-};
+import { responseObj } from '../helpers/helpers';
+import { Constants } from '../helpers/constants';
+
+const errorHandler = (err, req, res, next) => res.status(500)
+  .send(responseObj('error', Constants.response.serverError, err.message));
+
 export default errorHandler;

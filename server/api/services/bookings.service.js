@@ -1,5 +1,6 @@
 import L from '../../common/logger';
 import { Constants } from '../helpers/constants';
+import { responseObj } from '../helpers/helpers';
 
 const qr = require('../db-query');
 const Pool = require('pg').Pool;
@@ -59,80 +60,29 @@ class BookingsService {
                               last_name: currentUser.last_name,
                               user_email: currentUser.email,
                             };
-                            resolve({
-                              code: Constants.response.created, // 201
-                              response: {
-                                status: Constants.response.created, // 201
-                                message: 'Booking successfully created',
-                                data: booking$,
-                              },
-                            });
+                            resolve(responseObj('success', Constants.response.created, 'Booking successfully created', booking$));
                           });
                         })
-                        .catch(e => {
-                          reject({
-                            code: Constants.response.serverError, // 500
-                            response: {
-                              status: Constants.response.serverError, // 500
-                              error: 'Internal server error!',
-                            },
-                          });
-                        });
+                        .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
                     } else {
-                      reject({
-                        code: Constants.response.badRequest, // 400
-                        response: {
-                          status: Constants.response.badRequest, // 400
-                          error: 'Seat number booked by someone else!',
-                        },
-                      });
+                      reject(responseObj('error', Constants.response.badRequest, 'Seat number booked by someone else!'));
                     }
                   } else {
-                    reject({
-                      code: Constants.response.exists, // 409
-                      response: {
-                        status: Constants.response.exists, // 409
-                        error: 'You\'ve already made this booking before!',
-                      },
-                    });
+                    reject(responseObj('error', Constants.response.exists, 'You\'ve already made this booking before!'));
                   }
                 } else {
-                  reject({
-                    code: Constants.response.badRequest, // 400
-                    response: {
-                      status: Constants.response.badRequest, // 400
-                      error: 'No seat available for current trip!',
-                    },
-                  });
+                  reject(responseObj('error', Constants.response.badRequest, 'No seat available for current trip!'));
                 }
               });
             } else {
-              reject({
-                code: Constants.response.badRequest, // 400
-                response: {
-                  status: Constants.response.badRequest, // 400
-                  error: 'This trip was cancelled by the admin!',
-                },
-              });
+              reject(responseObj('error', Constants.response.badRequest, 'This trip was cancelled by the admin!'));
             }
           } else {
-            reject({
-              code: Constants.response.notFound, // 400
-              response: {
-                status: Constants.response.notFound, // 400
-                error: 'Trip not found!',
-              },
-            });
+            reject(responseObj('error', Constants.response.badRequest, 'Trip not found!'));
           }
         });
       } else {
-        reject({
-          code: Constants.response.forbidden, // 403
-          response: {
-            status: Constants.response.forbidden, // 403
-            error: 'Admin cannot book a seat!',
-          },
-        });
+        reject(responseObj('error', Constants.response.forbidden, 'Admin cannot book a seat!'));
       }
     });
   }
@@ -159,13 +109,7 @@ class BookingsService {
           pool.query(`SELECT * FROM trips`, (errTrips, resTrips) => {
             pool.query(`SELECT * FROM users`, (errUsers, resUsers) => {
               if (errTrips || errUsers) {
-                reject({
-                  code: Constants.response.serverError, // 500
-                  response: {
-                    status: Constants.response.serverError, // 500
-                    error: 'Internal server error!',
-                  },
-                });
+                reject(responseObj('success', Constants.response.serverError, 'Internal server error!'));
               } else {
 
                 const bookings$ = [];
@@ -185,36 +129,15 @@ class BookingsService {
 
                   bookings$.push(booking$);
                 });
-                resolve({
-                  code: Constants.response.ok, // 200
-                  response: {
-                    status: Constants.response.ok, // 200
-                    message: 'Retrieved successfully',
-                    data: bookings$
-                  }
-                });
+                resolve(responseObj('success', Constants.response.ok, 'Retrieved successfully', bookings$));
               }
             });
           });
         } else {
-          reject({
-            code: Constants.response.notFound, // 404
-            response: {
-              status: Constants.response.notFound, // 404
-              error: 'No booking found!'
-            }
-          });
+          reject(responseObj('error', Constants.response.notFound, 'No booking found!'));
         }
       })
-        .catch(e => {
-          reject({
-            code: Constants.response.serverError, // 500
-            response: {
-              status: Constants.response.serverError, // 500
-              error: 'Internal server error!',
-            },
-          });
-        });
+        .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
     });
   }
 
@@ -233,65 +156,24 @@ class BookingsService {
 
             if (bookingToDelete) {
 
-              L.info(`TEST COMES HERE!`, bookingToDelete);
-
               if (bookingToDelete.user_id === user_id) {
                 pool.query(`DELETE FROM bookings WHERE id = $1`, [id], (err, res) => {
                   if (!err) {
-                    resolve({
-                      code: Constants.response.deletedOrModified, // 200
-                      response: {
-                        status: Constants.response.deletedOrModified, // 200
-                        message: 'success',
-                        data: 'Booking deleted successfully!'
-                      }
-                    });
+                    resolve(responseObj('success', Constants.response.deletedOrModified, 'success', 'Booking deleted successfully!'));
                   } else {
-                    reject({
-                      code: Constants.response.serverError, // 500
-                      response: {
-                        status: Constants.response.serverError, // 500
-                        error: 'Internal server error!'
-                      }
-                    });
+                    reject(responseObj('error', Constants.response.serverError, 'Internal server error!'));
                   }
                 });
               } else {
-                reject({
-                  code: Constants.response.forbidden, // 403
-                  response: {
-                    status: Constants.response.forbidden, // 403
-                    error: `You cannot delete others booking!`
-                  }
-                });
+                reject(responseObj('error', Constants.response.forbidden, 'You cannot delete others booking!'));
               }
             } else {
-              reject({
-                code: Constants.response.notFound, // 404,
-                response: {
-                  status: Constants.response.notFound, // 404,
-                  error: `No booking was found with id: ${id}`
-                }
-              });
+              reject(responseObj('error', Constants.response.notFound, `No booking was found with id: ${id}`));
             }
           })
-          .catch(e => {
-            reject({
-              code: Constants.response.serverError, // 500
-              response: {
-                status: Constants.response.serverError, // 500
-                error: 'Internal server error!'
-              }
-            });
-          });
+          .catch(e => reject(responseObj('error', Constants.response.serverError, 'Internal server error!')));
       } else {
-        reject({
-          code: Constants.response.forbidden, // 403
-          response: {
-            status: Constants.response.forbidden, // 403
-            error: `Admin cannot delete a booking!`
-          }
-        });
+        reject(responseObj('error', Constants.response.forbidden, 'Admin cannot delete a booking!'));
       }
     });
   }
