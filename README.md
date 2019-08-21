@@ -1,5 +1,6 @@
 # WayFarer :bus:
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/aa4e4351e4ae41508eb991c0f1211192)](https://app.codacy.com/app/gildniy/WayFarer?utm_source=github.com&utm_medium=referral&utm_content=gildniy/WayFarer&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/gildniy/WayFarer.svg?branch=develop)](https://travis-ci.org/gildniy/WayFarer)
 [![Coverage Status](https://coveralls.io/repos/github/gildniy/WayFarer/badge.svg)](https://coveralls.io/github/gildniy/WayFarer)
 
